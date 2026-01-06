@@ -3,73 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>고교 영어 단어장 (학습 모드)</title>
+    <title>고교 영어 단어장</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #f8f9fa; }
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 20px; }
-        header { background: var(--primary); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         
-        /* 뜻 가리기 컨트롤 영역 */
-        .view-control { display: flex; gap: 10px; margin-bottom: 10px; }
-        .toggle-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: white; color: var(--primary); font-weight: bold; cursor: pointer; border: 2px solid white; }
-        .toggle-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        /* 헤더 압축 및 효율적 배치 */
+        header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .book-title-area { font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* 셀렉트 박스 상단 배치 */
+        #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
 
-        .search-box { display: flex; gap: 8px; margin-bottom: 12px; }
-        .search-box input { flex-grow: 1; padding: 12px; border-radius: 8px; border: none; font-size: 16px; }
-        .search-btn { padding: 0 20px; border: none; border-radius: 8px; background: var(--accent); color: white; font-weight: bold; }
+        .search-row { display: flex; gap: 5px; align-items: center; }
+        .search-row input { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 15px; }
         
-        select { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 16px; background: white; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
-        .pagination { display: flex; justify-content: flex-start; align-items: center; gap: 8px; background: #e8eaf6; padding: 12px; overflow-x: auto; }
-        .page-btn { padding: 8px 16px; border: 1px solid var(--primary); border-radius: 6px; background: white; font-size: 14px; flex-shrink: 0; }
+        /* 통합 토글 버튼 스타일 */
+        .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; min-width: 90px; }
+        
+        .admin-check { font-size: 11px; opacity: 0.8; }
+        .admin-menu { display: none; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .admin-menu button { border: none; color: white; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; }
+        .page-btn { padding: 5px 12px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 13px; }
         .page-btn.active { background: var(--primary); color: white; }
         
-        .admin-menu { display: none; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .admin-menu button { border: none; color: white; padding: 10px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; }
-        
-        .word-card { display: flex; align-items: center; background: white; padding: 18px 15px; border-bottom: 1px solid #eee; }
-        .check-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ddd; margin-right: 15px; flex-shrink: 0; }
+        .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; }
+        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; }
         .check-btn.blue { background: #2196F3; border-color: #2196F3; }
         .check-btn.red { background: #F44336; border-color: #F44336; }
         
-        .word-info { flex-grow: 1; min-width: 0; }
-        .word-eng { font-size: 1.3em; font-weight: bold; color: #1a1a1a; display: block; cursor: pointer; }
-        
-        /* 뜻 스타일 및 가리기 효과 */
-        .word-mean { 
-            padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.1em; 
-            cursor: pointer; transition: all 0.2s; min-width: 80px;
-        }
+        .word-info { flex-grow: 1; }
+        .word-eng { font-size: 1.2em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; }
+        .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; min-width: 80px; transition: 0.2s; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: white; width: 95%; height: 80%; margin: 10% auto; padding: 20px; border-radius: 15px; display: flex; flex-direction: column; box-sizing: border-box; }
-        textarea { flex-grow: 1; width: 100%; margin: 15px 0; border: 1px solid #ddd; padding: 12px; border-radius: 8px; }
+        .modal-content { background: white; width: 90%; height: 80%; margin: 10% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
+        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-top">
-        <span id="bookTitle" style="font-weight:bold;">단어장</span>
-        <label style="font-size:12px;">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
+    <div class="top-row">
+        <div class="book-title-area" id="bookTitle">단어장</div>
+        <select id="bookSelector" onchange="switchBook()"></select>
+        <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
 
-    <div class="view-control">
-        <button id="showAllBtn" class="toggle-btn active" onclick="toggleAllMeans(true)">뜻 모두 보임</button>
-        <button id="hideAllBtn" class="toggle-btn" onclick="toggleAllMeans(false)">뜻 모두 숨김</button>
-    </div>
-
-    <div class="search-box">
+    <div class="search-row">
         <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="if(window.event.keyCode==13){searchWord()}">
-        <button class="search-btn" onclick="searchWord()">🔍</button>
+        <button id="mainToggleBtn" class="toggle-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
     </div>
-    <select id="bookSelector" onchange="switchBook()"></select>
+
     <div id="adminMenu" class="admin-menu">
-        <button onclick="addBook()">새 단어장 추가</button>
-        <button onclick="openFullEdit()" style="background:#4CAF50">단어 일괄 편집</button>
-        <button onclick="downloadSelf()" style="background:#E91E63">★ 편집된 파일 저장 ★</button>
-        <button onclick="deleteBook()" style="background:#d32f2f">현재 단어장 삭제</button>
+        <button onclick="addBook()" style="background:#5C6BC0">추가</button>
+        <button onclick="openFullEdit()" style="background:#4CAF50">일괄편집</button>
+        <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
+        <button onclick="deleteBook()" style="background:#d32f2f">삭제</button>
     </div>
 </header>
 
@@ -78,26 +72,26 @@
 
 <div id="editModal" class="modal">
     <div class="modal-content">
-        <h3>단어 데이터 입력</h3>
-        <p style="font-size:12px; color:gray;">양식: 단어 [발음] 뜻 (엔터로 구분)</p>
+        <h3>데이터 입력 (단어 [발음] 뜻)</h3>
         <textarea id="fullEditor"></textarea>
-        <div style="text-align: right; gap: 10px; display: flex; justify-content: flex-end;">
-            <button onclick="closeFullEdit()" style="padding:10px;">취소</button>
-            <button onclick="saveFullEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px;">적용</button>
+        <div style="display:flex; justify-content: flex-end; gap:10px;">
+            <button onclick="closeFullEdit()">취소</button>
+            <button onclick="saveFullEdit()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:6px;">저장</button>
         </div>
     </div>
 </div>
 
 <script>
-    const currentVersion = "20260107_final_v2"; 
+    const currentVersion = "20260107_v3_compact";
     const defaultData = {
         "학년도 1학기": [
-            {eng: "challenge", ph: "[tʃæləndʒ]", mean: "도전, 난제", mark: 0}
+            {eng: "practice", ph: "[præktɪs]", mean: "연습, 실천", mark: 0},
+            {eng: "efficient", ph: "[ɪfɪʃnt]", mean: "효율적인", mark: 0}
         ]
     };
 
     let db;
-    let isGlobalHide = false; // 전체 숨김 상태 추적
+    let isGlobalHide = false; 
 
     const savedVersion = localStorage.getItem('vocaVersion');
     if (savedVersion !== currentVersion) {
@@ -113,16 +107,16 @@
     const itemsPerPage = 50;
 
     function start() { updateSelectors(); render(); }
-    
-    // 전체 뜻 보임/숨김 토글
-    function toggleAllMeans(show) {
-        isGlobalHide = !show;
-        document.getElementById('showAllBtn').classList.toggle('active', show);
-        document.getElementById('hideAllBtn').classList.toggle('active', !show);
+
+    // 통합 보임/숨김 기능
+    function toggleGlobalVisibility() {
+        isGlobalHide = !isGlobalHide;
+        const btn = document.getElementById('mainToggleBtn');
+        btn.innerText = isGlobalHide ? "뜻 보이기" : "뜻 숨기기";
+        btn.style.background = isGlobalHide ? "#607D8B" : "#FF9800";
         render();
     }
 
-    // 개별 뜻 클릭 토글
     function toggleSingleMean(element) {
         element.classList.toggle('hidden');
     }
@@ -143,13 +137,12 @@
         
         listArea.innerHTML = currentItems.map((item, i) => {
             const realIdx = startIdx + i;
-            // 전체 숨김 모드일 때 hidden 클래스 적용
             const hideClass = isGlobalHide ? 'hidden' : '';
             return `<div class="word-card">
                 <div class="check-btn ${item.mark==1?'blue':(item.mark==2?'red':'')}" onclick="cycleMark(${realIdx})"></div>
                 <div class="word-info">
                     <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
-                    <div style="font-size:0.8em; color:gray;">${item.ph}</div>
+                    <div style="font-size:0.75em; color:gray;">${item.ph}</div>
                 </div>
                 <div class="word-mean ${hideClass}" onclick="toggleSingleMean(this)">${item.mean}</div>
             </div>`;
@@ -157,7 +150,6 @@
         localStorage.setItem('vocaDataPagination', JSON.stringify(db));
     }
 
-    // (이하 기존 기능 함수들 동일)
     function downloadSelf() {
         const newVersion = new Date().getTime().toString();
         let currentHTML = document.documentElement.outerHTML;
