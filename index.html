@@ -47,8 +47,8 @@
 
 <header>
     <div class="top-row">
-        <div class="book-title-area" id="bookTitle">FCL-우선순위(2)</div>
-        <select id="bookSelector" onchange="switchBook()"><option value="FCL_우선순위 영단어">FCL_우선순위 영단어</option><option value="FCL-우선순위(2)" selected="">FCL-우선순위(2)</option></select>
+        <div class="book-title-area" id="bookTitle">FCL_우선순위 영단어</div>
+        <select id="bookSelector" onchange="switchBook()"><option value="FCL_우선순위 영단어" selected="">FCL_우선순위 영단어</option></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
 
@@ -65,357 +65,357 @@
     </div>
 </header>
 
-<div class="pagination" id="pageArea"><button class="page-btn active" onclick="goPage(1)">1</button><button class="page-btn " onclick="goPage(2)">2</button><button class="page-btn " onclick="goPage(3)">3</button><button class="page-btn " onclick="goPage(4)">4</button><button class="page-btn " onclick="goPage(5)">5</button><button class="page-btn " onclick="goPage(6)">6</button><button class="page-btn " onclick="goPage(7)">7</button><button class="page-btn " onclick="goPage(8)">8</button><button class="page-btn " onclick="goPage(9)">9</button><button class="page-btn " onclick="goPage(10)">10</button><button class="page-btn " onclick="goPage(11)">11</button><button class="page-btn " onclick="goPage(12)">12</button><button class="page-btn " onclick="goPage(13)">13</button><button class="page-btn " onclick="goPage(14)">14</button><button class="page-btn " onclick="goPage(15)">15</button><button class="page-btn " onclick="goPage(16)">16</button><button class="page-btn " onclick="goPage(17)">17</button><button class="page-btn " onclick="goPage(18)">18</button><button class="page-btn " onclick="goPage(19)">19</button><button class="page-btn " onclick="goPage(20)">20</button><button class="page-btn " onclick="goPage(21)">21</button><button class="page-btn " onclick="goPage(22)">22</button><button class="page-btn " onclick="goPage(23)">23</button><button class="page-btn " onclick="goPage(24)">24</button><button class="page-btn " onclick="goPage(25)">25</button><button class="page-btn " onclick="goPage(26)">26</button><button class="page-btn " onclick="goPage(27)">27</button><button class="page-btn " onclick="goPage(28)">28</button><button class="page-btn " onclick="goPage(29)">29</button><button class="page-btn " onclick="goPage(30)">30</button><button class="page-btn " onclick="goPage(31)">31</button><button class="page-btn " onclick="goPage(32)">32</button></div>
+<div class="pagination" id="pageArea"><button class="page-btn " onclick="goPage(1)">1</button><button class="page-btn " onclick="goPage(2)">2</button><button class="page-btn " onclick="goPage(3)">3</button><button class="page-btn " onclick="goPage(4)">4</button><button class="page-btn " onclick="goPage(5)">5</button><button class="page-btn " onclick="goPage(6)">6</button><button class="page-btn " onclick="goPage(7)">7</button><button class="page-btn " onclick="goPage(8)">8</button><button class="page-btn " onclick="goPage(9)">9</button><button class="page-btn " onclick="goPage(10)">10</button><button class="page-btn " onclick="goPage(11)">11</button><button class="page-btn " onclick="goPage(12)">12</button><button class="page-btn " onclick="goPage(13)">13</button><button class="page-btn " onclick="goPage(14)">14</button><button class="page-btn " onclick="goPage(15)">15</button><button class="page-btn " onclick="goPage(16)">16</button><button class="page-btn " onclick="goPage(17)">17</button><button class="page-btn " onclick="goPage(18)">18</button><button class="page-btn " onclick="goPage(19)">19</button><button class="page-btn " onclick="goPage(20)">20</button><button class="page-btn " onclick="goPage(21)">21</button><button class="page-btn " onclick="goPage(22)">22</button><button class="page-btn " onclick="goPage(23)">23</button><button class="page-btn " onclick="goPage(24)">24</button><button class="page-btn " onclick="goPage(25)">25</button><button class="page-btn " onclick="goPage(26)">26</button><button class="page-btn " onclick="goPage(27)">27</button><button class="page-btn active" onclick="goPage(28)">28</button><button class="page-btn " onclick="goPage(29)">29</button><button class="page-btn " onclick="goPage(30)">30</button><button class="page-btn " onclick="goPage(31)">31</button><button class="page-btn " onclick="goPage(32)">32</button><button class="page-btn " onclick="goPage(33)">33</button><button class="page-btn " onclick="goPage(34)">34</button><button class="page-btn " onclick="goPage(35)">35</button><button class="page-btn " onclick="goPage(36)">36</button><button class="page-btn " onclick="goPage(37)">37</button><button class="page-btn " onclick="goPage(38)">38</button><button class="page-btn " onclick="goPage(39)">39</button><button class="page-btn " onclick="goPage(40)">40</button><button class="page-btn " onclick="goPage(41)">41</button><button class="page-btn " onclick="goPage(42)">42</button><button class="page-btn " onclick="goPage(43)">43</button><button class="page-btn " onclick="goPage(44)">44</button><button class="page-btn " onclick="goPage(45)">45</button><button class="page-btn " onclick="goPage(46)">46</button><button class="page-btn " onclick="goPage(47)">47</button><button class="page-btn " onclick="goPage(48)">48</button><button class="page-btn " onclick="goPage(49)">49</button><button class="page-btn " onclick="goPage(50)">50</button><button class="page-btn " onclick="goPage(51)">51</button><button class="page-btn " onclick="goPage(52)">52</button></div>
 <div id="wordListArea"><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(0)"></div>
+                <div class="check-btn " onclick="cycleMark(1350)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('ecstasy')">ecstasy</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈekstəsi]</div>
+                    <span class="word-eng" onclick="speak('renounce')">renounce</span>
+                    <div style="font-size:0.75em; color:gray;">[rɪˈnaʊns]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 황홀, 무아의 경지</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">버리다. 부인하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(1)"></div>
+                <div class="check-btn " onclick="cycleMark(1351)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('censure')">censure</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈsenʃə(r)]</div>
+                    <span class="word-eng" onclick="speak('allot')">allot</span>
+                    <div style="font-size:0.75em; color:gray;">[əˈlɒt]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 비난(하다)</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">할당하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(2)"></div>
+                <div class="check-btn " onclick="cycleMark(1352)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('allowance')">allowance</span>
-                    <div style="font-size:0.75em; color:gray;">[əˈlaʊəns]</div>
+                    <span class="word-eng" onclick="speak('assign')">assign</span>
+                    <div style="font-size:0.75em; color:gray;">[əˈsaɪn]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 급여, 허가, 참작</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">할당하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(3)"></div>
+                <div class="check-btn " onclick="cycleMark(1353)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('campaign')">campaign</span>
-                    <div style="font-size:0.75em; color:gray;">[kæmˈpeɪn]</div>
+                    <span class="word-eng" onclick="speak('vow')">vow</span>
+                    <div style="font-size:0.75em; color:gray;">[vaʊ]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: (선거)운동, 전쟁</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">맹세(하다)</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(4)"></div>
+                <div class="check-btn " onclick="cycleMark(1354)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('canal')">canal</span>
-                    <div style="font-size:0.75em; color:gray;">[kəˈnæl]</div>
+                    <span class="word-eng" onclick="speak('vouch')">vouch</span>
+                    <div style="font-size:0.75em; color:gray;">[vaʊtʃ]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 운하</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">보증하다(=guarantee)</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(5)"></div>
+                <div class="check-btn " onclick="cycleMark(1355)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('apparatus')">apparatus</span>
-                    <div style="font-size:0.75em; color:gray;">[ˌæpəˈreɪtəs]</div>
+                    <span class="word-eng" onclick="speak('carve')">carve</span>
+                    <div style="font-size:0.75em; color:gray;">[kɑːv]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 기계, 기구</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">조각하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(6)"></div>
+                <div class="check-btn " onclick="cycleMark(1356)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('defiance')">defiance</span>
-                    <div style="font-size:0.75em; color:gray;">[dɪˈfaɪəns]</div>
+                    <span class="word-eng" onclick="speak('verify')">verify</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈverɪfaɪ]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 도전, 무시</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">증명하다. 확인하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(7)"></div>
+                <div class="check-btn " onclick="cycleMark(1357)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('craft')">craft</span>
-                    <div style="font-size:0.75em; color:gray;">[kræft]</div>
+                    <span class="word-eng" onclick="speak('ordain')">ordain</span>
+                    <div style="font-size:0.75em; color:gray;">[ɔːˈdeɪn]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 기능, 교묘, 배, 비행기</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">(법규등이)규정하다. 명령하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(8)"></div>
+                <div class="check-btn " onclick="cycleMark(1358)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('patent')">patent</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈpætnt]</div>
+                    <span class="word-eng" onclick="speak('avenge')">avenge</span>
+                    <div style="font-size:0.75em; color:gray;">[əˈvend]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 전매 특허(의), 명백(한)</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">복수하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(9)"></div>
+                <div class="check-btn " onclick="cycleMark(1359)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('countenance')">countenance</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈkaʊntənəns]</div>
+                    <span class="word-eng" onclick="speak('confound')">confound</span>
+                    <div style="font-size:0.75em; color:gray;">[kənˈfaʊnd]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 표정, 안색</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">혼동하다(=confuse)</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(10)"></div>
+                <div class="check-btn " onclick="cycleMark(1360)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('pulse')">pulse</span>
-                    <div style="font-size:0.75em; color:gray;">[pʌls]</div>
+                    <span class="word-eng" onclick="speak('beckon')">beckon</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈbekən]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 맥박</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">(손짓따위로)부르다. 신호하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(11)"></div>
+                <div class="check-btn " onclick="cycleMark(1361)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('implement')">implement</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈɪmplɪment]</div>
+                    <span class="word-eng" onclick="speak('collapse')">collapse</span>
+                    <div style="font-size:0.75em; color:gray;">[kəˈlæps]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 기구, 도구</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">붕괴(하다)</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(12)"></div>
+                <div class="check-btn " onclick="cycleMark(1362)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('insurance')">insurance</span>
-                    <div style="font-size:0.75em; color:gray;">[ɪnˈʃʊərəns]</div>
+                    <span class="word-eng" onclick="speak('mar')">mar</span>
+                    <div style="font-size:0.75em; color:gray;">[mɑː(r)]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 보험, 보증</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">상하게 하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(13)"></div>
+                <div class="check-btn " onclick="cycleMark(1363)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('catastrophe')">catastrophe</span>
-                    <div style="font-size:0.75em; color:gray;">[kəˈtæstrəfi]</div>
+                    <span class="word-eng" onclick="speak('kneel')">kneel</span>
+                    <div style="font-size:0.75em; color:gray;">[niːl]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 파국, 재난</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">무릎꿇다. 굴복하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(14)"></div>
+                <div class="check-btn " onclick="cycleMark(1364)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('accident')">accident</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈæksɪdənt]</div>
+                    <span class="word-eng" onclick="speak('pant')">pant</span>
+                    <div style="font-size:0.75em; color:gray;">[pænt]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 사고, 사건, 우연</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">헐떡이다. 갈망하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(15)"></div>
+                <div class="check-btn " onclick="cycleMark(1365)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('district')">district</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈdɪstrɪkt]</div>
+                    <span class="word-eng" onclick="speak('warrant')">warrant</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈwɒrənt]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 구역, 지역</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">보증(하다)</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(16)"></div>
+                <div class="check-btn " onclick="cycleMark(1366)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('direction')">direction</span>
-                    <div style="font-size:0.75em; color:gray;">[dəˈrekʃn]</div>
+                    <span class="word-eng" onclick="speak('kindle')">kindle</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈkɪndl]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 방향, 지도, 지시</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">불을 붙이다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(17)"></div>
+                <div class="check-btn " onclick="cycleMark(1367)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('textile')">textile</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈtekstaɪl]</div>
+                    <span class="word-eng" onclick="speak('uphold')">uphold</span>
+                    <div style="font-size:0.75em; color:gray;">[ʌpˈhəʊld]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 직물 직물의</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">지지하다. 돕다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(18)"></div>
+                <div class="check-btn " onclick="cycleMark(1368)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('organ')">organ</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈɔːɡən]</div>
+                    <span class="word-eng" onclick="speak('disdain')">disdain</span>
+                    <div style="font-size:0.75em; color:gray;">[dɪsˈdeɪn]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: (생물의)기관</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">경멸(하다)</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(19)"></div>
+                <div class="check-btn " onclick="cycleMark(1369)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('blood')">blood</span>
-                    <div style="font-size:0.75em; color:gray;">[blʌd]</div>
+                    <span class="word-eng" onclick="speak('prescribe')">prescribe</span>
+                    <div style="font-size:0.75em; color:gray;">[prɪˈskraɪb]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 피, 혈액</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">규정하다. 처방하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(20)"></div>
+                <div class="check-btn " onclick="cycleMark(1370)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('ray')">ray</span>
-                    <div style="font-size:0.75em; color:gray;">[reɪ]</div>
+                    <span class="word-eng" onclick="speak('accompany')">accompany</span>
+                    <div style="font-size:0.75em; color:gray;">[əˈkʌmpəni]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 광선</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">동반하다. (음악)반주하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(21)"></div>
+                <div class="check-btn " onclick="cycleMark(1371)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('crop')">crop</span>
-                    <div style="font-size:0.75em; color:gray;">[krɒp]</div>
+                    <span class="word-eng" onclick="speak('abide')">abide</span>
+                    <div style="font-size:0.75em; color:gray;">[əˈbaɪd]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 농작물, 수확</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">살다. 머무르다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(22)"></div>
+                <div class="check-btn " onclick="cycleMark(1372)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('drought')">drought</span>
-                    <div style="font-size:0.75em; color:gray;">[draʊt]</div>
+                    <span class="word-eng" onclick="speak('divide')">divide</span>
+                    <div style="font-size:0.75em; color:gray;">[dɪˈvaɪd]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 가뭄</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">나누다. 분할하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(23)"></div>
+                <div class="check-btn " onclick="cycleMark(1373)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('skin')">skin</span>
-                    <div style="font-size:0.75em; color:gray;">[skɪn]</div>
+                    <span class="word-eng" onclick="speak('paralyze(-se)')">paralyze(-se)</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈpærəlaɪz]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 피부, (동물의)가죽</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">마비시키다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(24)"></div>
+                <div class="check-btn " onclick="cycleMark(1374)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('bone')">bone</span>
-                    <div style="font-size:0.75em; color:gray;">[bəʊn]</div>
+                    <span class="word-eng" onclick="speak('contain')">contain</span>
+                    <div style="font-size:0.75em; color:gray;">[kənˈteɪn]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 뼈</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">포함하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(25)"></div>
+                <div class="check-btn " onclick="cycleMark(1375)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('interest')">interest</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈɪntrest]</div>
+                    <span class="word-eng" onclick="speak('endow')">endow</span>
+                    <div style="font-size:0.75em; color:gray;">[ɪnˈdaʊ]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 이익, 흥미, 관심</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">기부하다. 주다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(26)"></div>
+                <div class="check-btn " onclick="cycleMark(1376)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('limit')">limit</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈlɪmɪt]</div>
+                    <span class="word-eng" onclick="speak('guard')">guard</span>
+                    <div style="font-size:0.75em; color:gray;">[ɡɑːd]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 제한/제한하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">지키다. 조심하다/경계, 수위</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(27)"></div>
+                <div class="check-btn " onclick="cycleMark(1377)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('haste')">haste</span>
-                    <div style="font-size:0.75em; color:gray;">[heɪst]</div>
+                    <span class="word-eng" onclick="speak('crash')">crash</span>
+                    <div style="font-size:0.75em; color:gray;">[kræʃ]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 서두름</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">와르르 무너지다. 충돌하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(28)"></div>
+                <div class="check-btn " onclick="cycleMark(1378)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('bless')">bless</span>
-                    <div style="font-size:0.75em; color:gray;">[bles]</div>
+                    <span class="word-eng" onclick="speak('burst')">burst</span>
+                    <div style="font-size:0.75em; color:gray;">[bɜːst]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 축복하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">폭발하다. 파열하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(29)"></div>
+                <div class="check-btn " onclick="cycleMark(1379)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('irritate')">irritate</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈɪrɪteɪt]</div>
+                    <span class="word-eng" onclick="speak('worry')">worry</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈwʌri]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 화나게 하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">걱정하다. 괴롭히다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(30)"></div>
+                <div class="check-btn " onclick="cycleMark(1380)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('prolong')">prolong</span>
-                    <div style="font-size:0.75em; color:gray;">[prəˈlɒŋ]</div>
+                    <span class="word-eng" onclick="speak('military')">military</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈmɪlətri]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 연장하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">군대의, 육군의</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(31)"></div>
+                <div class="check-btn " onclick="cycleMark(1381)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('postpone')">postpone</span>
-                    <div style="font-size:0.75em; color:gray;">[pəˈspəʊn]</div>
+                    <span class="word-eng" onclick="speak('trustworthy')">trustworthy</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈtrʌstwɜːði]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 연기하다(=put off)</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">신뢰 [신용]할 수 있는</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(32)"></div>
+                <div class="check-btn " onclick="cycleMark(1382)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('co-operate')">co-operate</span>
-                    <div style="font-size:0.75em; color:gray;">[kəʊˈɒpəreɪt]</div>
+                    <span class="word-eng" onclick="speak('delicious')">delicious</span>
+                    <div style="font-size:0.75em; color:gray;">[dɪˈlɪʃəs]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 협력하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">맛있는</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(33)"></div>
+                <div class="check-btn " onclick="cycleMark(1383)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('refer')">refer</span>
-                    <div style="font-size:0.75em; color:gray;">[rɪˈfɜː(r)]</div>
+                    <span class="word-eng" onclick="speak('manifest')">manifest</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈmænɪfest]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 언급하다. 참조하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">명백한/명시하다</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(34)"></div>
+                <div class="check-btn " onclick="cycleMark(1384)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('permit')">permit</span>
-                    <div style="font-size:0.75em; color:gray;">[pəˈmɪt]</div>
+                    <span class="word-eng" onclick="speak('gradual')">gradual</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈɡrædʒuəl]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 허가하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">점진적인</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(35)"></div>
+                <div class="check-btn " onclick="cycleMark(1385)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('exaggerate')">exaggerate</span>
-                    <div style="font-size:0.75em; color:gray;">[ɪɡˈzædʒəreɪt]</div>
+                    <span class="word-eng" onclick="speak('voluntary')">voluntary</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈvɒləntri]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 과장하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">자발적인</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(36)"></div>
+                <div class="check-btn " onclick="cycleMark(1386)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('emerge')">emerge</span>
-                    <div style="font-size:0.75em; color:gray;">[iˈmɜːdʒ]</div>
+                    <span class="word-eng" onclick="speak('stately')">stately</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈsteɪtli]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 나타나다. 나오다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">위엄이 있는, 당당한</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(37)"></div>
+                <div class="check-btn " onclick="cycleMark(1387)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('equip')">equip</span>
-                    <div style="font-size:0.75em; color:gray;">[ɪˈkwɪp]</div>
+                    <span class="word-eng" onclick="speak('proficient')">proficient</span>
+                    <div style="font-size:0.75em; color:gray;">[prəˈfɪʃnt]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 갖추다. 장비하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">숙달한</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(38)"></div>
+                <div class="check-btn " onclick="cycleMark(1388)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('ornament')">ornament</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈɔːnəmənt]</div>
+                    <span class="word-eng" onclick="speak('tropical')">tropical</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈtrɒpɪkl]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 장식(하다)</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">열대의</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(39)"></div>
+                <div class="check-btn " onclick="cycleMark(1389)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('furnish')">furnish</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈfɜːnɪʃ]</div>
+                    <span class="word-eng" onclick="speak('superfluous')">superfluous</span>
+                    <div style="font-size:0.75em; color:gray;">[suːˈpɜːfluəs]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 공급하다. 비치하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">여분의</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(40)"></div>
+                <div class="check-btn " onclick="cycleMark(1390)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('advance')">advance</span>
-                    <div style="font-size:0.75em; color:gray;">[ədˈvɑːns]</div>
+                    <span class="word-eng" onclick="speak('eminent')">eminent</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈemɪnənt]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 전진하다. 진보하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">저명한, 뛰어난</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(41)"></div>
+                <div class="check-btn " onclick="cycleMark(1391)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('embark')">embark</span>
-                    <div style="font-size:0.75em; color:gray;">[ɪmˈbɑːk]</div>
+                    <span class="word-eng" onclick="speak('contrary')">contrary</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈkɒntrəri]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 배를 타다. 시작하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">반대의/반대</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(42)"></div>
+                <div class="check-btn " onclick="cycleMark(1392)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('flourish')">flourish</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈflʌrɪʃ]</div>
+                    <span class="word-eng" onclick="speak('feudal')">feudal</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈfjuːdl]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 번창하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">봉건적인</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(43)"></div>
+                <div class="check-btn " onclick="cycleMark(1393)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('deprive')">deprive</span>
-                    <div style="font-size:0.75em; color:gray;">[dɪˈpraɪv]</div>
+                    <span class="word-eng" onclick="speak('fertile')">fertile</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈfɜːtaɪl]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 빼앗다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">비옥한, 다산의</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(44)"></div>
+                <div class="check-btn " onclick="cycleMark(1394)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('diminish')">diminish</span>
-                    <div style="font-size:0.75em; color:gray;">[dɪˈmɪnɪʃ]</div>
+                    <span class="word-eng" onclick="speak('intimate')">intimate</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈɪntɪmət]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 줄어들다. 감소하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">친밀한</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(45)"></div>
+                <div class="check-btn " onclick="cycleMark(1395)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('derive')">derive</span>
-                    <div style="font-size:0.75em; color:gray;">[dɪˈraɪv]</div>
+                    <span class="word-eng" onclick="speak('primary')">primary</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈpraɪməri]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: ~을 얻다. 유래하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">주요한, 제일의</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(46)"></div>
+                <div class="check-btn " onclick="cycleMark(1396)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('exchange')">exchange</span>
-                    <div style="font-size:0.75em; color:gray;">[ɪksˈtʃeɪndʒ]</div>
+                    <span class="word-eng" onclick="speak('enormous')">enormous</span>
+                    <div style="font-size:0.75em; color:gray;">[ɪˈnɔːməs]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 교환(하다)</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">막대한, 거대한</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(47)"></div>
+                <div class="check-btn " onclick="cycleMark(1397)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('rejoice')">rejoice</span>
-                    <div style="font-size:0.75em; color:gray;">[rɪˈdʒɔɪs]</div>
+                    <span class="word-eng" onclick="speak('disinterested')">disinterested</span>
+                    <div style="font-size:0.75em; color:gray;">[dɪsˈɪntrestɪd]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 기뻐하다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">사심 없는, 공평한</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(48)"></div>
+                <div class="check-btn " onclick="cycleMark(1398)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('promote')">promote</span>
-                    <div style="font-size:0.75em; color:gray;">[prəˈməʊt]</div>
+                    <span class="word-eng" onclick="speak('magnificent')">magnificent</span>
+                    <div style="font-size:0.75em; color:gray;">[mæɡˈnɪfɪsnt]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 촉진하다. 승진시키다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">웅대한, 장엄한</div>
             </div><div class="word-card">
-                <div class="check-btn " onclick="cycleMark(49)"></div>
+                <div class="check-btn " onclick="cycleMark(1399)"></div>
                 <div class="word-info">
-                    <span class="word-eng" onclick="speak('nourish')">nourish</span>
-                    <div style="font-size:0.75em; color:gray;">[ˈnʌrɪʃ]</div>
+                    <span class="word-eng" onclick="speak('similar')">similar</span>
+                    <div style="font-size:0.75em; color:gray;">[ˈsɪmələ(r)]</div>
                 </div>
-                <div class="word-mean " onclick="toggleSingleMean(this)">: 기르다. (영양분을)주다</div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">비슷한</div>
             </div></div>
 
 <div id="editModal" class="modal" style="display: none;">
@@ -430,7 +430,7 @@
 </div>
 
 <script>
-    const currentVersion = "1767787387009";
+    const currentVersion = "1767787972292";
     const defaultData = {
   "FCL_우선순위 영단어": [
     {
@@ -6432,9 +6432,7 @@
       "ph": "[əˈkɔːrdns]",
       "mean": ": 일치, 조화",
       "mark": 0
-    }
-  ],
-  "FCL-우선순위(2)": [
+    },
     {
       "eng": "ecstasy",
       "ph": "[ˈekstəsi]",
@@ -16151,6 +16149,7 @@
     }
     start();
 </script>
+
 
 
 
