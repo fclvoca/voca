@@ -36,7 +36,6 @@
         .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; min-width: 80px; transition: 0.2s; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
 
-        /* 하단 컨트롤 바 */
         .bottom-controls { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
         .speed-control { font-size: 12px; font-weight: bold; color: var(--primary); }
 
@@ -61,6 +60,7 @@
 
     <div id="adminMenu" class="admin-menu">
         <button onclick="addBook()" style="background:#5C6BC0">단어장추가</button>
+        <button onclick="addNewPage()" style="background:#009688">페이지추가</button>
         <button onclick="openFullEdit('all')" style="background:#4CAF50">전체편집</button>
         <button onclick="openFullEdit('page')" style="background:#9C27B0">현재페이지편집</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
@@ -92,12 +92,10 @@
     let vocabularyData = {};
     let currentBook = "FCL_Voca2";
     let currentPage = 1;
-    const itemsPerPage = 20;
+    const itemsPerPage = 50;
     let isMeanHidden = false;
     let speechRate = 1.0;
-    let editTarget = 'all';
 
-    // 초기 데이터 설정
     const initialData = {
         "FCL_Voca2": [
             { "eng": "tradition", "ph": "[trədíʃən]", "mean": "전통, 전설", "mark": 0 },
@@ -129,14 +127,14 @@
         const words = vocabularyData[currentBook] || [];
         const totalPages = Math.ceil(words.length / itemsPerPage) || 1;
         
-        // 페이지네이션
+        if (currentPage > totalPages) currentPage = totalPages;
+
         let pageHtml = '';
         for(let i=1; i<=totalPages; i++) {
             pageHtml += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
         }
         document.getElementById('pageArea').innerHTML = pageHtml;
 
-        // 리스트 출력
         const start = (currentPage - 1) * itemsPerPage;
         const end = start + itemsPerPage;
         const pageWords = words.slice(start, end);
@@ -160,6 +158,18 @@
         saveToLocal();
     }
 
+    // [페이지 추가 기능]
+    function addNewPage() {
+        const words = vocabularyData[currentBook];
+        // 빈 데이터 20개를 추가하여 새로운 페이지 생성
+        for(let i=0; i<itemsPerPage; i++) {
+            words.push({ "eng": "NewWord", "ph": "[발음]", "mean": "뜻", "mark": 0 });
+        }
+        currentPage = Math.ceil(words.length / itemsPerPage);
+        render();
+        alert(currentPage + "페이지가 추가되었습니다. '현재페이지편집'을 눌러 내용을 수정하세요.");
+    }
+
     function goPage(p) {
         currentPage = p;
         render();
@@ -172,7 +182,6 @@
     }
 
     function openFullEdit(mode) {
-        editTarget = mode;
         const modal = document.getElementById('editModal');
         const editor = document.getElementById('fullEditor');
         const title = document.getElementById('modalTitle');
@@ -199,10 +208,10 @@
     function saveFullEditAll() {
         const lines = document.getElementById('fullEditor').value.split('\n');
         const newData = lines.filter(l => l.trim()).map(line => {
-            const parts = line.split(' ');
-            const eng = parts[0];
-            const ph = line.match(/\[.*?\]/) ? line.match(/\[.*?\]/)[0] : "";
-            const mean = line.split(ph).length > 1 ? line.split(ph)[1].trim() : parts.slice(1).join(' ');
+            const phMatch = line.match(/\[.*?\]/);
+            const ph = phMatch ? phMatch[0] : "";
+            const eng = line.split(ph)[0].trim();
+            const mean = line.split(ph)[1] ? line.split(ph)[1].trim() : "";
             return { eng, ph, mean, mark: 0 };
         });
         vocabularyData[currentBook] = newData;
@@ -215,10 +224,10 @@
         const start = (currentPage - 1) * itemsPerPage;
         
         const newPageData = lines.filter(l => l.trim()).map(line => {
-            const parts = line.split(' ');
-            const eng = parts[0];
-            const ph = line.match(/\[.*?\]/) ? line.match(/\[.*?\]/)[0] : "";
-            const mean = line.split(ph).length > 1 ? line.split(ph)[1].trim() : parts.slice(1).join(' ');
+            const phMatch = line.match(/\[.*?\]/);
+            const ph = phMatch ? phMatch[0] : "";
+            const eng = line.split(ph)[0].trim();
+            const mean = line.split(ph)[1] ? line.split(ph)[1].trim() : "";
             return { eng, ph, mean, mark: 0 };
         });
 
@@ -274,6 +283,10 @@
         if(confirm(`${currentBook}을(를) 삭제하시겠습니까?`)) {
             delete vocabularyData[currentBook];
             currentBook = Object.keys(vocabularyData)[0] || "";
+            if(!currentBook) {
+                vocabularyData["기본 단어장"] = [];
+                currentBook = "기본 단어장";
+            }
             updateBookSelector();
             render();
         }
@@ -288,7 +301,7 @@
         const blob = new Blob([html], {type: 'text/html'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'FCL_Voca2.html';
+        a.download = 'index.html';
         a.click();
     }
 
@@ -299,7 +312,7 @@
         const filtered = words.filter(w => w.eng.toLowerCase().includes(query) || w.mean.includes(query));
         
         let listHtml = '';
-        filtered.forEach((word, idx) => {
+        filtered.forEach((word) => {
             listHtml += `
                 <div class="word-card">
                     <div class="check-btn ${word.mark===1?'blue':word.mark===2?'red':''}"></div>
