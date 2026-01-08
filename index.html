@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FCL_Voca_System_Final</title>
+    <title>FCL_Voca_Final_System</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #ffffff; }
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
@@ -16,7 +16,7 @@
         .admin-check { font-size: 12px; opacity: 0.9; cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .admin-menu { display: none; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.3); }
         .admin-menu button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .pagination { display: flex; gap: 5px; background: #fff; padding: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; border-top: 1px solid #eee; }
+        .pagination { display: flex; gap: 5px; background: #fff; padding: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; }
         .page-btn { padding: 6px 12px; border: 1px solid #1A237E; border-radius: 4px; background: white; font-size: 14px; cursor: pointer; font-weight: bold; min-width: 35px; color: #1A237E; }
         .page-btn.active { background: #1A237E !important; color: white !important; }
         .util-row { display: flex; gap: 8px; padding: 10px; background: #fff; border-bottom: 1px solid #eee; }
@@ -29,13 +29,19 @@
         .word-eng { font-size: 1.25em; font-weight: bold; color: #000; cursor: pointer; display: block; }
         .word-mean { padding-left: 10px; text-align: right; color: #1A237E; font-weight: bold; font-size: 1.15em; cursor: pointer; min-width: 120px; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
+
+        /* 편집용 모달 스타일 */
+        #editModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px; box-sizing: border-box; flex-direction: column; }
+        #editTextArea { width: 100%; flex-grow: 1; font-family: monospace; font-size: 14px; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-btns button { padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div id="bookTitle" style="font-weight:bold;">단어장 로딩중...</div>
+        <div id="bookTitle" style="font-weight:bold;">로딩중...</div>
         <select id="bookSelector" onchange="switchBook()"></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
@@ -47,8 +53,8 @@
         <button onclick="addBook()" style="background:#3F51B5">단어장추가</button>
         <button onclick="renameCurrentBook()" style="background:#FF5722">이름수정</button>
         <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가(50개)</button>
-        <button onclick="openPageEdit()" style="background:#9C27B0">현재 페이지 편집</button>
-        <button onclick="openFullEdit()" style="background:#4CAF50">전체 데이터 편집</button>
+        <button onclick="openEdit('page')" style="background:#9C27B0">현재 페이지 편집</button>
+        <button onclick="openEdit('full')" style="background:#4CAF50">전체 데이터 편집</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
         <button onclick="deleteBook()" style="background:#f44336">삭제</button>
         <button onclick="resetData()" style="background:#000000">데이터 초기화</button>
@@ -63,8 +69,17 @@
 </div>
 <div id="wordListArea"></div>
 
+<div id="editModal">
+    <h3 style="color:white; margin-top:0;" id="modalTitle">데이터 편집</h3>
+    <textarea id="editTextArea"></textarea>
+    <div class="modal-btns">
+        <button onclick="closeEditModal()" style="background:#ccc;">취소</button>
+        <button onclick="saveEdit()" style="background:var(--accent); color:white;">저장하기</button>
+    </div>
+</div>
+
 <script>
-    const STORAGE_KEY = 'FCL_VOCA_SYSTEM_MASTER_KEY';
+    const STORAGE_KEY = 'FCL_VOCA_MASTER_ULTIMATE';
     let vocaData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         "FCL_고교필수단어": [
             { eng: "release", phon: "[rɪˈliːs]", kor: "놓아주다, 개봉하다", mark: "" },
@@ -74,6 +89,7 @@
 
     let currentBookName = Object.keys(vocaData)[0];
     let currentPageNum = 1;
+    let currentEditMode = '';
     const itemsPerPage = 50;
 
     function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(vocaData)); }
@@ -140,7 +156,44 @@
         document.getElementById('mainToggleBtn').innerText = isHidden ? "뜻 보이기" : "뜻 숨기기";
     }
 
-    // 관리 기능 (이제 정상 작동합니다)
+    // 전용 모달 편집 로직
+    function openEdit(mode) {
+        currentEditMode = mode;
+        const modal = document.getElementById('editModal');
+        const textArea = document.getElementById('editTextArea');
+        const title = document.getElementById('modalTitle');
+        
+        if(mode === 'page') {
+            title.innerText = `현재 페이지(${currentPageNum}) 편집`;
+            const start = (currentPageNum-1)*itemsPerPage;
+            const part = vocaData[currentBookName].slice(start, start+itemsPerPage);
+            textArea.value = JSON.stringify(part, null, 2);
+        } else {
+            title.innerText = "전체 데이터 편집";
+            textArea.value = JSON.stringify(vocaData, null, 2);
+        }
+        modal.style.display = 'flex';
+    }
+
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+    function saveEdit() {
+        const textArea = document.getElementById('editTextArea');
+        try {
+            const newData = JSON.parse(textArea.value);
+            if(currentEditMode === 'page') {
+                const start = (currentPageNum-1)*itemsPerPage;
+                vocaData[currentBookName].splice(start, itemsPerPage, ...newData);
+            } else {
+                vocaData = newData;
+                currentBookName = Object.keys(vocaData)[0];
+            }
+            saveToLocal();
+            render();
+            closeEditModal();
+        } catch(e) { alert("JSON 형식이 잘못되었습니다. 다시 확인해주세요."); }
+    }
+
     function addBook() {
         const n = prompt("새 단어장 이름:");
         if (n && !vocaData[n]) { vocaData[n] = []; currentBookName = n; saveToLocal(); render(); }
@@ -153,23 +206,14 @@
         for(let i=0; i<50; i++) vocaData[currentBookName].push({eng:"New", phon:"[phon]", kor:"뜻", mark:""});
         saveToLocal(); render();
     }
-    function openPageEdit() {
-        const start = (currentPageNum-1)*itemsPerPage;
-        const part = vocaData[currentBookName].slice(start, start+itemsPerPage);
-        const res = prompt("JSON 편집:", JSON.stringify(part, null, 2));
-        if(res) { try { vocaData[currentBookName].splice(start, itemsPerPage, ...JSON.parse(res)); saveToLocal(); render(); } catch(e){alert("오류");} }
-    }
-    function openFullEdit() {
-        const res = prompt("전체 JSON 편집:", JSON.stringify(vocaData, null, 2));
-        if(res) { try { vocaData = JSON.parse(res); saveToLocal(); render(); } catch(e){alert("오류");} }
-    }
     function downloadSelf() {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob(["<!DOCTYPE html>\n"+document.documentElement.outerHTML], {type:'text/html'}));
         a.download = 'index.html'; a.click();
     }
-    function deleteBook() { if(confirm("삭제?")) { delete vocaData[currentBookName]; currentBookName = Object.keys(vocaData)[0]; saveToLocal(); location.reload(); } }
-    function resetData() { if(confirm("초기화?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+    function deleteBook() { if(confirm("현재 단어장을 정말 삭제할까요?")) { delete vocaData[currentBookName]; currentBookName = Object.keys(vocaData)[0] || ""; saveToLocal(); location.reload(); } }
+    function resetData() { if(confirm("모든 데이터를 초기화하시겠습니까?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+    
     function shuffleCurrentPage() {
         const start = (currentPageNum-1)*itemsPerPage;
         let p = vocaData[currentBookName].splice(start, itemsPerPage);
