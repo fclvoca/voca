@@ -2,112 +2,174 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>단어장</title>
+    <title>High School English Voca Master</title>
     <style>
-        body {
-            font-family: 'Malgun Gothic', sans-serif;
-            background-color: #f4f7f9;
-            padding: 20px;
-        }
-        .voca-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .voca-row {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            transition: background 0.2s;
-        }
-        .voca-row:hover {
-            background-color: #f9f9f9;
-        }
-        .word-section {
-            flex: 1; /* 단어 영역이 공간을 차지함 */
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .word-text {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-            /* 숙어가 잘리지 않게 설정 */
-            white-space: nowrap; 
-        }
-        .phonetic {
-            font-size: 0.9em;
-            color: #888;
-        }
-        .meaning-section {
-            flex: 1; /* 뜻 영역 */
-            text-align: right;
-            color: #004080;
-            font-weight: 500;
-        }
-        /* 마지막 줄 바닥선 제거 */
-        .voca-row:last-child {
-            border-bottom: none;
-        }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h2 { color: #2c3e50; text-align: center; }
+        .setting-section { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        textarea { width: 100%; height: 100px; margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: none; }
+        .controls { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .control-row { display: flex; align-items: center; justify-content: space-between; }
+        .word-display { text-align: center; margin: 40px 0; min-height: 120px; }
+        #current-word { font-size: 48px; font-weight: bold; color: #e74c3c; margin-bottom: 10px; }
+        #current-meaning { font-size: 24px; color: #7f8c8d; visibility: hidden; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+        button { padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-success { background-color: #2ecc71; color: white; }
+        .btn-info { background-color: #9b59b6; color: white; }
+        button:hover { opacity: 0.8; }
+        .page-indicator { text-align: center; margin-top: 10px; font-size: 14px; color: #95a5a6; }
     </style>
 </head>
 <body>
 
-<div class="voca-container">
-    <div class="voca-row">
-        <div class="word-section">
-            <span class="word-text">amend</span>
-            <span class="phonetic">[əˈmend]</span>
+<div class="container">
+    <h2>Academic Vocabulary Trainer</h2>
+
+    <div class="setting-section">
+        <label><strong>단어 페이지 등록 (형식: 단어,의미)</strong></label>
+        <textarea id="word-input" placeholder="apple,사과&#10;banana,바나나&#10;perspective,관점"></textarea>
+        <div class="controls">
+            <div class="control-row">
+                <button class="btn-primary" onclick="addPage()">현재 내용을 새 페이지로 등록</button>
+                <button onclick="clearAll()">전체 초기화</button>
+            </div>
+            <div class="control-row">
+                <label>발음 속도 (Rate): <span id="rate-val">1.0</span></label>
+                <input type="range" id="speed-range" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateRate(this.value)">
+            </div>
         </div>
-        <div class="meaning-section">수정하다</div>
     </div>
 
-    <div class="voca-row">
-        <div class="word-section">
-            <span class="word-text">account</span>
-            <span class="phonetic">[əˈkaʊnt]</span>
-        </div>
-        <div class="meaning-section">계좌, 설명하다, 차지하다</div>
+    <div class="word-display">
+        <div id="current-word">준비 버튼을 눌러주세요</div>
+        <div id="current-meaning">의미가 표시됩니다</div>
     </div>
 
-    <div class="voca-row">
-        <div class="word-section">
-            <span class="word-text">sum</span>
-            <span class="phonetic">[sʌm]</span>
-        </div>
-        <div class="meaning-section">합계, 요약하다</div>
+    <div class="btn-group">
+        <button class="btn-info" onclick="prevWord()">이전</button>
+        <button class="btn-success" onclick="speakCurrentWord()">발음 듣기</button>
+        <button class="btn-primary" onclick="toggleMeaning()">의미 보기/숨기기</button>
+        <button class="btn-info" onclick="nextWord()">다음</button>
     </div>
-
-    <div class="voca-row">
-        <div class="word-section">
-            <span class="word-text">sum total</span>
-            <span class="phonetic">[sʌm ˈtəʊtl]</span>
-        </div>
-        <div class="meaning-section">총계, 요지</div>
-    </div>
-
-    <div class="voca-row">
-        <div class="word-section">
-            <span class="word-text">in sum</span>
-            <span class="phonetic">[ɪn sʌm]</span>
-        </div>
-        <div class="meaning-section">즉</div>
-    </div>
-
-    <div class="voca-row">
-        <div class="word-section">
-            <span class="word-text">to sum up</span>
-            <span class="phonetic">[tu sʌm ʌp]</span>
-        </div>
-        <div class="meaning-section">요약하면</div>
-    </div>
+    
+    <div class="page-indicator" id="page-info">등록된 페이지가 없습니다.</div>
 </div>
+
+<script>
+    let wordPages = []; // 페이지 단위로 단어들을 저장할 배열
+    let currentPageIndex = 0;
+    let currentWordIndex = 0;
+    let speechRate = 1.0;
+
+    const synth = window.speechSynthesis;
+
+    function updateRate(val) {
+        speechRate = parseFloat(val);
+        document.getElementById('rate-val').innerText = val;
+    }
+
+    function addPage() {
+        const input = document.getElementById('word-input').value.trim();
+        if (!input) {
+            alert("단어를 입력해주세요.");
+            return;
+        }
+
+        const lines = input.split('\n');
+        const newPage = lines.map(line => {
+            const [word, meaning] = line.split(',');
+            return { word: word?.trim(), meaning: meaning?.trim() };
+        }).filter(item => item.word && item.meaning);
+
+        if (newPage.length > 0) {
+            wordPages.push(newPage);
+            alert((wordPages.length) + "번째 페이지가 등록되었습니다.");
+            document.getElementById('word-input').value = "";
+            updateDisplay();
+        }
+    }
+
+    function updateDisplay() {
+        if (wordPages.length === 0) return;
+
+        const currentWordObj = wordPages[currentPageIndex][currentWordIndex];
+        document.getElementById('current-word').innerText = currentWordObj.word;
+        document.getElementById('current-meaning').innerText = currentWordObj.meaning;
+        document.getElementById('current-meaning').style.visibility = "hidden";
+        
+        document.getElementById('page-info').innerText = 
+            "페이지: " + (currentPageIndex + 1) + " / " + wordPages.length + 
+            " (단어: " + (currentWordIndex + 1) + " / " + wordPages[currentPageIndex].length + ")";
+    }
+
+    function toggleMeaning() {
+        const m = document.getElementById('current-meaning');
+        m.style.visibility = (m.style.visibility === "hidden") ? "visible" : "hidden";
+    }
+
+    function nextWord() {
+        if (wordPages.length === 0) return;
+        
+        if (currentWordIndex < wordPages[currentPageIndex].length - 1) {
+            currentWordIndex++;
+        } else if (currentPageIndex < wordPages.length - 1) {
+            currentPageIndex++;
+            currentWordIndex = 0;
+            alert("다음 페이지로 이동합니다.");
+        }
+        updateDisplay();
+    }
+
+    function prevWord() {
+        if (wordPages.length === 0) return;
+
+        if (currentWordIndex > 0) {
+            currentWordIndex--;
+        } else if (currentPageIndex > 0) {
+            currentPageIndex--;
+            currentWordIndex = wordPages[currentPageIndex].length - 1;
+            alert("이전 페이지로 이동합니다.");
+        }
+        updateDisplay();
+    }
+
+    function speakCurrentWord() {
+        if (wordPages.length === 0) return;
+        
+        const text = wordPages[currentPageIndex][currentWordIndex].word;
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // 원어민에 가까운 발음을 위해 영어 설정
+        utterance.lang = 'en-US';
+        utterance.rate = speechRate;
+        utterance.pitch = 1.0;
+
+        // 브라우저에서 제공하는 목소리 중 가장 품질이 좋은 것을 선택하는 로직
+        const voices = synth.getVoices();
+        const premiumVoice = voices.find(v => v.name.includes("Google") && v.lang === 'en-US') || voices.find(v => v.lang === 'en-US');
+        if (premiumVoice) utterance.voice = premiumVoice;
+
+        synth.speak(utterance);
+    }
+
+    function clearAll() {
+        wordPages = [];
+        currentPageIndex = 0;
+        currentWordIndex = 0;
+        document.getElementById('current-word').innerText = "준비 버튼을 눌러주세요";
+        document.getElementById('current-meaning').innerText = "의미가 표시됩니다";
+        document.getElementById('page-info').innerText = "등록된 페이지가 없습니다.";
+        alert("모든 데이터가 삭제되었습니다.");
+    }
+
+    // 초기 목소리 로딩을 위한 이벤트 (일부 브라우저 대응)
+    window.speechSynthesis.onvoiceschanged = function() {
+        synth.getVoices();
+    };
+</script>
 
 </body>
 </html>
