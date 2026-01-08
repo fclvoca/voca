@@ -5,7 +5,7 @@
     <title>고교 영어 단어 관리 시스템</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #f8f9fa; }
-        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 20px; }
+        body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; margin: 0; background: var(--bg); padding-bottom: 20px; }
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
         #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
@@ -20,31 +20,31 @@
         .page-btn { padding: 5px 12px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 13px; cursor: pointer; }
         .page-btn.active { background: var(--primary); color: white; }
         
-        /* 레이아웃: 숙어 영역(word-info)을 넓게 설정 */
         .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; gap: 15px; }
         .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; flex-shrink: 0; cursor: pointer; }
         .check-btn.blue { background: #2196F3; border-color: #2196F3; }
         .check-btn.red { background: #F44336; border-color: #F44336; }
         
-        .word-info { flex: 2; min-width: 0; } /* 숙어가 표시될 왼쪽 영역 */
+        .word-info { flex: 2; min-width: 0; }
         .word-eng { font-size: 1.15em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; word-break: break-word; line-height: 1.3; }
-        .word-ph { font-size: 0.85em; color: #757575; margin-top: 5px; font-style: italic; }
+        /* 발음기호 스타일 수정: 이탤릭 제거 및 가독성 강화 */
+        .word-ph { font-size: 0.9em; color: #555; margin-top: 5px; font-family: sans-serif; font-style: normal; }
         
-        .word-mean { flex: 1; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; word-break: keep-all; }
+        .word-mean { flex: 1.2; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; word-break: keep-all; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: white; width: 90%; height: 85%; margin: 5% auto; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; box-sizing: border-box; }
-        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; line-height: 1.6; }
+        .modal-content { background: white; width: 95%; height: 90%; margin: 2% auto; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; box-sizing: border-box; }
+        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; line-height: 1.6; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div id="bookTitle" style="font-weight:bold; font-size: 1.1em;">단어장</div>
+        <div id="bookTitle" style="font-weight:bold;">단어장</div>
         <select id="bookSelector" onchange="switchBook()"></select>
-        <label style="font-size:11px; opacity: 0.9;">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
+        <label style="font-size:11px;">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
 
     <div class="btn-row">
@@ -68,13 +68,12 @@
 
 <div id="editModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle" style="margin-top:0;">페이지 편집</h3>
-        <p style="font-size:12px; color:#d32f2f; margin-bottom:5px;">* 중요: 숙어와 뜻 사이에 반드시 [발음]을 넣으세요.</p>
-        <p style="font-size:11px; color:gray; margin:0;">예: compare A with B [ ] A와 B를 비교하다 (발음이 없으면 빈 괄호라도 입력)</p>
-        <textarea id="pageEditor" spellcheck="false"></textarea>
+        <h3 style="margin:0;">일괄 편집 (구분자 '|' 사용 필수)</h3>
+        <p style="font-size:12px; color:#d32f2f; margin:5px 0;">* 숙어 뒤에 반드시 <b>|</b> 를 넣으세요. 예: compare A with B | A와 B를 비교하다</p>
+        <textarea id="pageEditor" spellcheck="false" placeholder="단어 [발음] | 뜻"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
-            <button onclick="closePageEdit()" style="padding:10px 20px; border-radius:6px; border:none; cursor:pointer;">취소</button>
-            <button onclick="savePageEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">저장</button>
+            <button onclick="closePageEdit()">취소</button>
+            <button onclick="savePageEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">저장</button>
         </div>
     </div>
 </div>
@@ -165,19 +164,12 @@
         }
     }
 
-    function speak(txt) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(txt);
-        msg.lang = 'en-US'; msg.rate = 0.8;
-        window.speechSynthesis.speak(msg);
-    }
-
     function openPageEdit() {
         const start = (currentPage - 1) * WORDS_PER_PAGE;
         const pageWords = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE);
         document.getElementById('pageEditor').value = pageWords.map(w => {
-            const phPart = ` [${w.ph || " "}]`;
-            return `${w.eng}${phPart} ${w.mean}`.trim();
+            const phPart = w.ph ? ` [${w.ph}]` : "";
+            return `${w.eng}${phPart} | ${w.mean}`.trim();
         }).join('\n');
         document.getElementById('editModal').style.display = 'block';
     }
@@ -186,25 +178,38 @@
         const lines = document.getElementById('pageEditor').value.split('\n').filter(l => l.trim());
         const newPageData = lines.map(l => {
             let eng = "", ph = "", mean = "";
-            // 핵심 로직: 대괄호를 기준으로 무조건 분리
-            if (l.includes('[')) {
-                const parts = l.split('[');
-                eng = parts[0].trim(); // [ 앞은 무조건 영어/숙어
-                const afterBracket = parts[1].split(']');
-                ph = afterBracket[0].trim(); // [ ] 사이는 발음
-                mean = afterBracket[1] ? afterBracket[1].trim() : ""; // ] 뒤는 뜻
+            
+            // 핵심: 파이프(|) 기호를 기준으로 좌측은 영어, 우측은 뜻
+            if (l.includes('|')) {
+                const parts = l.split('|');
+                const leftPart = parts[0].trim();
+                mean = parts[1] ? parts[1].trim() : "";
+                
+                // 왼쪽 파트에서 대괄호[ ] 가 있으면 발음기호 추출
+                if (leftPart.includes('[')) {
+                    eng = leftPart.split('[')[0].trim();
+                    ph = leftPart.split('[')[1].split(']')[0].trim();
+                } else {
+                    eng = leftPart;
+                }
             } else {
+                // 파이프가 없는 기존 데이터 호환용
                 const firstSpace = l.trim().indexOf(' ');
-                if (firstSpace !== -1) {
-                    eng = l.substring(0, firstSpace).trim();
-                    mean = l.substring(firstSpace).trim();
-                } else { eng = l.trim(); }
+                eng = firstSpace !== -1 ? l.substring(0, firstSpace).trim() : l.trim();
+                mean = firstSpace !== -1 ? l.substring(firstSpace).trim() : "";
             }
             return { eng, ph, mean, mark: 0 };
         });
         const start = (currentPage - 1) * WORDS_PER_PAGE;
         vocaData[currentBook].splice(start, WORDS_PER_PAGE, ...newPageData);
         saveToLocal(); closePageEdit(); goPage(currentPage);
+    }
+
+    function speak(txt) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(txt);
+        msg.lang = 'en-US'; msg.rate = 0.8;
+        window.speechSynthesis.speak(msg);
     }
 
     function closePageEdit() { document.getElementById('editModal').style.display = 'none'; }
