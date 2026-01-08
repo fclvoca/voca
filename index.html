@@ -30,19 +30,22 @@
         .word-mean { padding-left: 10px; text-align: right; color: #1A237E; font-weight: bold; font-size: 1.15em; cursor: pointer; min-width: 120px; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
 
-        /* 대형 편집 모달 스타일 */
-        #editOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; padding: 20px; box-sizing: border-box; flex-direction: column; }
-        #modalHeader { display: flex; justify-content: space-between; align-items: center; color: white; margin-bottom: 10px; }
-        #editArea { width: 100%; flex-grow: 1; font-family: 'Consolas', monospace; font-size: 14px; padding: 15px; border-radius: 8px; border: none; resize: none; background: #f9f9f9; }
-        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
-        .modal-footer button { padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; }
+        /* 사진과 똑같은 편집 모달 */
+        #vocaModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-body { background: white; width: 95%; max-width: 900px; height: 85%; border-radius: 12px; display: flex; flex-direction: column; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+        .modal-head { border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
+        .modal-head h2 { margin: 0; font-size: 18px; color: #333; }
+        .modal-head p { margin: 5px 0 0; font-size: 12px; color: #d32f2f; font-weight: bold; }
+        #vocaEditorArea { flex-grow: 1; width: 100%; border: 1px solid #ccc; border-radius: 8px; padding: 15px; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.6; resize: none; overflow-y: auto; outline: none; }
+        .modal-foot { margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-foot button { padding: 10px 25px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div id="bookTitle" style="font-weight:bold;">단어장 선택</div>
+        <div id="bookTitle" style="font-weight:bold;">단어장 로딩...</div>
         <select id="bookSelector" onchange="switchBook()"></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
@@ -54,8 +57,8 @@
         <button onclick="addBook()" style="background:#3F51B5">단어장추가</button>
         <button onclick="renameCurrentBook()" style="background:#FF5722">이름수정</button>
         <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가(50개)</button>
-        <button onclick="openEditor('page')" style="background:#9C27B0">현재 페이지 편집</button>
-        <button onclick="openEditor('full')" style="background:#4CAF50">전체 데이터 편집</button>
+        <button onclick="openVocaEditor('page')" style="background:#9C27B0">현재 페이지 편집</button>
+        <button onclick="openVocaEditor('full')" style="background:#4CAF50">전체 데이터 편집</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
         <button onclick="deleteBook()" style="background:#f44336">삭제</button>
         <button onclick="resetData()" style="background:#000000">데이터 초기화</button>
@@ -70,20 +73,22 @@
 </div>
 <div id="wordListArea"></div>
 
-<div id="editOverlay">
-    <div id="modalHeader">
-        <h2 id="modalTitle" style="margin:0;">데이터 편집</h2>
-        <span style="font-size:12px; color:#ddd;">JSON 형식을 유지해 주세요.</span>
-    </div>
-    <textarea id="editArea" spellcheck="false"></textarea>
-    <div class="modal-footer">
-        <button onclick="closeEditor()" style="background:#888; color:white;">취소</button>
-        <button onclick="saveFromEditor()" style="background:var(--accent); color:white;">저장하기</button>
+<div id="vocaModal">
+    <div class="modal-body">
+        <div class="modal-head">
+            <h2 id="vocaModalTitle">페이지 편집</h2>
+            <p>형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
+        </div>
+        <textarea id="vocaEditorArea" spellcheck="false"></textarea>
+        <div class="modal-foot">
+            <button onclick="closeVocaEditor()" style="background:#eee;">취소</button>
+            <button onclick="saveVocaEditor()" style="background:#1A237E; color:white;">저장하기</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const KEY = 'FCL_VOCA_ULTRA_SAVE';
+    const KEY = 'FCL_VOCA_REBORN';
     let data = JSON.parse(localStorage.getItem(KEY)) || {
         "FCL_고교필수단어": [
             { eng: "release", phon: "[rɪˈliːs]", kor: "놓아주다, 개봉하다", mark: "" },
@@ -91,10 +96,10 @@
         ]
     };
 
-    let currentBook = Object.keys(data)[0];
-    let pageNum = 1;
-    let editMode = ''; // 'page' or 'full'
-    const perPage = 50;
+    let curBook = Object.keys(data)[0];
+    let curPage = 1;
+    let editMode = ''; 
+    const per = 50;
 
     function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
     function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
@@ -104,15 +109,15 @@
         sel.innerHTML = "";
         Object.keys(data).forEach(n => {
             const o = document.createElement('option');
-            o.value = n; o.innerText = n; o.selected = (n === currentBook);
+            o.value = n; o.innerText = n; o.selected = (n === curBook);
             sel.appendChild(o);
         });
-        document.getElementById('bookTitle').innerText = currentBook;
+        document.getElementById('bookTitle').innerText = curBook;
 
         const area = document.getElementById('wordListArea');
-        const list = data[currentBook] || [];
-        const start = (pageNum - 1) * perPage;
-        const pageList = list.slice(start, start + perPage);
+        const list = data[curBook] || [];
+        const start = (curPage - 1) * per;
+        const pageList = list.slice(start, start + per);
         
         area.innerHTML = "";
         pageList.forEach((item, idx) => {
@@ -134,73 +139,85 @@
 
     function updatePages() {
         const area = document.getElementById('pageArea');
-        const total = Math.ceil((data[currentBook] || []).length / perPage) || 1;
+        const total = Math.ceil((data[curBook] || []).length / per) || 1;
         area.innerHTML = "";
         for (let i = 1; i <= total; i++) {
             const b = document.createElement('button');
-            b.className = `page-btn ${i === pageNum ? 'active' : ''}`;
+            b.className = `page-btn ${i === curPage ? 'active' : ''}`;
             b.innerText = i;
-            b.onclick = () => { pageNum = i; render(); window.scrollTo(0,0); };
+            b.onclick = () => { curPage = i; render(); window.scrollTo(0,0); };
             area.appendChild(b);
         }
     }
 
     function cycleMark(idx) {
-        const m = data[currentBook][idx].mark;
-        data[currentBook][idx].mark = m === "" ? "blue" : (m === "blue" ? "red" : "");
+        const m = data[curBook][idx].mark;
+        data[curBook][idx].mark = m === "" ? "blue" : (m === "blue" ? "red" : "");
         save(); render();
     }
 
-    function switchBook() { currentBook = document.getElementById('bookSelector').value; pageNum = 1; render(); }
+    function switchBook() { curBook = document.getElementById('bookSelector').value; curPage = 1; render(); }
     function speak(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'en-US'; window.speechSynthesis.speak(m); }
-    
-    // 편집 창 로직 (보안 정책 회피 및 대용량 편집 가능)
-    function openEditor(mode) {
-        editMode = mode;
-        const overlay = document.getElementById('editOverlay');
-        const textArea = document.getElementById('editArea');
-        const title = document.getElementById('modalTitle');
-        
-        if(mode === 'page') {
-            title.innerText = `현재 페이지(${pageNum}) 편집`;
-            const start = (pageNum-1)*perPage;
-            const part = data[currentBook].slice(start, start+perPage);
-            textArea.value = JSON.stringify(part, null, 2);
-        } else {
-            title.innerText = "전체 데이터 편집";
-            textArea.value = JSON.stringify(data, null, 2);
-        }
-        overlay.style.display = 'flex';
+    function toggleGlobalVisibility() {
+        const isHidden = document.getElementById('mainToggleBtn').innerText === "뜻 숨기기";
+        document.querySelectorAll('.word-mean').forEach(m => isHidden ? m.classList.add('hidden') : m.classList.remove('hidden'));
+        document.getElementById('mainToggleBtn').innerText = isHidden ? "뜻 보이기" : "뜻 숨기기";
     }
 
-    function closeEditor() { document.getElementById('editOverlay').style.display = 'none'; }
+    // 사진 속 편집 방식 구현 (텍스트 -> JSON 자동 변환)
+    function openVocaEditor(mode) {
+        editMode = mode;
+        const area = document.getElementById('vocaEditorArea');
+        const title = document.getElementById('vocaModalTitle');
+        
+        let text = "";
+        if(mode === 'page') {
+            title.innerText = `현재 페이지(${curPage}) 편집`;
+            const start = (curPage-1)*per;
+            const part = data[curBook].slice(start, start+per);
+            text = part.map(i => `${i.eng} ${i.phon || ''} ${i.kor}`).join('\n');
+        } else {
+            title.innerText = "전체 데이터 편집 (JSON)";
+            text = JSON.stringify(data, null, 2);
+        }
+        
+        area.value = text;
+        document.getElementById('vocaModal').style.display = 'flex';
+    }
 
-    function saveFromEditor() {
-        const txt = document.getElementById('editArea').value;
+    function closeVocaEditor() { document.getElementById('vocaModal').style.display = 'none'; }
+
+    function saveVocaEditor() {
+        const text = document.getElementById('vocaEditorArea').value;
         try {
-            const parsed = JSON.parse(txt);
             if(editMode === 'page') {
-                const start = (pageNum-1)*perPage;
-                data[currentBook].splice(start, perPage, ...parsed);
+                const lines = text.split('\n').filter(l => l.trim() !== "");
+                const newList = lines.map(line => {
+                    const match = line.match(/^(\S+)\s+(\[.*?\])\s+(.*)$/);
+                    if(match) return { eng: match[1], phon: match[2], kor: match[3], mark: "" };
+                    const parts = line.split(/\s+/);
+                    return { eng: parts[0], phon: "", kor: parts.slice(1).join(" "), mark: "" };
+                });
+                const start = (curPage-1)*per;
+                data[curBook].splice(start, per, ...newList);
             } else {
-                data = parsed;
-                currentBook = Object.keys(data)[0];
+                data = JSON.parse(text);
+                curBook = Object.keys(data)[0];
             }
-            save(); render(); closeEditor();
-            alert("저장되었습니다.");
-        } catch(e) { alert("JSON 형식이 잘못되었습니다. 중괄호나 쉼표를 확인해 주세요."); }
+            save(); render(); closeVocaEditor();
+        } catch(e) { alert("형식이 올바르지 않습니다."); }
     }
 
     function addBook() {
         const n = prompt("새 단어장 이름:");
-        if (n && !data[n]) { data[n] = []; currentBook = n; save(); render(); }
+        if (n && !data[n]) { data[n] = []; curBook = n; save(); render(); }
     }
     function renameCurrentBook() {
-        const n = prompt("새 이름:", currentBook);
-        if (n && n !== currentBook) { data[n] = data[currentBook]; delete data[currentBook]; currentBook = n; save(); render(); }
+        const n = prompt("새 이름:", curBook);
+        if (n && n !== curBook) { data[n] = data[curBook]; delete data[curBook]; curBook = n; save(); render(); }
     }
     function createNewEmptyPage() {
-        for(let i=0; i<50; i++) data[currentBook].push({eng:"New", phon:"[phon]", kor:"뜻", mark:""});
+        for(let i=0; i<50; i++) data[curBook].push({eng:"New", phon:"[phon]", kor:"뜻", mark:""});
         save(); render();
     }
     function downloadSelf() {
@@ -208,20 +225,20 @@
         a.href = URL.createObjectURL(new Blob(["<!DOCTYPE html>\n"+document.documentElement.outerHTML], {type:'text/html'}));
         a.download = 'index.html'; a.click();
     }
-    function deleteBook() { if(confirm("정말 삭제할까요?")) { delete data[currentBook]; currentBook = Object.keys(data)[0] || ""; save(); location.reload(); } }
-    function resetData() { if(confirm("초기화할까요?")) { localStorage.removeItem(KEY); location.reload(); } }
+    function deleteBook() { if(confirm("삭제?")) { delete data[curBook]; curBook = Object.keys(data)[0] || ""; save(); location.reload(); } }
+    function resetData() { if(confirm("초기화?")) { localStorage.removeItem(KEY); location.reload(); } }
     
     function shuffleCurrentPage() {
-        const start = (pageNum-1)*perPage;
-        let p = data[currentBook].splice(start, perPage);
+        const start = (curPage-1)*per;
+        let p = data[curBook].splice(start, per);
         p.sort(()=>Math.random()-0.5);
-        data[currentBook].splice(start, 0, ...p); render();
+        data[curBook].splice(start, 0, ...p); render();
     }
     function sortRedToTop() {
-        const start = (pageNum-1)*perPage;
-        let p = data[currentBook].splice(start, perPage);
+        const start = (curPage-1)*per;
+        let p = data[curBook].splice(start, per);
         p.sort((a,b)=>(b.mark==='red'?1:0)-(a.mark==='red'?1:0));
-        data[currentBook].splice(start, 0, ...p); render();
+        data[curBook].splice(start, 0, ...p); render();
     }
     window.onload = render;
 </script>
