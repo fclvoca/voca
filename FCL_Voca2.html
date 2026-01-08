@@ -147,7 +147,6 @@
         saveToLocal();
     }
 
-    // 이름 수정 기능 강화
     function renameCurrentBook() {
         const oldName = currentBook;
         const newName = prompt("단어장의 새 이름을 입력하세요:", oldName);
@@ -157,7 +156,6 @@
                 alert("이미 같은 이름의 단어장이 존재합니다.");
                 return;
             }
-            // 기존 데이터 복사 후 이전 데이터 삭제
             vocabularyData[newName] = [...vocabularyData[oldName]];
             delete vocabularyData[oldName];
             currentBook = newName;
