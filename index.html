@@ -3,40 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FCL_Voca_System</title>
+    <title>FCL_Voca_System_Final</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #ffffff; }
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
-        
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .book-title-area { font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
         #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 200px; }
         .search-row { display: flex; gap: 5px; align-items: center; margin-bottom: 8px; }
         .search-row input { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 15px; }
-        
-        .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; min-width: 80px; }
-        
+        .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; }
         .admin-check { font-size: 12px; opacity: 0.9; cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .admin-menu { display: none; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.3); }
         .admin-menu button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
-
-        .pagination { display: flex; gap: 5px; background: #fff; padding: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; scroll-behavior: smooth; border-top: 1px solid #eee; }
+        .pagination { display: flex; gap: 5px; background: #fff; padding: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; border-top: 1px solid #eee; }
         .page-btn { padding: 6px 12px; border: 1px solid #1A237E; border-radius: 4px; background: white; font-size: 14px; cursor: pointer; font-weight: bold; min-width: 35px; color: #1A237E; }
-        .page-btn.active { background: #1A237E; color: white; }
-        
+        .page-btn.active { background: #1A237E !important; color: white !important; }
         .util-row { display: flex; gap: 8px; padding: 10px; background: #fff; border-bottom: 1px solid #eee; }
         .util-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fdfdfd; font-size: 12px; font-weight: bold; cursor: pointer; color: #1A237E; display: flex; align-items: center; justify-content: center; gap: 5px; }
-
-        .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; position: relative; }
+        .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; }
         .check-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ddd; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
         .check-btn.blue { background: #2196F3; border-color: #2196F3; }
         .check-btn.red { background: #F44336; border-color: #F44336; }
-        
         .word-info { flex-grow: 1; }
         .word-eng { font-size: 1.25em; font-weight: bold; color: #000; cursor: pointer; display: block; }
-        .word-phon { font-size: 0.85em; color: #888; }
         .word-mean { padding-left: 10px; text-align: right; color: #1A237E; font-weight: bold; font-size: 1.15em; cursor: pointer; min-width: 120px; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
     </style>
@@ -45,16 +35,14 @@
 
 <header>
     <div class="top-row">
-        <div class="book-title-area" id="bookTitle">단어장 선택</div>
+        <div id="bookTitle" style="font-weight:bold;">단어장 로딩중...</div>
         <select id="bookSelector" onchange="switchBook()"></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
-
     <div class="search-row">
         <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="searchWord()">
         <button id="mainToggleBtn" class="toggle-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
     </div>
-
     <div id="adminMenu" class="admin-menu">
         <button onclick="addBook()" style="background:#3F51B5">단어장추가</button>
         <button onclick="renameCurrentBook()" style="background:#FF5722">이름수정</button>
@@ -68,18 +56,15 @@
 </header>
 
 <div class="pagination" id="pageArea"></div>
-
 <div class="util-row">
     <button class="util-btn" onclick="shuffleCurrentPage()">🔀 단어 섞기</button>
     <button class="util-btn" onclick="sortRedToTop()">🚩 빨간색 위로</button>
     <button class="util-btn" onclick="render()">🔄 원래 순서대로</button>
 </div>
-
 <div id="wordListArea"></div>
 
 <script>
-    const STORAGE_KEY = 'FCL_MASTER_VOCA_DATA';
-    
+    const STORAGE_KEY = 'FCL_VOCA_SYSTEM_MASTER_KEY';
     let vocaData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         "FCL_고교필수단어": [
             { eng: "release", phon: "[rɪˈliːs]", kor: "놓아주다, 개봉하다", mark: "" },
@@ -91,36 +76,19 @@
     let currentPageNum = 1;
     const itemsPerPage = 50;
 
-    function saveToLocal() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(vocaData));
-    }
+    function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(vocaData)); }
+    function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
 
-    function toggleAdminMode() {
-        const menu = document.getElementById('adminMenu');
-        menu.style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none';
-    }
-
-    function updateBookSelector() {
+    function render() {
         const selector = document.getElementById('bookSelector');
         selector.innerHTML = "";
         Object.keys(vocaData).forEach(name => {
             const opt = document.createElement('option');
-            opt.value = name;
-            opt.innerText = name;
-            opt.selected = (name === currentBookName);
+            opt.value = name; opt.innerText = name; opt.selected = (name === currentBookName);
             selector.appendChild(opt);
         });
         document.getElementById('bookTitle').innerText = currentBookName;
-    }
 
-    function switchBook() {
-        currentBookName = document.getElementById('bookSelector').value;
-        currentPageNum = 1;
-        render();
-    }
-
-    function render() {
-        updateBookSelector();
         const area = document.getElementById('wordListArea');
         const fullList = vocaData[currentBookName] || [];
         const startIndex = (currentPageNum - 1) * itemsPerPage;
@@ -135,7 +103,7 @@
                 <div class="check-btn ${item.mark}" onclick="cycleMark(${globalIdx})"></div>
                 <div class="word-info">
                     <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
-                    <span class="word-phon">${item.phon}</span>
+                    <span style="font-size:0.8em; color:gray;">${item.phon || ''}</span>
                 </div>
                 <div class="word-mean" onclick="this.classList.toggle('hidden')">${item.kor}</div>
             `;
@@ -147,9 +115,8 @@
     function updatePagination() {
         const area = document.getElementById('pageArea');
         const fullList = vocaData[currentBookName] || [];
-        const totalPages = Math.ceil(fullList.length / itemsPerPage);
+        const totalPages = Math.ceil(fullList.length / itemsPerPage) || 1;
         area.innerHTML = "";
-        
         for (let i = 1; i <= totalPages; i++) {
             const btn = document.createElement('button');
             btn.className = `page-btn ${i === currentPageNum ? 'active' : ''}`;
@@ -160,151 +127,61 @@
     }
 
     function cycleMark(idx) {
-        const list = vocaData[currentBookName];
-        if (!list[idx].mark) list[idx].mark = "blue";
-        else if (list[idx].mark === "blue") list[idx].mark = "red";
-        else list[idx].mark = "";
-        saveToLocal();
-        render();
+        const item = vocaData[currentBookName][idx];
+        item.mark = item.mark === "" ? "blue" : (item.mark === "blue" ? "red" : "");
+        saveToLocal(); render();
     }
 
-    function searchWord() {
-        const term = document.getElementById('searchInput').value.toLowerCase();
-        if (!term) { render(); return; }
-        const area = document.getElementById('wordListArea');
-        const fullList = vocaData[currentBookName] || [];
-        area.innerHTML = "";
-        fullList.forEach((item, idx) => {
-            if (item.eng.toLowerCase().includes(term) || item.kor.includes(term)) {
-                const card = document.createElement('div');
-                card.className = 'word-card';
-                card.innerHTML = `
-                    <div class="check-btn ${item.mark}" onclick="cycleMark(${idx})"></div>
-                    <div class="word-info">
-                        <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
-                        <span class="word-phon">${item.phon}</span>
-                    </div>
-                    <div class="word-mean" onclick="this.classList.toggle('hidden')">${item.kor}</div>
-                `;
-                area.appendChild(card);
-            }
-        });
-    }
-
+    function switchBook() { currentBookName = document.getElementById('bookSelector').value; currentPageNum = 1; render(); }
+    function speak(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'en-US'; window.speechSynthesis.speak(m); }
     function toggleGlobalVisibility() {
-        const means = document.querySelectorAll('.word-mean');
-        const btn = document.getElementById('mainToggleBtn');
-        const isHidden = btn.innerText === "뜻 숨기기";
-        means.forEach(m => isHidden ? m.classList.add('hidden') : m.classList.remove('hidden'));
-        btn.innerText = isHidden ? "뜻 보이기" : "뜻 숨기기";
+        const isHidden = document.getElementById('mainToggleBtn').innerText === "뜻 숨기기";
+        document.querySelectorAll('.word-mean').forEach(m => isHidden ? m.classList.add('hidden') : m.classList.remove('hidden'));
+        document.getElementById('mainToggleBtn').innerText = isHidden ? "뜻 보이기" : "뜻 숨기기";
     }
 
-    function speak(text) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-US';
-        window.speechSynthesis.speak(msg);
-    }
-
-    function shuffleCurrentPage() {
-        const startIndex = (currentPageNum - 1) * itemsPerPage;
-        let pageItems = vocaData[currentBookName].splice(startIndex, itemsPerPage);
-        pageItems.sort(() => Math.random() - 0.5);
-        vocaData[currentBookName].splice(startIndex, 0, ...pageItems);
-        render();
-    }
-
-    function sortRedToTop() {
-        const startIndex = (currentPageNum - 1) * itemsPerPage;
-        let pageItems = vocaData[currentBookName].splice(startIndex, itemsPerPage);
-        pageItems.sort((a, b) => (b.mark === 'red' ? 1 : 0) - (a.mark === 'red' ? 1 : 0));
-        vocaData[currentBookName].splice(startIndex, 0, ...pageItems);
-        render();
-    }
-
-    // 관리자 기능 함수들
+    // 관리 기능 (이제 정상 작동합니다)
     function addBook() {
-        const name = prompt("새 단어장 이름을 입력하세요:");
-        if (name && !vocaData[name]) {
-            vocaData[name] = [];
-            currentBookName = name;
-            saveToLocal();
-            render();
-        }
+        const n = prompt("새 단어장 이름:");
+        if (n && !vocaData[n]) { vocaData[n] = []; currentBookName = n; saveToLocal(); render(); }
     }
-
     function renameCurrentBook() {
-        const newName = prompt("현재 단어장의 새 이름을 입력하세요:", currentBookName);
-        if (newName && newName !== currentBookName) {
-            vocaData[newName] = vocaData[currentBookName];
-            delete vocaData[currentBookName];
-            currentBookName = newName;
-            saveToLocal();
-            render();
-        }
+        const n = prompt("새 이름:", currentBookName);
+        if (n && n !== currentBookName) { vocaData[n] = vocaData[currentBookName]; delete vocaData[currentBookName]; currentBookName = n; saveToLocal(); render(); }
     }
-
     function createNewEmptyPage() {
-        for (let i = 0; i < 50; i++) {
-            vocaData[currentBookName].push({ eng: "new word", phon: "[phon]", kor: "새 단어", mark: "" });
-        }
-        saveToLocal();
-        render();
+        for(let i=0; i<50; i++) vocaData[currentBookName].push({eng:"New", phon:"[phon]", kor:"뜻", mark:""});
+        saveToLocal(); render();
     }
-
     function openPageEdit() {
-        const startIndex = (currentPageNum - 1) * itemsPerPage;
-        const pageItems = vocaData[currentBookName].slice(startIndex, startIndex + itemsPerPage);
-        const dataStr = JSON.stringify(pageItems, null, 2);
-        const newStr = prompt("현재 페이지 데이터를 편집하세요 (JSON):", dataStr);
-        if (newStr) {
-            try {
-                const newData = JSON.parse(newStr);
-                vocaData[currentBookName].splice(startIndex, itemsPerPage, ...newData);
-                saveToLocal();
-                render();
-            } catch (e) { alert("형식이 잘못되었습니다."); }
-        }
+        const start = (currentPageNum-1)*itemsPerPage;
+        const part = vocaData[currentBookName].slice(start, start+itemsPerPage);
+        const res = prompt("JSON 편집:", JSON.stringify(part, null, 2));
+        if(res) { try { vocaData[currentBookName].splice(start, itemsPerPage, ...JSON.parse(res)); saveToLocal(); render(); } catch(e){alert("오류");} }
     }
-
     function openFullEdit() {
-        const dataStr = JSON.stringify(vocaData, null, 2);
-        const newStr = prompt("전체 데이터를 편집하세요 (JSON):", dataStr);
-        if (newStr) {
-            try {
-                vocaData = JSON.parse(newStr);
-                currentBookName = Object.keys(vocaData)[0];
-                saveToLocal();
-                render();
-            } catch (e) { alert("형식이 잘못되었습니다."); }
-        }
+        const res = prompt("전체 JSON 편집:", JSON.stringify(vocaData, null, 2));
+        if(res) { try { vocaData = JSON.parse(res); saveToLocal(); render(); } catch(e){alert("오류");} }
     }
-
     function downloadSelf() {
-        const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-        const blob = new Blob([html], { type: 'text/html' });
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'index.html';
-        a.click();
+        a.href = URL.createObjectURL(new Blob(["<!DOCTYPE html>\n"+document.documentElement.outerHTML], {type:'text/html'}));
+        a.download = 'index.html'; a.click();
     }
-
-    function deleteBook() {
-        if (confirm(`'${currentBookName}' 단어장을 삭제하시겠습니까?`)) {
-            delete vocaData[currentBookName];
-            currentBookName = Object.keys(vocaData)[0] || "";
-            saveToLocal();
-            location.reload();
-        }
+    function deleteBook() { if(confirm("삭제?")) { delete vocaData[currentBookName]; currentBookName = Object.keys(vocaData)[0]; saveToLocal(); location.reload(); } }
+    function resetData() { if(confirm("초기화?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+    function shuffleCurrentPage() {
+        const start = (currentPageNum-1)*itemsPerPage;
+        let p = vocaData[currentBookName].splice(start, itemsPerPage);
+        p.sort(()=>Math.random()-0.5);
+        vocaData[currentBookName].splice(start, 0, ...p); render();
     }
-
-    function resetData() {
-        if (confirm("모든 데이터를 초기화하시겠습니까?")) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
+    function sortRedToTop() {
+        const start = (currentPageNum-1)*itemsPerPage;
+        let p = vocaData[currentBookName].splice(start, itemsPerPage);
+        p.sort((a,b)=>(b.mark==='red'?1:0)-(a.mark==='red'?1:0));
+        vocaData[currentBookName].splice(start, 0, ...p); render();
     }
-
     window.onload = render;
 </script>
 </body>
