@@ -37,14 +37,14 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
         .modal-content { background: white; width: 90%; height: 80%; margin: 10% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
-        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
+        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; font-size: 16px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div class="book-title-area" id="bookTitle">FCL_단어장</div>
+        <div class="book-title-area" id="bookTitle">단어장</div>
         <select id="bookSelector" onchange="switchBook()"></select>
         <label class="admin-check">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
@@ -56,11 +56,10 @@
 
     <div id="adminMenu" class="admin-menu">
         <button onclick="addBook()" style="background:#5C6BC0">교재추가</button>
-        <button onclick="openFullEdit()" style="background:#4CAF50">일괄편집</button>
-        <button onclick="addPage()" style="background:#FF9800">페이지추가</button>
-        <button onclick="deleteCurrentPage()" style="background:#d32f2f">현재페이지삭제</button>
+        <button id="pageEditBtn" onclick="openPageEdit()" style="background:#4CAF50">현재 페이지 편집</button>
+        <button onclick="addPage()" style="background:#FF9800">페이지 추가</button>
+        <button onclick="deleteCurrentPage()" style="background:#d32f2f">현재 페이지 삭제</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
-        <button onclick="deleteBook()" style="background:#212121">교재삭제</button>
     </div>
 </header>
 
@@ -69,11 +68,12 @@
 
 <div id="editModal" class="modal">
     <div class="modal-content">
-        <h3>일괄 편집 (형식: 단어 [발음] 뜻)</h3>
-        <textarea id="fullEditor" placeholder="apple [æpl] 사과"></textarea>
+        <h3 id="modalTitle">페이지 편집</h3>
+        <p style="font-size:12px; color:gray; margin:0;">형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
+        <textarea id="pageEditor" placeholder="apple [æpl] 사과"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
-            <button onclick="closeFullEdit()">취소</button>
-            <button onclick="saveFullEdit()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:6px;">저장</button>
+            <button onclick="closePageEdit()">취소</button>
+            <button onclick="savePageEdit()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:6px;">저장</button>
         </div>
     </div>
 </div>
@@ -119,6 +119,7 @@
     function goPage(p) {
         currentPage = p;
         renderPages();
+        document.getElementById('pageEditBtn').innerText = `${p}페이지 편집`;
         const start = (p-1) * WORDS_PER_PAGE;
         const words = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE);
         const area = document.getElementById('wordListArea');
@@ -139,90 +140,56 @@
         });
     }
 
-    function toggleAdminMode() {
-        document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none';
-    }
-
-    function toggleGlobalVisibility() {
-        isMeanHidden = !isMeanHidden;
-        document.getElementById('mainToggleBtn').innerText = isMeanHidden ? "뜻 보기" : "뜻 숨기기";
-        goPage(currentPage);
-    }
-
-    function toggleSingleMean(el) { el.classList.toggle('hidden'); }
-
-    function cycleMark(idx, el) {
-        vocaData[currentBook][idx].mark = (vocaData[currentBook][idx].mark + 1) % 3;
-        el.className = 'check-btn ' + (vocaData[currentBook][idx].mark === 1 ? 'blue' : vocaData[currentBook][idx].mark === 2 ? 'red' : '');
-        saveToLocal();
-    }
-
     function speak(txt) {
-        // 기존 음성 중단
         window.speechSynthesis.cancel();
-
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'en-US';
-        
-        // 발음 품질 보정 설정
-        msg.rate = 0.8;  // 속도를 0.8배로 늦춤
-        msg.pitch = 1.0; // 기본 피치
-        
-        // 브라우저 보이스 최적화 선택
+        msg.rate = 0.8;
         const voices = window.speechSynthesis.getVoices();
-        const selectedVoice = voices.find(v => v.name.includes('Google') && v.lang === 'en-US') || 
-                              voices.find(v => v.lang.startsWith('en'));
+        const selectedVoice = voices.find(v => v.name.includes('Google') && v.lang === 'en-US') || voices.find(v => v.lang.startsWith('en'));
         if (selectedVoice) msg.voice = selectedVoice;
-
         window.speechSynthesis.speak(msg);
     }
 
-    function openFullEdit() {
-        document.getElementById('fullEditor').value = vocaData[currentBook].map(w => `${w.eng} ${w.ph || ''} ${w.mean}`).join('\n');
+    // --- 페이지 단위 편집 기능 ---
+    function openPageEdit() {
+        const start = (currentPage - 1) * WORDS_PER_PAGE;
+        const pageWords = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE);
+        document.getElementById('modalTitle').innerText = `${currentPage}페이지 편집 (최대 50단어)`;
+        document.getElementById('pageEditor').value = pageWords.map(w => `${w.eng} ${w.ph || ''} ${w.mean}`).join('\n');
         document.getElementById('editModal').style.display = 'block';
     }
 
-    function saveFullEdit() {
-        const lines = document.getElementById('fullEditor').value.split('\n');
-        vocaData[currentBook] = lines.filter(l => l.trim()).map(l => {
-            const p = l.split(' ');
-            return { eng: p[0], ph: p[1] && p[1].startsWith('[') ? p[1] : '', mean: p.slice(p[1] && p[1].startsWith('[') ? 2 : 1).join(' '), mark: 0 };
+    function savePageEdit() {
+        const lines = document.getElementById('pageEditor').value.split('\n').filter(l => l.trim());
+        const newPageData = lines.slice(0, WORDS_PER_PAGE).map(l => {
+            const parts = l.split(' ');
+            const eng = parts[0];
+            const hasPh = parts[1] && parts[1].startsWith('[');
+            const ph = hasPh ? parts[1] : '';
+            const mean = parts.slice(hasPh ? 2 : 1).join(' ');
+            return { eng, ph, mean, mark: 0 };
         });
-        saveToLocal(); closeFullEdit(); goPage(1);
+
+        const start = (currentPage - 1) * WORDS_PER_PAGE;
+        vocaData[currentBook].splice(start, WORDS_PER_PAGE, ...newPageData);
+        saveToLocal();
+        closePageEdit();
+        goPage(currentPage);
     }
 
-    function closeFullEdit() { document.getElementById('editModal').style.display = 'none'; }
+    function closePageEdit() { document.getElementById('editModal').style.display = 'none'; }
 
-    function addPage() {
-        for(let i=0; i<WORDS_PER_PAGE; i++) vocaData[currentBook].push({ eng: '-', ph: '', mean: '새 단어를 입력하세요', mark: 0 });
-        saveToLocal(); goPage(Math.ceil(vocaData[currentBook].length / WORDS_PER_PAGE));
-    }
-
-    function deleteCurrentPage() {
-        if(confirm(`${currentPage}페이지의 모든 단어를 삭제하시겠습니까?`)) {
-            vocaData[currentBook].splice((currentPage-1)*WORDS_PER_PAGE, WORDS_PER_PAGE);
-            saveToLocal(); goPage(Math.max(1, currentPage - 1));
-        }
-    }
-
-    function addBook() {
-        const n = prompt("새 교재 이름:");
-        if(n) { vocaData[n] = []; currentBook = n; saveToLocal(); updateBookSelector(); goPage(1); }
-    }
-
-    function deleteBook() {
-        if(confirm("교재 전체를 삭제하시겠습니까?")) {
-            delete vocaData[currentBook];
-            if(Object.keys(vocaData).length === 0) vocaData["기본교재"] = [];
-            currentBook = Object.keys(vocaData)[0];
-            saveToLocal(); updateBookSelector(); goPage(1);
-        }
-    }
-
+    // --- 나머지 기존 기능 ---
+    function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
+    function toggleGlobalVisibility() { isMeanHidden = !isMeanHidden; document.getElementById('mainToggleBtn').innerText = isMeanHidden ? "뜻 보기" : "뜻 숨기기"; goPage(currentPage); }
+    function toggleSingleMean(el) { el.classList.toggle('hidden'); }
+    function cycleMark(idx, el) { vocaData[currentBook][idx].mark = (vocaData[currentBook][idx].mark + 1) % 3; el.className = 'check-btn ' + (vocaData[currentBook][idx].mark === 1 ? 'blue' : vocaData[currentBook][idx].mark === 2 ? 'red' : ''); saveToLocal(); }
+    function addPage() { for(let i=0; i<WORDS_PER_PAGE; i++) vocaData[currentBook].push({ eng: '-', ph: '', mean: '새 단어', mark: 0 }); saveToLocal(); goPage(Math.ceil(vocaData[currentBook].length / WORDS_PER_PAGE)); }
+    function deleteCurrentPage() { if(confirm(`${currentPage}페이지를 삭제하시겠습니까?`)) { vocaData[currentBook].splice((currentPage-1)*WORDS_PER_PAGE, WORDS_PER_PAGE); saveToLocal(); goPage(Math.max(1, currentPage - 1)); } }
+    function addBook() { const n = prompt("새 교재 이름:"); if(n) { vocaData[n] = []; currentBook = n; saveToLocal(); updateBookSelector(); goPage(1); } }
     function saveToLocal() { localStorage.setItem('fclVoca_v2', JSON.stringify(vocaData)); }
-
     function switchBook() { currentBook = document.getElementById('bookSelector').value; goPage(1); }
-
     function searchWord() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         const res = vocaData[currentBook].filter(w => w.eng.toLowerCase().includes(q));
@@ -235,11 +202,10 @@
             area.appendChild(card);
         });
     }
-
     function downloadSelf() {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([document.documentElement.outerHTML], {type: 'text/html'}));
-        a.download = 'voca_program_v2.html'; a.click();
+        a.download = 'voca_index.html'; a.click();
     }
 
     init();
