@@ -3,1099 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>고교 영어 단어장 - FCL_Voca_Final</title>
+    <title>고교 영어 단어장 - FCL_Voca_Main</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #f8f9fa; }
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
+        
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
-        #bookTitle { font-weight: bold; font-size: 1.1em; }
+        .book-title-area { font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
+        .search-row { display: flex; gap: 5px; align-items: center; }
+        .search-row input { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 15px; }
+        
+        .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; min-width: 90px; }
+        
+        .admin-check { font-size: 11px; opacity: 0.8; }
         .admin-menu { display: none; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
         .admin-menu button { border: none; color: white; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
         .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; }
         .page-btn { padding: 8px 15px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 14px; cursor: pointer; font-weight: bold; }
         .page-btn.active { background: var(--primary); color: white; }
+        
+        .util-row { display: flex; gap: 8px; padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; }
+        .util-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fdfdfd; font-size: 12px; font-weight: bold; cursor: pointer; color: #444; }
+
         .word-card { display: flex; align-items: center; background: white; padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; }
+        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; cursor: pointer; }
+        .check-btn.blue { background: #2196F3; border-color: #2196F3; }
+        .check-btn.red { background: #F44336; border-color: #F44336; }
+        
         .word-info { flex-grow: 1; }
-        .word-eng { font-size: 1.15em; font-weight: bold; color: #1a1a1a; cursor: pointer; }
-        .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; min-width: 80px; }
-        .bottom-controls { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: white; width: 95%; height: 90%; margin: 2% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
-        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; font-size: 14px; border: 1px solid #ccc; line-height: 1.6; }
+        .word-eng { font-size: 1.15em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; }
+        .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; min-width: 80px; transition: 0.2s; }
+        .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div id="bookTitle">FCL_고교필수단어</div>
-        <label style="font-size:11px;">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
+        <div class="book-title-area" id="bookTitle">FCL_우선순위단어</div>
+        <select id="bookSelector" onchange="switchBook()">
+            <option value="FCL_고교필수단어">FCL_고교필수단어</option>
+            <option value="FCL_우선순위단어" selected>FCL_우선순위단어</option>
+        </select>
+        <label class="admin-check">교사모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
+
+    <div class="search-row">
+        <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="if(event.keyCode==13){searchWord()}">
+        <button id="mainToggleBtn" class="toggle-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
+    </div>
+
     <div id="adminMenu" class="admin-menu">
+        <button onclick="addBook()" style="background:#5C6BC0">단어장추가</button>
+        <button onclick="renameCurrentBook()" style="background:#FF5722">이름수정</button>
+        <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가</button>
+        <button onclick="openPageEdit()" style="background:#9C27B0">현재 페이지 편집</button>
         <button onclick="openFullEdit()" style="background:#4CAF50">전체 데이터 편집</button>
-        <button onclick="downloadSelf()" style="background:#E91E63">★ 이 파일 저장 버튼을 눌러야 영구 보존됨</button>
+        <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
+        <button onclick="deleteBook()" style="background:#d32f2f">삭제</button>
+        <button onclick="resetData()" style="background:#000">초기화</button>
     </div>
 </header>
 
 <div class="pagination" id="pageArea"></div>
+
+<div class="util-row">
+    <button class="util-btn" onclick="shuffleCurrentPage()">🔀 단어 섞기</button>
+    <button class="util-btn" onclick="sortRedToTop()">🚩 빨간색 위로</button>
+    <button class="util-btn" onclick="render()">🔄 원래 순서대로</button>
+</div>
+
 <div id="wordListArea"></div>
 
-<div class="bottom-controls">
-    <div style="font-size:12px; font-weight:bold;">발음 속도: <span id="speedVal">1.0</span></div>
-    <input type="range" id="voiceSpeed" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
-</div>
-
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin:0;">전체 데이터 편집</h3>
-        <p style="font-size:11px; color:#d32f2f;">단어를 수정하거나 추가한 후 '완료'를 누르고 반드시 '파일 저장'을 하세요.</p>
-        <textarea id="fullEditor"></textarea>
-        <div style="display:flex; justify-content: flex-end; gap:10px;">
-            <button onclick="closeEdit()">취소</button>
-            <button id="saveBtn" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">수정 완료</button>
-        </div>
-    </div>
-</div>
-
 <script>
-    /* 선생님의 데이터를 코드 내에 보관합니다. */
-    let rawInput = `release [rɪˈliːs] 놓아주다, 개봉하다
-attempt [əˈtempt] 시도하다
-merely [ˈmɪərli] 단지
-mere [mɪər] 단순한
-optimistic [ˌɒptɪˈmɪstɪk] 낙천적인
-optimism [ˈɒptɪmɪzəm] 낙천주의
-optimist [ˈɒptɪmɪst] 낙관주의자
-skepticism [ˈskeptɪsɪzəm] 의심, 회의론
-skeptic [ˈskeptɪk] 회의론자
-diversify [daɪˈvɜːrsɪfaɪ] 다양화하다
-diversity [daɪˈvɜːrsəti] 다양성
-accuse [əˈkjuːz] 고발하다
-accusation [ˌækjuˈzeɪʃn] 고발, 비난
-accusatory [əˈkjuːzətɔːri] 비난의
-include [ɪnˈkluːd] 포함하다
-exclude [ɪkˈskluːd] 제외하다
-inclusion [ɪnˈkluːʒn] 포함
-including [ɪnˈkluːdɪŋ] ~을 포함하여
-exclusion [ɪkˈskluːʒn] 제외
-excluding [ɪkˈskluːdɪŋ] ~을 제외하고
-exclusive [ɪkˈskluːsɪv] 배타적인(독점적인)
-approach [əˈproʊtʃ] 접근하다
-nevertheless [ˌnevərðəˈles] 그럼에도 불구하고
-reliable [rɪˈlaɪəbl] 믿을 수 있는
-rely [rɪˈlaɪ] 신뢰하다
-capital [ˈkæpɪtl] 수도, 자본, 대문자
-adjust [əˈdʒʌst] 조정하다, 적응하다
-adjustment [əˈdʒʌstmənt] 조정, 적응
-predict [prɪˈdɪkt] 예측하다
-prediction [prɪˈdɪkʃn] 예측
-appoint [əˈpɔɪnt] 지명하다, 약속하다
-appointment [əˈpɔɪntmənt] 임명, 약속
-censor [ˈsensər] 검열관, 검열하다
-censorship [ˈsensərʃɪp] 검열
-alternative [ɔːlˈtɜːrnətɪv] 대신할, 대안
-alternate [ˈɔːltərneɪt] 대안의, 번갈아하다
-variable [ˈveəriəbl] 변하기 쉬운
-various [ˈveəriəs] 다양한
-varied [ˈveərid] 가지각색의
-vary [ˈveəri] 바꾸다, 다르다
-variety [vəˈraɪəti] 다양성
-locate [ˈloʊkeɪt] 위치하다, 정착하다
-celebrity [səˈlebrəti] 유명인사, 명성
-barrier [ˈbæriər] 장애
-anticipate [ænˈtɪsɪpeɪt] 예상하다
-anticipation [ænˌtɪsɪˈpeɪʃn] 예상
-aware [əˈweər] 알아차린
-caution [ˈkɔːʃn] 조심, 경고
-hospitality [ˌhɒspɪˈtæləti] 환대
-hostility [hɒˈstɪləti] 적의, 적개심
----
-commit [kəˈmɪt] 범하다, 약속하다, 바치다
-commitment [kəˈmɪtmənt] 약속, 헌신
-commission [kəˈmɪʃn] 위임, 임무, 수수료
-hence [hens] 그러므로
-from hence [frəm hens] 지금부터
-achieve [əˈtʃiːv] 성취하다
-throughout [θruːˈaʊt] ~도처에, ~동안 내내
-contend [kənˈtend] 경쟁하다, 논쟁하다
-steep [stiːp] 가파른
-ancestor [ˈænsestər] 조상
-descendant [dɪˈsendənt] 자손(후예)
-descend [dɪˈsend] 내려가다
-incline [ɪnˈklaɪn] 기울다, 마음이 내키다
-permanent [ˈpɜːrmənənt] 영구적인
-temporary [ˈtemprəri] 일시적인
-permanence [ˈpɜːrmənəns] 영속성
-permanently [ˈpɜːrmənəntli] 영구히
-temporarily [ˌtemprəˈrerəli] 임시로
-occasion [əˈkeɪʒn] 경우, 특별한 일
-occasional [əˈkeɪʒənl] 때때로의
-conceal [kənˈsiːl] 숨기다
-reveal [rɪˈviːl] 드러내다
-concern [kənˈsɜːrn] 관심, 걱정관계
-concerned [kənˈsɜːrnd] 걱정하는, 관계있는
-inclined [ɪnˈklaɪnd] ~하는 경향이 있는
-administer [ədˈmɪnɪstər] 관리하다
-administration [ədˌmɪnɪˈstreɪʃn] 관리(경영)
-administrative [ədˈmɪnɪstreɪtɪv] 관리의
-provide [prəˈvaɪd] 제공하다
-provide A with B [prəˈvaɪd A wɪð B] A에게 B를 제공하다
-provider [prəˈvaɪdər] 제공자
-rush [rʌʃ] 돌진하다
-rush hour [rʌʃ ˈaʊər] 혼잡한 시간
-diminish [dɪˈmɪnɪʃ] 줄이다
-diminution [ˌdɪmɪˈnjuːʃn] 감소
-diminutive [dɪˈmɪnjətɪv] 작은
-permit [pərˈmɪt] 허락하다, 허가
-permission [pərˈmɪʃn] 허가
-harsh [hɑːrʃ] 가혹한
-count [kaʊnt] 계산하다, 중요하다
-countable [ˈkaʊntəbl] 셀 수 있는
-countless [ˈkaʊntləs] 무수한
-count on [kaʊnt ɒn] 믿다, 의지하다
-fulfill [fʊlˈfɪl] 이행하다, 완수하다
-scrub [skrʌb] 문지르다, 닦아내다
-sentence [ˈsentəns] 문장, 판결
-aptitude [ˈæptɪtjuːd] 경향, 재능, 적성
-attitude [ˈætɪtjuːd] 태도
-altitude [ˈæltɪtjuːd] 높이
-embed [ɪmˈbed] 깊숙이 박다
----
-confirm [kənˈfɜːrm] 확실하게 하다, 확인하다
-state [steɪt] 상태, 국가, 진술하다
-statesman [ˈsteɪtsmən] 정치가
-decade [ˈdekeɪd] 10년간
-acknowledge [əkˈnɒlɪdʒ] 인정하다, 감사하다
-crucial [ˈkruːʃl] 결정적인, 중대한
-crucially [ˈkruːʃəli] 결정적으로
-gather [ˈɡæðər] 모으다
-ignore [ɪɡˈnɔːr] 무시하다
-ignorant [ˈɪɡnərənt] 무지한
-demand [dɪˈmænd] 요구하다, 수요
-supply [səˈplaɪ] 공급하다, 공급
-delicate [ˈdelɪkət] 섬세한, 깨지기 쉬운
-delicacy [ˈdelɪkəsi] 고상함, 연약함
-corporate [ˈkɔːrpərət] 법인의
-corporation [ˌkɔːrpəˈreɪʃn] 법인회사(주식회사)
-increase [ɪnˈkriːs] 증가시키다, 증가
-increasingly [ɪnˈkriːsɪŋli] 점점 더
-object [ˈɒbdʒɪkt] 물체, 목적, 반대하다
-objective [əbˈdʒektɪv] 목적, 객관적인
-objection [əbˈdʒekʃn] 반대
-recognize [ˈrekəɡnaɪz] 인지하다, 인정하다, 알아보다
-deny [dɪˈnaɪ] 부인하다, 거절하다
-denial [dɪˈnaɪəl] 부정
-superior [suːˈpɪəriər] 뛰어난
-inferior [ɪnˈfɪəriər] 하위의, 열등한
-superior to [suːˈpɪəriər tu] ~보다 나은
-inferiority [ɪnˌfɪəriˈɒrəti] 하위, 열등
-inferior to [ɪnˈfɪəriər tu] ~보다 못한
-decorate [ˈdekəreɪt] 장식하다
-encourage [ɪnˈkʌrɪdʒ] 용기를 북돋우다, 촉진하다
-encouragement [ɪnˈkʌrɪdʒmənt] 격려
-encouraging [ɪnˈkʌrɪdʒɪŋ] 힘을 북돋아 주는
-dense [dens] 밀집한, (농도가)짙은
-density [ˈdensəti] 밀도, 농도
-deteriorate [dɪˈtɪəriəreɪt] 악화되다
-cooperate [kəʊˈɒpəreɪt] 협력하다
-accurate [ˈækjərət] 정확한
-offense [əˈfens] 공격, 위반, 범죄
-defense [dɪˈfens] 방어, 변호
-offend [əˈfend] 화나게 하다, 위반하다
-offensive [əˈfensɪv] 화나게 하는, 공격적인
-defend [dɪˈfend] 방어하다, 변호하다
-defensive [dɪˈfensɪv] 방어용의
-defendant [dɪˈfendənt] 피고인
-compose [kəmˈpəʊz] 구성하다, 작곡하다
-composite [ˈkɒmpəzɪt] 합성의
-damage [ˈdæmɪdʒ] 손해, 손해를 입히다
-charge [tʃɑːrdʒ] 요금, 책임
-debate [dɪˈbeɪt] 논쟁하다
----
-yield [jiːld] 산출하다, 양보하다, 굴복하다
-devote [dɪˈvəʊt] 바치다, 헌신하다
-indicate [ˈɪndɪkeɪt] 나타내다, 암시하다
-function [ˈfʌŋkʃn] 기능, 작용하다
-interrupt [ˌɪntəˈrʌpt] 방해하다, 중단하다
-objective [əbˈdʒektɪv] 객관적인, 목표
-subjective [səbˈdʒektɪv] 주관적인
-subject [ˈsʌbdʒɪkt] 주제, 과목
-reduce [rɪˈdjuːs] 줄이다
-accelerate [əkˈseləreɪt] 가속하다
-declare [dɪˈkleər] 선언하다
-drastic [ˈdræstɪk] 격렬한
-disgust [dɪsˈɡʌst] 역겹게 하다, 역겨움
-disgusting [dɪsˈɡʌstɪŋ] 역겨운
-induce [ɪnˈdjuːs] 권하다
-induction [ɪnˈdʌkʃn] 유도(유발)
-inducement [ɪnˈdjuːsmənt] 권유
-adapt [əˈdæpt] 적응하다, 개조하다
-adopt [əˈdɒpt] 채택하다, 입양하다
-adaptation [ˌædæpˈteɪʃn] 적응, 개작
-adaptive [əˈdæptɪv] 적응할 수 있는
-adoption [əˈdɒpʃn] 채택
-adoptive [əˈdɒptɪv] 채용의
-dedicate [ˈdedɪkeɪt] 바치다, 헌신하다
-dedicated [ˈdedɪkeɪtɪd] 헌신적인
-addicted [əˈdɪktɪd] 중독된
-addict [ˈædɪkt] 중독자
-distance [ˈdɪstəns] 거리, 먼 곳
-distant [ˈdɪstənt] 먼
-disturb [dɪˈstɜːrb] 방해하다
-disrupt [dɪsˈrʌpt] 혼란시키다, 중단시키다
-disappear [ˌdɪsəˈpɪər] 사라지다
-disguise [dɪsˈɡaɪz] 변장시키다, 변장
-regard [rɪˈɡɑːrd] 간주하다, 존경, 관계
-regardless [rɪˈɡɑːrdləs] 무관심한
-regarding [rɪˈɡɑːrdɪŋ] ~에 관해서는
-donation [dəʊˈneɪʃn] 기부, 기증
-donate [dəʊˈneɪt] 기부하다
-donor [ˈdəʊnər] 기부자
-discard [dɪsˈkɑːrd] 버리다
-enhance [ɪnˈhɑːns] 높이다, 강화하다
-adequate [ˈædɪkwət] 적당한, 충분한
-estimate [ˈestɪmət] 견적, 평가하다
-estimation [ˌestɪˈmeɪʃn] 판단, 평가
-arrange [əˈreɪndʒ] 정리하다, 준비하다, 편곡하다
-arrangement [əˈreɪndʒmənt] 정리, 준비, 합의
-devote oneself to [dɪˈvəʊt wʌnˈself tu] ~에 전념하다
-indicative [ɪnˈdɪkətɪv] 나타내는, 암시하는
-functional [ˈfʌŋkʃənl] 기능의
----
-amend [əˈmend] 수정하다
-account [əˈkaʊnt] 계좌, 설명하다, 차지하다
-sum [sʌm] 합계, 요약하다
-sum total [sʌm ˈtəʊtl] 총계, 요지
-in sum [ɪn sʌm] 즉
-to sum up [tu sʌm ʌp] 요약하면
-affirm [əˈfɜːrm] 단언하다
-affirmative [əˈfɜːrmətɪv] 긍정의, 긍정적 대답
-exhaust [ɪɡˈzɔːst] 지치게 하다, 다 써버리다
-exhausted [ɪɡˈzɔːstɪd] 기진맥진한
-extend [ɪkˈstend] 확장하다, 연장하다
-extent [ɪkˈstent] 넓이, 범위, 정도
-extension [ɪkˈstenʃn] 확장, 연장
-to some extent [tu sʌm ɪkˈstent] 어느 정도 까지는
-expose [ɪkˈspəʊz] 드러내다, 노출시키다
-exposure [ɪkˈspəʊʒər] 노출, 폭로
-exposition [ˌekspəˈzɪʃn] 전시회
-adversity [ədˈvɜːrsəti] 역경, 불운
-adverse [ˈædvɜːrs] 반대하는, 불리한
-obey [əˈbeɪ] 복종하다, 따르다
-obedient [əˈbiːdiənt] 복종하는
-obedience [əˈbiːdiəns] 복종
-confess [kənˈfes] 자백하다
-affair [əˈfeər] 일, 사건, 업무
-appreciate [əˈpriːʃieɪt] 높이 평가하다, 이해하다, 감상하다, 감사하다
-effort [ˈefərt] 노력
-effortless [ˈefərtləs] 쉬운
-rule [ruːl] 규칙, 관례, 지배
-as a rule [æz ə ruːl] 대체로
-solid [ˈsɒlɪd] 고체의, 단단한
-liquid [ˈlɪkwɪd] 액체
-alert [əˈlɜːrt] 조심하는, 경고하다
-manufacture [ˌmænjuˈfæktʃər] 제작하다, 제조
-profit [ˈprɒfɪt] 이익
-loss [lɒs] 손실
-profitable [ˈpɒfɪtəbl] 유익한
-absorb [əbˈzɔːrb] 흡수하다, 열중하게 하다
-absurd [əbˈsɜːrd] 터무니없는(어리석은)
-absurdity [əbˈsɜːrdəti] 부조리, 모순
-fade [feɪd] 약해지다, 사라지다
-transit [ˈtrænzɪt] 운반
-transition [trænˈzɪʃn] 변화
-afford [əˈfɔːrd] ~할 여유가 있다
-affordable [əˈfɔːrdəbl] 감당할 수 있는
-finance [ˈfaɪnæns] 재정, 금융
-comfort [ˈkʌmfərt] 편안하게 하다, 편안함
-comfortable [ˈkʌmfərtəbl] 편안한
-assess [əˈses] 평가하다
-universal [ˌjuːnɪˈvɜːrsl] 일반적인, 전 세계의
-universe [ˈjuːnɪvɜːrs] 우주, 전 세계
----
-operate [ˈɒpəreɪt] 작동하다, 운영하다, 수술하다
-draft [dræft] 초안(밑그림)
-regret [rɪˈɡret] 후회하다
-regretful [rɪˈɡretfl] 후회하는
-regrettable [rɪˈɡretəbl] 유감스러운 (애석한)
-blame [bleɪm] 비난하다, 책임지우다
-found [faʊnd] 설립하다
-foundation [faʊnˈdeɪʃn] 기초, 설립
-average [ˈævərɪdʒ] 평균
-refuse [rɪˈfjuːz] 거절하다
-refusal [rɪˈfjuːzl] 거절
-compliment [ˈkɒmplɪmənt] 칭찬, 칭찬하다
-complement [ˈkɒmplɪmənt] 보충, 보충하다
-isolate [ˈaɪsəleɪt] 격리시키다, 고립시키다
-isolation [ˌaɪsəˈleɪʃn] 고독, 고립
-behave [bɪˈheɪv] 행동하다
-behavior [bɪˈheɪvjər] 행동
-confuse [kənˈfjuːz] 혼동하다, 혼란시키다
-confused [kənˈfjuːzd] 혼란스러운
-current [ˈkʌrənt] 현재의, 흐름, 경향
-currency [ˈkʌrənsi] 화폐, 유통
-currently [ˈkʌrəntli] 현재(는)
-general [ˈdʒenərəl] 일반적인, 장군
-generally [ˈdʒenərəli] 일반적으로
-generalize [ˈdʒenərəlaɪz] 일반화하다
-aggressive [əˈɡresɪv] 공격적인
-behold [bɪˈhəʊld] 바라보다
-gradual [ˈɡrædʒuəl] 점진적인
-gradually [ˈɡrædʒuəli] 점차
-exhibit [ɪɡˈzɪbɪt] 전시하다
-identical [aɪˈdentɪkl] 동일한
-identity [aɪˈdentəti] 동일함, 신원
-independent [ˌɪndɪˈpendənt] 독립
-independence [ˌɪndɪˈpendəンス] 독립
-boast [bəʊst] 자랑하다
-boastful [ˈbəʊstfl] 자랑하는
-invest [ɪnˈvest] 투자하다
-expand [ɪkˈspænd] 넓히다, 확대하다
-expend [ɪkˈspend] 소비하다
-expansion [ɪkˈspænʃn] 확장, 팽창
-expansive [ɪkˈspænsɪv] 팽창력 있는
-expense [ɪkˈspens] 지출, 비용
-expensive [ɪkˈspensɪv] 비싼
-brilliant [ˈbrɪliənt] 빛나는, 훌륭한
-reject [rɪˈdʒekt] 거절하다
-gender [ˈdʒendər] 성(性)
-term [tɜːrm] 용어, 기간, 학기
-in terms of [ɪn tɜːrmz əv] ~의 측면에서
-injure [ˈɪndʒər] ~을 다치게 하다
-injured [ˈɪndʒərd] 상처 입은, 부당한 대우받은
----
-article [ˈɑːrtɪkl] 기사, 물품, 조항
-credit [ˈkredɪt] 신용
-judge [dʒʌdʒ] 판단하다, 판사
-furthermore [ˌfɜːrðərˈmɔːr] 더구나
-abandon [əˈbændən] 버리다, 포기하다
-beneath [bɪˈniːθ] ~의 바로 아래에
-relax [rɪˈlæks] 긴장이 풀리다
-relaxation [ˌriːlækˈseɪʃn] 풀림, 휴양
-relaxed [rɪˈlækst] 느슨한
-emerge [iˈmɜːrdʒ] 나타나다
-emerging [iˈmɜːrdʒɪŋ] 새로 생겨난
-merge [mɜːrdʒ] 합병하다
-category [ˈkætəɡɔːri] 범주
-categorize [ˈkætəɡəraɪz] 분류하다
-categorical [ˌkætəˈɡɔːrɪkl] 절대적인, 범주에 속하는
-analyze [ˈænəlaɪz] 분석하다
-analysis [əˈnæləsɪs] 분석
-analytical [ˌænəˈlɪtɪkl] 분석적인
-principle [ˈprɪnsəpl] 원리
-principal [ˈprɪnsəpl] 주요한, 교장
-elect [iˈlekt] 선택 하다
-election [iˈlekʃn] 선거
-neglect [nɪˈɡlekt] 무시하다
-neglectful [nɪˈɡlektfl] 부주의한
-agency [ˈeɪdʒənsi] 대행사(기획사)
-agent [ˈeɪdʒənt] 대리인, 대행사
-flawless [ˈflɔːləs] 흠이 없는
-flaw [flɔː] 흠(결함)
-flawlessly [ˈflɔːləsli] 흠 없이(완벽하게)
-companion [kəmˈpæniən] 동료
-companionship [kəmˈpæniənʃɪp] 친구사이
-bill [bɪl] 계산서, 지폐, 법안, 부리
-obligation [ˌɒblɪˈɡeɪʃn] 책임, 의무
-obligatory [əˈblɪɡətɔːri] 의무적인
-oblige [əˈblaɪdʒ] 강요하다
-local [ˈləʊkl] 지방의, 현지의
-apology [əˈpɒlədʒ] 사과, 변명
-apologize [əˈpɒlədʒaɪz] 사과하다
-document [ˈdɒkjumənt] 문서
-recommend [ˌrekəˈmend] 추천하다
-recommendation [ˌrekəmenˈdeɪʃn] 추천
-cue [kjuː] 신호, 단서
-magnify [ˈmæɡnɪfaɪ] 확대하다
-magnificence [mæɡˈnɪfɪsns] 웅대(장엄)
-magnificent [mæɡˈnɪfɪsnt] 장엄한
-cognitive [ˈkɒɡnətɪv] 인식의
-cognition [kɒɡˈnɪʃn] 인식
-balance [ˈbæləns] 균형, 안정, 잔고
-blend [blend] 섞다, 어울리다
-blender [ˈblendər] 믹서기
----
-maintain [meɪnˈteɪn] 유지하다
-maintenance [ˈmeɪntənəns] 유지
-prudent [ˈpruːdnt] 신중한
-prudence [ˈpruːdns] 신중
-revise [rɪˈvaɪz] 개정하다
-revision [rɪˈvɪʒn] 개정
-character [ˈkærəktər] 성격, 특성, 인물, 문자
-characteristic [ˌkærəktəˈrɪstɪk] 독특한, 특성
-characterize [ˈkærəktəraɪz] ~의 특성을 나타내다
-comment [ˈkɒment] 논평, 논평하다
-commentary [ˈkɒməntəri] 논평
-economic [ˌiːkəˈnɒmɪk] 경제의
-economical [ˌiːkəˈnɒmɪkl] 절약되는(경제적인)
-economics [ˌiːkəˈnɒmɪks] 경제학
-economy [ɪˈkɒnəmi] 경제
-economist [ɪˈkɒnəmɪst] 경제학자
-mention [ˈmenʃn] 언급하다
-immediate [ɪˈmiːdiət] 즉각적인
-immediately [ɪˈmiːdiətli] 즉시
-remind [rɪˈmaɪnd] 상기시키다
-board [bɔːrd] 게시판, 위원회, 타다
-measure [ˈmeʒər] 측정하다
-realize [ˈriːəlaɪz] 깨닫다, 실현하다
-manage [ˈmænɪdʒ] 경영하다, 간신히 ~하다
-manageable [ˈmænɪdʒəbl] 처리할 수 있는
----
-imaginary [ɪˈmædʒɪnəri] 상상의
-imaginable [ɪˈmædʒɪnəbl] 상상할 수 있는
-imaginative [ɪˈmædʒɪnətɪv] 상상력이 풍부한
-tear [tɪər] 눈물, 찢다
-worthwhile [ˌwɜːrθˈwaɪl] 가치 있는
-drain [dreɪn] 배출하다, 배수구
-coordinate [kəʊˈɔːrdɪneɪt] 조화시키다, 동등한
-coordination [kəʊˌɔːrdɪˈneɪʃn] 조화, 일치
-engage [ɪnˈɡeɪdʒ] 종사하다, 고용하다, 약속하다
-engagement [ɪnˈɡeɪdʒmənt] 고용, 약속, 약혼
-utilize [ˈjuːtəlaɪz] 이용하다
-utility [juːˈtɪləti] 유용(성)
-compare [kəmˈpeər] 비교하다
-compare A with B [kəmˈpeər A wɪð B] A와 B를 비교하다
-compare A to B [kəmˈpeər A tu B] A를 B에 비유하다
-apparent [əˈpærənt] 명백한
-rehearse [rɪˈhɜːrs] 예행 연습하다
-rehearsal [rɪˈhɜːrsl] 예행 연습
-ordinary [ˈɔːrdneri] 보통의(일상의)
-gaze [ɡeɪz] 응시하다
-perspective [pərˈspektɪv] 전망, 예상
-compel [kəmˈpel] 강요하다
-compulsory [kəmˈpʌlsəri] 강제적인
-compulsion [kʌmˈpʌlʃn] 강제
-fair [feər] 공평한, 상당한, 박람회
-fairly [ˈfeərli] 공정하게, 상당히
-fairness [ˈfeərnəs] 공평
-spill [spɪl] 엎지르다, 유출
-quote [kwəʊt] 인용하다, 인용구
-field [fiːld] 들판, 경기장, 분야
-swear [sweər] 맹세하다
-passion [ˈpæʃn] 열정(정열)
-materialize [məˈtɪəriəlaɪz] 실현하다
-material [məˈtɪəriəl] 재료, 물질의
-rotate [ˈrəʊteɪt] 회전하다
-rotary [ˈrəʊtəri] 회전하는
-rotation [rəʊˈteɪʃn] 회전
-subjection [səbˈdʒekʃn] 복종
-comprehensive [ˌkɒmprɪˈhensɪv] 이해력 있는, 포괄적인
-comprehensible [ˌkɒmprɪˈhensəbl] 이해할 수 있는
-comprehend [ˌkɒmprɪˈhend] 이해하다, 포함하다
-comprehension [ˌkɒmprɪˈhenʃn] 이해, 포함
-comprehensibly [ˌkɒmprɪˈhensəbli] 이해할 수 있게
-common [ˈkɒmən] 흔한, 공통의
-commonly [ˈkɒmənli] 보통
-in common [ɪn ˈkɒmən] 공통으로
-ordinarily [ˌɔːrdnˈerəli] 대개
-apparently [əˈpærəntli] 외관상으로는, 분명히
-tearful [ˈtɪərfl] 눈물 어린
----
-investigate [ɪnˈvestɪɡeɪt] 조사하다
-exploit [ɪkˈexplɔɪt] 개발하다
-figure [ˈfɪɡjər] 수치, 모습, 인물
-figure out [ˈfɪɡjər aʊt] 계산하다, 이해하다
-spread [spred] 퍼지다
-spilt [spɪlt] 쪼개다, 나누다
-explode [ɪkˈspləʊd] 폭발하다
-explosion [ɪkˈspləʊʒn] 폭발
-explosive [ɪkˈspləʊsɪv] 폭발의, 폭발물
-valuable [ˈvæljuəbl] 귀중한
-invaluable [ɪnˈvæljuəbl] 매우 귀중한
-valueless [ˈvæljuːləs] 가치 없는
-value [ˈvæljuː] 가치
-accomplish [əˈkʌmplɪʃ] 완수하다
-accomplishment [əˈkʌmplɪʃmənt] 완성
-purify [ˈpjʊərɪfaɪ] 정화하다
-primary [ˈpraɪmeri] 주요한, 최초의
-approve [əˈpruːv] 찬성하다, 승인하다
-approved [əˈpruːvd] 승인된 (공인된)
-approval [əˈpruːvl] 찬성, 승인
-soak [səʊk] 젖다, 잠기다
-opposite [ˈɒpəzɪt] 반대의, 맞은편에
-opposition [ˌɒpəˈzɪʃn] 반대
-bump [bʌmp] 충돌하다
-bumper [ˈbʌmpər] 완충장치
-purpose [ˈpɜːrpəs] 목적, 의도
-on purpose [ɒn ˈpɜːrpəs] 고의로
-purposeful [ˈpɜːrpəsfl] 고의적인
-plain [pleɪn] 명백한, 알기 쉬운, 무늬가 없는
-nominate [ˈnɒmɪneɪt] 임명하다
-nomination [ˌnɒmɪˈneɪʃn] 임명
-shift [ʃɪft] 이동하다, 바꾸다, 이동
-trigger [ˈtrɪɡər] 일으키다, 당기다
-acquire [əˈkwaɪər] 얻다(획득하다)
-grade [ɡreɪd] 등급, 학년, 성적
-fold [fəʊld] 접다
-folder [ˈfəʊldər] 접는사람[기구]
-virtue [ˈvɜːrtʃuː] 미덕, 장점
-compete [kəmˈpiːt] 경쟁하다
-competition [ˌkɒmpəˈtɪʃn] 경쟁, 대회
-competitive [kəmˈpetətɪv] 경쟁적인
-applaud [əˈplɔːd] 박수갈채하다, 칭찬하다
-applause [əˈplɔːz] 박수, 칭찬
-stir [stɜːr] 휘젓다
-stirring [ˈstɜːrɪŋ] 감동시키는
-vibrate [ˈvaɪbreɪt] 흔들리다
-vibration [vaɪˈbreɪʃn] 진동
-gradable [ˈɡreɪdəbl] 등급을 매길 수 있는
-splitting [ˈsplɪtɪŋ] (머리가)쪼개질 것 같은
-investigation [ɪnˌvestɪˈɡeɪʃn] 조사(연구)
----
-scheme [skiːm] 계획, 계획하다
-enormous [inɔ́ːrməs] 거대한
-confident [kɑ́nfidənt] 자신 있는, 확신하는
-confidential [kɑ̀nfidénʃəl] 비밀의
-confidence [kɑ́nfidəns] 신뢰
-confidentially [kɑ̀nfidénʃəli] 은밀하게
-innovate [ínəvèit] 혁신하다
-innovative [ínəvèitiv] 혁신적인
-innovation [ìnəvéiʃən] 혁신
-scatter [skætər] 흩뿌리다, 흩어지다
-obscure [əbskjúər] 애매한
-lie [lai] 눕다, 놓여있다 / 거짓말하다
-recover [rikʌ́vər] 회복하다
-recovery [rikʌ́vəri] 회복
-range [reindʒ] 범위, 줄 세우다
-compensate [kɑ́mpənsèit] 보상하다
-merit [mérit] 장점
-produce [prədjúːs] 생산하다
-productive [prədʌ́ktiv] 생산적인
-product [prɑ́dəkt] 생산품
-production [prədʌ́kʃən] 생산
-expertise [èkspərtíːz] 전문적인 지식(기술)
-license [láisəns] 면허, 특허, 면허를 주다
-licensed [láisənst] (공적으로) 인가된
-regulate [régjulèit] 조정하다
-regulation [règjuléiʃən] 조절
-sentiment [séntimənt] 감상, 의견
-considerable [kənsídərəbl] 상당한
-considerate [kənsídərət] 사려깊은
-considerably [kənsídərəbli] 상당히
-reserve [rizə́ːrv] 준비하다, 예약하다
-reservation [rèzərvéiʃən] 예약, 보류
-orphan [ɔ́ːrfən] 고아
-orphanage [ɔ́ːrfənidʒ] 고아원
-lay [lei] 눕히다, 놓다, 낳다
-electronic [ilèktrɑ́nik] 전자의
-electron [ilékɑn] 전자
-survive [sərváiv] 살아남다
-string [striŋ] 끈, 묶다
-deserve [dizə́ːrv] ~할 가치가 있다
-pave [peiv] 포장하다
-conserve [kənsə́ːrv] 보존하다
-conservative [kənsə́ːrvətiv] 보수적인
-escape [iskéip] 달아나다
-observe [əbzə́ːrv] 관찰하다, (규칙)지키다
-observation [ɑ̀bzərvéiʃən] 관찰
-observance [əbzə́ːrvəns] 준수
-deserving [dizə́ːrviŋ] (원조를) 받을 만한
----
-perform [pərfɔ́ːrm] 수행하다, 연주하다, 작동하다
-performance [pərfɔ́ːrməns] 연기
-pursue [pərsúː] 추구하다, 뒤쫓다
-pursuit [pərsúːt] 추구, 추격
-restoration [rèstəréiʃən] 복구, 회복, 부흥
-worship [wə́ːrʃip] 예배, 숭배하다
-worshipful [wə́ːrʃipfəl] 숭배하는
-assign [əsáin] 할당하다
-assignment [əsáinmənt] 숙제
-degree [diɡríː] 정도, (온도계)도, 지위, 학위
-endeavor [indévər] 노력하다
-prospect [prɑ́spekt] 전망, 예상
-prospective [prəspéktiv] 예상된, 가망 있는
-industrious [indʌ́striəs] 근면한
-industriously [indʌ́striəsli] 부지런히
-industry [índəstri] 산업
-industrial [indʌ́striəl] 산업의
-industrialization [indʌ̀striəlizéiʃən] 산업화
-aspect [ǽspekt] 측면, 양상
-associate [əsóuʃièit] 결합시키다, 관련시키다
-bond [bɑnd] 유대, 속박
-famine [fǽmin] 기근(굶주림)
-insist on [insíst ɑn] ~을 주장하다
-insistent [insístənt] 강요하는, 뚜렷한
-insistence [insístəns] 주장, 강요
-ridiculous [ridíkjuləs] 우스운, 터무니없는
-ridicule [rídikjùːl] 비웃음, 비웃다
-establish [istǽbliʃ] 설립하다
-established [istǽbliʃt] 확립된
-pale [peil] 창백한
-restrict [ristríkt] 제한하다, 금지하다
-restrictive [ristríktiv] 제한하는
-overcome [òuvərkʌ́m] 극복하다
-activate [ǽktivèit] 작동시키다, 활성화하다
-popularity [pɑ̀pjulǽrəti] 인기, 대중성
-population [pɑ̀pjuléiʃən] 인구
-popular [pɑ́pjulər] 인기 있는, 대중의
-popularize [pɑ́pjuləràiz] 대중화하다, 보급시키다
-populate [pɑ́pjulèit] ~에 살다 (거주하다)
-groom [ɡruːm] 신랑
-bride [braid] 신부
-construct [kənstrʌ́kt] 건설하다, 구조물
-instruct [instrʌ́kt] 가르치다, 지시하다
-instruction [instrʌ́kʃən] 교육, 지시, 명령
-instructive [instrʌ́ktiv] 교육적인
-ratio [réiʃiou] 비율
-in the ratio of [in ðə réiʃiou əv] ~의 비율로
-unique [juːník] 유일한, 독특한
-race [reis] 경주, 인종, 경주하다
-racism [réisizəm] 민족주의(인종차별)
----
-distinguish [distíŋɡwiʃ] 구별하다
-distinct [distíŋkt] 별개의, 뚜렷한
-distinguished [distíŋɡwiʃt] 두드러진
-respectful [rispéktfəl] 공손한 (예의바른)
-respective [rispéktiv] 각각의
-respectively [rispéktivli] 각각
-respect [rispékt] 존경하다
-respectable [rispéktəbl] 존경할 만한
-trait [treit] 특징
-punish [pʌ́niʃ] 처벌하다
-layer [léiər] 층, 층으로 놓다
-layered [léiərd] 층이 있는
-raise [reiz] 올리다, 기르다, 모금하다, 제기하다
-specific [spisífik] 구체적인, 특수한
-translate [trænsléit] 번역하다
-horizon [həráizən] 수평선
-horizontal [hɔ̀rəzɑ́ntl] 수평의, 평면의
-treat [triːt] 다루다, 대접하다, 치료하다
-treatment [tríːtmənt] 취급, 대우, 치료
-unify [júːnəfài] 통일하다
-unification [jùːnifikéiʃən] 통일
-stem [stem] 줄기, 막다
-erase [iréis] 지우다
-equipment [ikwípmənt] 장비, 준비
-equip [ikwíp] (장비를) 갖추어주다
-intuition [ìntjuíʃən] 직감
-intuitive [intjúːitiv] 직관에 의한
-by intuition [bai ìntjuíʃən] 직감으로
-copyright [kɑ́piràit] 저작권
-whereas [hwɛərǽz] ~한 반면에
-ruin [rúːin] 폐허, 파괴
-ruinous [rúːinəs] 파괴적인, 황폐한
-be in ruins [bi in rúːinz] 폐허가 되다
-successful [səksésfəl] 성공한
-successive [səksésiv] 연속하는
-success [səksés] 성공
-succeed [səksíːd] 성공하다
-succession [səkséʃən] 연속, 계승
-successor [səksésər] 계승자
-splendid [spléndid] 화려한
-splendor [spléndər] 훌륭함
-routine [ruːtíːn] 일과, 일상적인
-comparative [kəmpǽrətiv] 비교의, 상대적인
-comparable [kɑ́mpərəbl] ~와 비교되는, 필적하는
-refuge [réfjuːdʒ] 피난(처)
-refugee [rèfjudʒíː] 피난자
-implication [ìmplikéiʃən] 함축, 관련
-implicate [ímplikèit] 포함하다, 관련시키다
-quest [kwest] 탐구
-in quest of [in kwest əv] ~을 추구하여, ~을 찾아
----
-recharge [ritʃɑ́ːrdʒ] 충전하다
-remain [riméin] 남다
-remains [riméinz] 나머지
-remainder [riméindər] 나머지
-reproduce [rìːprədjúːs] 재생하다, 복사하다
-reproduction [rìːprədʌ́kʃən] 재생, 복사, 번식
-reform [rifɔ́ːrm] 개혁하다, 개정하다
-reformer [rifɔ́ːrmər] 개혁가
-revolve [rivɑ́lv] 회전하다
-revolving [rivɑ́lviŋ] 회전하는
-abuse [əbjúːs] 남용하다, 학대하다
-abuser [əbjúːzər] 남용자
-abnormal [æbnɔ́ːrməl] 이상한, 비정상적인
-abnormality [æ̀bnɔːrmǽləti] 비정상
-accompany [əkʌ́mpəni] ~와 동행하다, ~와 동시에 일어나다
-accumulate [əkjúːmjulèit] 모으다, 쌓아 올리다
-accumulation [əkjùːmjuléiʃən] 축적
-accumulative [əkjúːmjulèitiv] 축적하는
-accustomed [əkʌ́stəmd] 익숙해진
-accustom [əkʌ́stəm] 익숙하게 하다
-be accustomed to [bi əkʌ́stəmd tu] ~에 익숙해지다
-advocate [ǽdvəkèit] 옹호하다, 변호하다
-prolong [prəlɔ́ːŋ] 연기하다
-prophecy [prɑ́fisi] 예언
-prophet [prɑ́fit] 예언자
-prolog [próulɔːɡ] 서두
-combat [kɑ́mbæt] 전투, 싸우다
-combatant [kəmbǽtənt] 전투원
-compile [kəmpáil] 편찬하다, 수집하다
-compromise [kɑ́mprəmàiz] 타합, 타협하다
-condense [kəndéns] 요약하다, 압축하다
-condensation [kɑ̀ndenséiʃən] 요약, 압축
-conform [kənfɔ́ːrm] 따르다, 순응하다
-confront [kənfrʌ́nt] 직면하다
-contagious [kəntéidʒəs] 전염성의
-coincidence [kouínsidəns] (우연의) 일치
-coincide [kòuinsáid] 일치하다
-coincidental [kouìnsidéntl] 동시에 일어나는
-geography [dʒiɑ́ɡrəfi] 지리학
-geology [dʒiɑ́lədʒi] 지질학
-geometry [dʒiɑ́mətri] 기하학
-controversial [kɑ̀ntrəvə́ːrʃəl] 논쟁의 여지가 있는
-controversy [kɑ́ntrəvə̀ːrsi] 논쟁
-contrast [kɑ́ntræst] 대조, 대조하다
-contrast A with B [kɑ́ntræst A wɪð B] A를 B와 대조하다
-by [in] contrast with [bai in kɑ́ntræst wɪð] ~와 대조적으로
-contrary [kɑ́ntrəri] 반대
-on the contrary [ɑn ðə kɑ́ntrəri] 반대로
-counteract [kàuntərǽkt] 중화하다, 방해하다
-counterfeit [káuntərfìt] 위조하다, 위조의
----
-decode [diːkóud] 풀다, 해독하다
-encode [inkóud] 암호화 하다
-degrade [diɡréid] (지위/품질) 떨어뜨리다
-degradation [dèɡrədéiʃən] 좌천, 하락
-depart [dipɑ́ːrt] 출발하다
-departure [dipɑ́ːrtʃər] 출발
-despise [dispáiz] 경멸하다
-diameter [daiǽmitər] 지름
-dialect [dáiəlèkt] 방언(사투리)
-irregular [iréɡjulər] 불규칙한, 고르지 않는
-regular [réɡjulər] 규칙적인(정규적인)
-illiterate [ilítərət] 문맹의
-literate [lítərət] 학식 있는
-illiteracy [ilítərəsi] 문맹
-impersonal [impə́ːrsənl] 객관적인, 비인격적인
-personal [pə́ːrsənl] 개인의, 인격적인
-Antarctic [æntɑ́ːrktik] 남극
-Arctic [ɑ́ːrktik] 북극
-antibiotic [æ̀ntibaiɑ́tik] 항생제
-antonym [ǽntənim] 반의어
-synonym [sínənim] 동의어
-antipathy [æntípəθi] 반감, 혐오
-sympathy [símpəθi] 동정, 호의
-pros and cons [prouz ænd kɑnz] 찬반 양론
-extraordinary [ikstrɔ́ːrdənèri] 비범한 (대단한)
-ordinary [ɔ́ːrdənèri] 평범한
-extracurricular [èkstrəkəríkjulər] 과외의
-enforce [infɔ́ːrs] 실시하다, 강요하다
-entitle [intáitl] 자격을 주다, (~라고) 칭하다
-entitlement [intáitlmənt] 자격
-endanger [indéindʒər] 위험에 빠뜨리다
-encounter [inkáuntər] (위험에)마주치다
-have an encounter with [hæv ən inkáuntər wɪð] ~와 우연히 만나다
-endure [indjúər] 참다
-endurance [indjúərəns] 지구력, 인내
-enclose [inklóuz] 둘러싸다, 동봉하다
-enclosed [inklóuzd] 동봉된
-enclosure [inklóuʒər] 둘러쌈, 동봉
-enlighten [inláitn] 계몽하다
-enroll [inróul] 등록하다
-enrollment [inróulmənt] 등록, 입학
-external [ikstə́ːrnl] 외부의
-internal [intə́ːrnl] 내부의
-externalize [ikstə́ːrnəlàiz] 구체화하다
-extinct [ikstíŋkt] 멸종된
-exaggerate [iɡzǽdʒərèit] 과장하다
-exceed [iksíːd] 초과하다
-exceedingly [iksíːdiŋli] 대단히
-foretell [fɔːrtél] 예언하다
-forecast [fɔ́ːrkæ̀st] 예보(예측)하다
----
-dissolve [dizɑ́lv] 녹다, 해산하다
-discourage [diskə́ːridʒ] 낙담시키다
-dismiss [dismís] 해고하다, 해산시키다
-dismissal [dismísəl] 해고, 해산
-disorder [disɔ́ːrdər] 혼란, 무질서, 장애
-disorderly [disɔ́ːrdərli] 무질서한
-disposal [dispóuzəl] 처리, 배치
-dispose [dispóuz] 처리하다, 배치하다
-disposable [dispóuzəbl] 일회용품의
-inevitable [inévitəbl] 피할 수 없는
-inevitably [inévitəbli] 필연적으로
-intolerable [intɑ́lərəbl] 참을 수 없는
-unbearable [ʌnbέərəbl] 참을 수 없는
-intact [intǽkt] 손대지 않은, 손상되지 않은
-invade [invéid] 침략하다
-invasion [invéiʒən] 침략
-invasive [invéisiv] 침략적인
-infect [infékt] 감염시키다
-insight [ínsàit] 통찰(력)
-insightful [ínsàitfəl] 통찰력 있는
-insult [insʌ́lt] 모욕하다, 모욕
-insulting [insʌ́ltiŋ] 무례한
-instinct [ínstiŋkt] 본능
-innate [inéit] 타고난
-innately [inéitli] 선천적으로
-intake [intéik] 흡입
-intermission [ìntərmíʃən] 휴식 시간
-interpret [intə́ːrprit] 해석(통역)하다
-interpreter [intə́ːrpritər] 통역관
-interpretation [intə̀ːrpritéiʃən] 해석(통역)
-instinctive [instíŋktiv] 본능적인
-interfere [ìntərfiər] 간섭하다, 방해하다
-interval [íntərvəl] 간격
-interaction [ìntərǽkʃən] 상호작용, 의사소통
-interact [ìntərǽkt] 상호작용하다
-interactive [ìntərǽktiv] 상호작용하는
-interchange [ìntərtʃéindʒ] 교환하다, 교환
-subconscious [sʌbkɑ́nʃəs] 잠재의식
-subordinate [səbɔ́ːrdənət] 하위의, 부차적인, 부하
-subordination [səbɔ̀ːrdənéiʃən] 복종
-suppress [səprés] 억압하다, 억제하다
-subscribe [səbskráib] 구독하다, 서명하다
-subscription [səbskrípʃən] (정기 간행물의)구독
-supreme [suːpríːm] 최고의
-supremacy [suːpréməsi] 최고
-superb [suːpə́ːrb] 아주 훌륭한
-magnitude [mǽɡnitjùːd] 중대성
-majestic [mədʒéstik] 장대한
-majesty [mǽdʒisti] 위엄, 장엄
-masterpiece [mǽstərpìːs] 걸작
----
-outcast [áutkæ̀st] 버림받은 사람, 버림받은
-outcome [áutkʌ̀m] 결과, 성과
-outgoing [áutɡòuŋ] 외향적인
-extrovert [ékstrəvə̀ːrt] 외향적인 사람
-outlet [áutlèt] 출구, 직판점
-outline [áutlàin] 윤곽
-outlook [áutlùk] 경치, 전망
-outstanding [áutstǽndiŋ] 아주 뛰어난
-outward [áutwərd] 밖으로의, 외면적인, 외부
-outwardly [áutwərdli] 외견상
-outdo [áutdúː] ~보다 낫다
-outdo oneself [áutdúː wʌnsélf] 전에 없이 잘하다
-utmost [ʌ́tmòust] 최대의
-utter [ʌ́tər] 입 밖에 내다, 완전한
-utterance [ʌ́tərəns] 발언
-utterly [ʌ́tərli] 완전히
-overlook [òuvərlúk] 간과하다
-overflow [òuvərflóu] 넘쳐흐르다, 범람
-overtake [òuvərtéik] 따라잡다
-overwhelm [òuvərhwélm] 압도하다
-overwhelming [òuvərhwélmiŋ] 압도적인
-perish [périʃ] 죽다
-persist [pərsíst] 고집하다, 지속하다
-persistence [pərsístəns] 끈기, 고집
-persistent [pərsístənt] 끈질긴, 고집 센
-persuade [pərswéid] 설득하다, 확신시키다
-persuasive [pərswéisiv] 설득력 있는
-persuasion [pərswéiʒən] 설득, 확신
-posterity [pɑstérəti] 자손
-ancestry [ǽnsestri] 조상
-posterior [pɑstíəriər] 뒤에 오는
-postpone [poustpóun] 연기하다
-delay, put off [diléi, put ɔːf] 연기하다
-prevail [privéil] 널리 퍼지다, 승리하다
-prevalence [prévələns] 널리 퍼짐, 유행
-prevalent [prévələnt] 널리 퍼진, 유행하는
-preoccupied [priɑ́kjupàid] ~에 몰두한, 정신이 팔린
-preoccupy [priɑ́kjupài] 선점하다, 몰두하게 하다
-preoccupation [priɑ̀kjupéiʃən] 선점, 몰두
-superficial [sùːpərfíʃəl] 외부의, 피상적인
-sovereign [sɑ́vrin] 주권이 있는, 주권자
-sovereignty [sɑ́vrinti] 주권
-surpass [sərpǽs] 능가하다
-transcript [trǽnskript] 사본, 성적증명서
-transcribe [trænskráib] 복사하다
-transform [trænsfɔ́ːrm] 바꾸다
-transaction [trænzǽkʃən] 처리, 업무, 거래
-transact [trænzǽkt] 집행하다, 처리하다
-transmit [trænzmít] 보내다, 알리다
-transparent [trænspέərənt] 투명한, 이해하기 쉬운
----
-synonym [sínənim] 동의어
-sympathetic [sìmpəθétik] 동정심 있는, 마음에 드는
-sympathy [símpəθi] 동정, 호감
-sympathize [símpəθàiz] 동정하다, 공감하다
-synchronize [síŋkrənàiz] 동시에 진행하다
-synthetic [sinθétik] 합성의, 인조의, 종합적인
-synthesize [sínθisàiz] 합성하다, 종합하다
-synthesis [sínθisis] 합성, 종합
-telecommute [tèlikəmjúːt] 재택근무하다
-telecommuting [tèlikəmjúːtiŋ] 재택근무
-telecommuter [tèlikəmjúːtər] 재택근무자
-telegraph [téliɡræ̀f] 전보, 신호하다
-underestimate [ʌ̀ndəréstəmèit] 과소평가하다
-underlying [ʌ̀ndərláiiŋ] 밑에 놓인, 기초적인
-underlie [ʌ̀ndərlái] ~의 밑에 있다
-underserved [ʌ̀ndərsə́ːrvd] 서비스가 충분하지 못한
-undergo [ʌ̀ndərɡóu] 겪다, 경험하다, 견디다
-undertake [ʌ̀ndərtéik] 맡다, 착수하다, 약속하다
-upcoming [ʌ́pkʌ̀miŋ] 다가오는
-uphold [ʌphóuld] 지지하다
-upright [ʌ́pràit] 똑바로 선, 올바른
-upside down [ʌ́psàid dáun] 거꾸로
-agony [ǽɡəni] 고통
-agonize [ǽɡənàiz] 몹시 괴로워하다
-navigate [nǽviɡèit] 항해하다, 길을 찾아가다
-navigation [næ̀viɡéiʃən] 항해
-distress [distrés] 괴롭히다, 근심하게하다
-distressing [distrésiŋ] 괴롭히는, 비참한
-distressed [distrést] 괴로워하는
-prestige [prestíːʒ] 명성
-prestigious [prestídʒəs] 명성이 있는
-strict [strikt] 엄격한, 정확한
-strictly [stríktli] 엄격히
-strain [strein] 긴장, 압력, 잡아당기다
-vertical [və́ːrtikəl] 수직의, 수직선
-converse [kənvə́ːrs] 거꾸로 된, 반대의, 대화하다
-convert [kənvə́ːrt] 전환하다
-conversion [kənvə́ːrʒən] 전환, 개조
-conversation [kɑ̀nvərséiʃən] 대화
-convertible [kənvə́ːrtəbl] 전환 수 있는
-diverse [divə́ːrs] 다양한
-diversity [divə́ːrsə티] 다양성, 변화
-reverse [rivə́ːrs] 뒤집다, 반대, 반대의
-vacant [véikənt] 공허한, 비어 있는
-vacancy [véikënsi] 공허, 빈 자리
-vacuum [vǽkjuəm] 진공
-vain [vein] 헛된, 무익한
-vanity [vǽnəti] 허영심
-in vain [in vein] 헛되이
-vanish [vǽniʃ] 사라지다
----
-heighten [háitn] 높게하다, 증가시키다
-worsen [wə́ːrsn] 악화되다
-broaden [brɔ́ːdn] 넓히다
-board [bɔːrd] 폭이 넓은
-straighten [stréitn] 똑바르게 하다, 정리하다
-straight [streit] 곧은, 정돈된, 똑바로
-fasten [fǽsn] 묶다, 고정시키다
-hasten [héisn] 서두르다
-haste [heist] 서두름
-charitable [tʃǽritəbl] 자선의, 관대한
-charity [tʃǽriti] 자선, 관용
-dispensable [dispénsəbl] 없어도 되는
-indispensable [ìndispénsəbl] 없어서는 안 되는
-dispense [dispéns] 분배하다, 베풀다
-dispensation [dìspənséiʃən] 분배, 분매물
-negotiable [niɡóuʃəəbl] 협상(협정)할 수 있는
-negotiate [niɡóuʃièit] 협상하다
-negotiation [niɡòuʃiéiʃən] 협상(교섭)
-divisible [divízəbl] 나눌 수 있는
-divide [diváid] 나누다
-audible [ɔ́ːdəbl] 들리는
-edible [édəbl] 먹을 수 있는
-eligible [élidʒəbl] 적격의, 자격이 있는
-tangible [tǽndʒəbl] 가시적인(실체가 있는), 명백한
-tangibly [tǽndʒəbli] 실체적으로
-bilingual [bailíŋɡwəl] 2개 국어를 말하는
-duplicate [djúːplikèit] 사본, 복사하다
-duplication [djùːplikéiʃən] 복사, 중복
-twilight [twáilait] 땅거미(황혼)
-trivial [tríviəl] 사소한
-tribal [tráibəl] 종족의, 부족의
-tribe [traib] 종족, 부족
-conduct [kɑ́ndʌkt] 행위, 행동하다, 지휘하다
-conductor [kəndʌ́ktər] 안내자, 지휘자
-deduct [didʌ́kt] 빼다, 공제하다
-despair [dispέər] 절망, 절망하다
-desperate [déspərət] 자포자기의
-in despair [in dispέər] 절망하여
-prosper [prɑ́spər] 번영하다, 성공하다
-prosperity [prɑspérəti] 번영, 성공
-continent [kɑ́ntinənt] 대륙
-abstain [æbstéin] 기권하다
-sustain [səstéin] 유지하다
-sustenance [sʌ́stənəns] 음식물, 유지
-sustainable [səstéinəbl] 지속할 수 있는
-retain [ritéin] 보유하다, 고용하다
-attain [ətéin] 달성하다, 차지하다
-integrate [íntəɡrèit] 통합하다, 완성하다
-tail [teil] 소매
-retailer [ríːteilər] 소매상인
----
-withstand [wiðstǽnd] 견디다, 저항하다
-withdraw [wiðdrɔ́ː] 물러나다, 취소하다, 인출하다
-withhold [wiðhóuld] 보류하다, 말리다
-abolish [əbɑ́liʃ] 폐지하다
-adolescent [æ̀dəlésənt] 사춘기 청소년
-adolescence [æ̀dəlésəns] 사춘기
-criticize [krítisàiz] 비난하다
-criticism [krítisìzəm] 비판
-critic [krítik] 비평가
-discriminate [diskrímənèit] 차별하다, 구별하다
-discrimination [diskrìmənéiʃən] 차별
-biography [baiɑ́ɡrəfi] 전기(일대기)
-biology [baiɑ́lədʒi] 생물학
-biologist [baiɑ́lədʒist] 생물학자
-biological [bàiəlɑ́dʒikəl] 생물학적인
-resign [rizáin] 사직하다, 포기하다
-signify [síɡnəfài] 뜻하다(나타내다), 중요하다
-significance [siɡnífikəns] 의의, 중요성
-significant [siɡnífikənt] ~을 의미하는, 중요한
-capable [kéipəbl] ~할 수 있는, 유능한
-capability [kèipəbíləti] 능력
-conceive [kənsíːv] 생각해내다, 상상하다
-captive [kǽptiv] 포로가 된, 포로
-captivity [kæptívəti] 감금
-deceive [disíːv] 속이다
-deception [dɪˈsepʃn] 속임수, 기만`;
+    /* 로컬 스토리지 키 설정 */
+    const STORAGE_KEY = 'FCL_VOCA_DATA';
+    
+    /* 초기 데이터 설정 */
+    let vocaData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        "FCL_우선순위단어": [
+            { eng: "tradition", phon: "trədíʃən", kor: "전통, 전설", mark: "" },
+            { eng: "patriotism", phon: "péitriətìzm", kor: "애국심", mark: "" },
+            { eng: "religion", phon: "rilídʒən", kor: "종교", mark: "" },
+            { eng: "conscience", phon: "kɑ́nʃəns", kor: "양심", mark: "" },
+            { eng: "intellect", phon: "íntəlekt", kor: "지성", mark: "" }
+        ]
+    };
 
-    let wordGroups = [];
-    let currentPage = 0;
+    let currentBookName = "FCL_우선순위단어";
+    let currentPageNum = 1;
+    let itemsPerPage = 50;
 
-    function init() {
-        const sections = rawInput.split('---');
-        wordGroups = sections.map(sec => {
-            return sec.trim().split('\n').filter(line => line.includes('[') || line.includes(':')).map(line => {
-                let eng, phon, mean;
-                if (line.includes('[')) {
-                    eng = line.split('[')[0].trim();
-                    phon = '[' + line.split('[')[1].split(']')[0] + ']';
-                    mean = line.split(']')[1].trim();
-                } else {
-                    eng = line.split(':')[0].trim();
-                    phon = "";
-                    mean = line.split(':')[1].trim();
-                }
-                return { eng, phon, mean };
-            });
-        });
-        renderPageButtons();
-        renderWords(0);
-    }
-
-    function renderPageButtons() {
-        const area = document.getElementById('pageArea');
-        area.innerHTML = "";
-        wordGroups.forEach((_, idx) => {
-            const btn = document.createElement('button');
-            btn.className = "page-btn" + (idx === currentPage ? " active" : "");
-            btn.innerText = "Day " + (idx + 1);
-            btn.onclick = () => {
-                currentPage = idx;
-                renderWords(idx);
-                renderPageButtons();
-            };
-            area.appendChild(btn);
-        });
-    }
-
-    function renderWords(idx) {
-        const area = document.getElementById('wordListArea');
-        area.innerHTML = "";
-        wordGroups[idx].forEach(w => {
-            const card = document.createElement('div');
-            card.className = "word-card";
-            card.innerHTML = `
-                <div class="check-btn" onclick="this.style.background=this.style.background==='var(--accent)'?'':'var(--accent)'"></div>
-                <div class="word-info">
-                    <div class="word-eng" onclick="speak('${w.eng}')">${w.eng} <span style="font-size:12px; color:#888; font-weight:normal;">${w.phon}</span></div>
-                </div>
-                <div class="word-mean">${w.mean}</div>
-            `;
-            area.appendChild(card);
-        });
-        window.scrollTo(0, 0);
-    }
-
-    function speak(text) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-US';
-        msg.rate = parseFloat(document.getElementById('voiceSpeed').value);
-        window.speechSynthesis.speak(msg);
-    }
-
-    function updateSpeed(v) {
-        document.getElementById('speedVal').innerText = v;
+    function saveToLocal() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(vocaData));
     }
 
     function toggleAdminMode() {
@@ -1103,32 +107,72 @@ deception [dɪˈsepʃn] 속임수, 기만`;
         menu.style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none';
     }
 
-    function openFullEdit() {
-        document.getElementById('fullEditor').value = rawInput;
-        document.getElementById('editModal').style.display = 'block';
+    function render() {
+        const area = document.getElementById('wordListArea');
+        const list = vocaData[currentBookName] || [];
+        area.innerHTML = "";
+        
+        list.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.innerHTML = `
+                <div class="check-btn ${item.mark}" onclick="cycleMark(${idx})"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
+                    <div style="font-size:0.75em; color:gray;">[${item.phon}]</div>
+                </div>
+                <div class="word-mean" onclick="this.classList.toggle('hidden')">: ${item.kor}</div>
+            `;
+            area.appendChild(card);
+        });
+        updatePagination();
     }
 
-    function closeEdit() {
-        document.getElementById('editModal').style.display = 'none';
+    function cycleMark(idx) {
+        const item = vocaData[currentBookName][idx];
+        if (!item.mark) item.mark = "blue";
+        else if (item.mark === "blue") item.mark = "red";
+        else item.mark = "";
+        saveToLocal();
+        render();
     }
 
-    document.getElementById('saveBtn').onclick = function() {
-        rawInput = document.getElementById('fullEditor').value;
-        init();
-        closeEdit();
-        alert("수정되었습니다. 영구 저장을 위해 반드시 '파일 저장' 버튼을 눌러주세요.");
-    };
-
-    function downloadSelf() {
-        const currentContent = document.documentElement.outerHTML;
-        const blob = new Blob([currentContent], { type: 'text/html' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = "FCL_Voca_Final.html";
-        a.click();
+    function updatePagination() {
+        const area = document.getElementById('pageArea');
+        area.innerHTML = '<button class="page-btn active">1</button>';
     }
 
-    init();
+    function toggleGlobalVisibility() {
+        const means = document.querySelectorAll('.word-mean');
+        const btn = document.getElementById('mainToggleBtn');
+        const shouldHide = btn.innerText === "뜻 숨기기";
+        
+        means.forEach(m => shouldHide ? m.classList.add('hidden') : m.classList.remove('hidden'));
+        btn.innerText = shouldHide ? "뜻 보이기" : "뜻 숨기기";
+    }
+
+    function speak(text) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-US';
+        window.speechSynthesis.speak(msg);
+    }
+
+    function shuffleCurrentPage() {
+        vocaData[currentBookName].sort(() => Math.random() - 0.5);
+        render();
+    }
+
+    function sortRedToTop() {
+        vocaData[currentBookName].sort((a, b) => {
+            if (a.mark === "red" && b.mark !== "red") return -1;
+            if (a.mark !== "red" && b.mark === "red") return 1;
+            return 0;
+        });
+        render();
+    }
+
+    /* 초기 실행 */
+    window.onload = render;
 </script>
 
 </body>
