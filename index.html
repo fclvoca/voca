@@ -3,40 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>고교 영어 단어장 - FCL_Voca_Main</title>
+    <title>FCL_Voca_System</title>
     <style>
-        :root { --primary: #1A237E; --accent: #FF9800; --bg: #f8f9fa; }
+        :root { --primary: #1A237E; --accent: #FF9800; --bg: #ffffff; }
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
         
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
         .book-title-area { font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
-        .search-row { display: flex; gap: 5px; align-items: center; }
+        #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 200px; }
+        .search-row { display: flex; gap: 5px; align-items: center; margin-bottom: 8px; }
         .search-row input { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 15px; }
         
-        .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; min-width: 90px; }
+        .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; min-width: 80px; }
         
-        .admin-check { font-size: 11px; opacity: 0.8; }
-        .admin-menu { display: none; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-        .admin-menu button { border: none; color: white; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .admin-check { font-size: 12px; opacity: 0.9; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .admin-menu { display: none; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.3); }
+        .admin-menu button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; }
-        .page-btn { padding: 8px 15px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 14px; cursor: pointer; font-weight: bold; }
-        .page-btn.active { background: var(--primary); color: white; }
+        .pagination { display: flex; gap: 5px; background: #fff; padding: 10px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; scroll-behavior: smooth; border-top: 1px solid #eee; }
+        .page-btn { padding: 6px 12px; border: 1px solid #1A237E; border-radius: 4px; background: white; font-size: 14px; cursor: pointer; font-weight: bold; min-width: 35px; color: #1A237E; }
+        .page-btn.active { background: #1A237E; color: white; }
         
-        .util-row { display: flex; gap: 8px; padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; }
-        .util-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fdfdfd; font-size: 12px; font-weight: bold; cursor: pointer; color: #444; }
+        .util-row { display: flex; gap: 8px; padding: 10px; background: #fff; border-bottom: 1px solid #eee; }
+        .util-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fdfdfd; font-size: 12px; font-weight: bold; cursor: pointer; color: #1A237E; display: flex; align-items: center; justify-content: center; gap: 5px; }
 
-        .word-card { display: flex; align-items: center; background: white; padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; cursor: pointer; }
+        .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; position: relative; }
+        .check-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ddd; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
         .check-btn.blue { background: #2196F3; border-color: #2196F3; }
         .check-btn.red { background: #F44336; border-color: #F44336; }
         
         .word-info { flex-grow: 1; }
-        .word-eng { font-size: 1.15em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; }
-        .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; min-width: 80px; transition: 0.2s; }
+        .word-eng { font-size: 1.25em; font-weight: bold; color: #000; cursor: pointer; display: block; }
+        .word-phon { font-size: 0.85em; color: #888; }
+        .word-mean { padding-left: 10px; text-align: right; color: #1A237E; font-weight: bold; font-size: 1.15em; cursor: pointer; min-width: 120px; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
     </style>
 </head>
@@ -44,28 +45,25 @@
 
 <header>
     <div class="top-row">
-        <div class="book-title-area" id="bookTitle">FCL_우선순위단어</div>
-        <select id="bookSelector" onchange="switchBook()">
-            <option value="FCL_고교필수단어">FCL_고교필수단어</option>
-            <option value="FCL_우선순위단어" selected>FCL_우선순위단어</option>
-        </select>
-        <label class="admin-check">교사모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
+        <div class="book-title-area" id="bookTitle">단어장 선택</div>
+        <select id="bookSelector" onchange="switchBook()"></select>
+        <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
 
     <div class="search-row">
-        <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="if(event.keyCode==13){searchWord()}">
+        <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="searchWord()">
         <button id="mainToggleBtn" class="toggle-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
     </div>
 
     <div id="adminMenu" class="admin-menu">
-        <button onclick="addBook()" style="background:#5C6BC0">단어장추가</button>
+        <button onclick="addBook()" style="background:#3F51B5">단어장추가</button>
         <button onclick="renameCurrentBook()" style="background:#FF5722">이름수정</button>
-        <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가</button>
+        <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가(50개)</button>
         <button onclick="openPageEdit()" style="background:#9C27B0">현재 페이지 편집</button>
         <button onclick="openFullEdit()" style="background:#4CAF50">전체 데이터 편집</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
-        <button onclick="deleteBook()" style="background:#d32f2f">삭제</button>
-        <button onclick="resetData()" style="background:#000">초기화</button>
+        <button onclick="deleteBook()" style="background:#f44336">삭제</button>
+        <button onclick="resetData()" style="background:#000000">데이터 초기화</button>
     </div>
 </header>
 
@@ -80,23 +78,18 @@
 <div id="wordListArea"></div>
 
 <script>
-    /* 로컬 스토리지 키 설정 */
-    const STORAGE_KEY = 'FCL_VOCA_DATA';
+    const STORAGE_KEY = 'FCL_MASTER_VOCA_DATA';
     
-    /* 초기 데이터 설정 */
     let vocaData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-        "FCL_우선순위단어": [
-            { eng: "tradition", phon: "trədíʃən", kor: "전통, 전설", mark: "" },
-            { eng: "patriotism", phon: "péitriətìzm", kor: "애국심", mark: "" },
-            { eng: "religion", phon: "rilídʒən", kor: "종교", mark: "" },
-            { eng: "conscience", phon: "kɑ́nʃəns", kor: "양심", mark: "" },
-            { eng: "intellect", phon: "íntəlekt", kor: "지성", mark: "" }
+        "FCL_고교필수단어": [
+            { eng: "release", phon: "[rɪˈliːs]", kor: "놓아주다, 개봉하다", mark: "" },
+            { eng: "attempt", phon: "[əˈtempt]", kor: "시도하다", mark: "" }
         ]
     };
 
-    let currentBookName = "FCL_우선순위단어";
+    let currentBookName = Object.keys(vocaData)[0];
     let currentPageNum = 1;
-    let itemsPerPage = 50;
+    const itemsPerPage = 50;
 
     function saveToLocal() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(vocaData));
@@ -107,73 +100,212 @@
         menu.style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none';
     }
 
+    function updateBookSelector() {
+        const selector = document.getElementById('bookSelector');
+        selector.innerHTML = "";
+        Object.keys(vocaData).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.innerText = name;
+            opt.selected = (name === currentBookName);
+            selector.appendChild(opt);
+        });
+        document.getElementById('bookTitle').innerText = currentBookName;
+    }
+
+    function switchBook() {
+        currentBookName = document.getElementById('bookSelector').value;
+        currentPageNum = 1;
+        render();
+    }
+
     function render() {
+        updateBookSelector();
         const area = document.getElementById('wordListArea');
-        const list = vocaData[currentBookName] || [];
-        area.innerHTML = "";
+        const fullList = vocaData[currentBookName] || [];
+        const startIndex = (currentPageNum - 1) * itemsPerPage;
+        const pageList = fullList.slice(startIndex, startIndex + itemsPerPage);
         
-        list.forEach((item, idx) => {
+        area.innerHTML = "";
+        pageList.forEach((item, idx) => {
+            const globalIdx = startIndex + idx;
             const card = document.createElement('div');
             card.className = 'word-card';
             card.innerHTML = `
-                <div class="check-btn ${item.mark}" onclick="cycleMark(${idx})"></div>
+                <div class="check-btn ${item.mark}" onclick="cycleMark(${globalIdx})"></div>
                 <div class="word-info">
                     <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
-                    <div style="font-size:0.75em; color:gray;">[${item.phon}]</div>
+                    <span class="word-phon">${item.phon}</span>
                 </div>
-                <div class="word-mean" onclick="this.classList.toggle('hidden')">: ${item.kor}</div>
+                <div class="word-mean" onclick="this.classList.toggle('hidden')">${item.kor}</div>
             `;
             area.appendChild(card);
         });
         updatePagination();
     }
 
+    function updatePagination() {
+        const area = document.getElementById('pageArea');
+        const fullList = vocaData[currentBookName] || [];
+        const totalPages = Math.ceil(fullList.length / itemsPerPage);
+        area.innerHTML = "";
+        
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = `page-btn ${i === currentPageNum ? 'active' : ''}`;
+            btn.innerText = i;
+            btn.onclick = () => { currentPageNum = i; render(); window.scrollTo(0,0); };
+            area.appendChild(btn);
+        }
+    }
+
     function cycleMark(idx) {
-        const item = vocaData[currentBookName][idx];
-        if (!item.mark) item.mark = "blue";
-        else if (item.mark === "blue") item.mark = "red";
-        else item.mark = "";
+        const list = vocaData[currentBookName];
+        if (!list[idx].mark) list[idx].mark = "blue";
+        else if (list[idx].mark === "blue") list[idx].mark = "red";
+        else list[idx].mark = "";
         saveToLocal();
         render();
     }
 
-    function updatePagination() {
-        const area = document.getElementById('pageArea');
-        area.innerHTML = '<button class="page-btn active">1</button>';
+    function searchWord() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        if (!term) { render(); return; }
+        const area = document.getElementById('wordListArea');
+        const fullList = vocaData[currentBookName] || [];
+        area.innerHTML = "";
+        fullList.forEach((item, idx) => {
+            if (item.eng.toLowerCase().includes(term) || item.kor.includes(term)) {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.innerHTML = `
+                    <div class="check-btn ${item.mark}" onclick="cycleMark(${idx})"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
+                        <span class="word-phon">${item.phon}</span>
+                    </div>
+                    <div class="word-mean" onclick="this.classList.toggle('hidden')">${item.kor}</div>
+                `;
+                area.appendChild(card);
+            }
+        });
     }
 
     function toggleGlobalVisibility() {
         const means = document.querySelectorAll('.word-mean');
         const btn = document.getElementById('mainToggleBtn');
-        const shouldHide = btn.innerText === "뜻 숨기기";
-        
-        means.forEach(m => shouldHide ? m.classList.add('hidden') : m.classList.remove('hidden'));
-        btn.innerText = shouldHide ? "뜻 보이기" : "뜻 숨기기";
+        const isHidden = btn.innerText === "뜻 숨기기";
+        means.forEach(m => isHidden ? m.classList.add('hidden') : m.classList.remove('hidden'));
+        btn.innerText = isHidden ? "뜻 보이기" : "뜻 숨기기";
     }
 
     function speak(text) {
+        window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
         window.speechSynthesis.speak(msg);
     }
 
     function shuffleCurrentPage() {
-        vocaData[currentBookName].sort(() => Math.random() - 0.5);
+        const startIndex = (currentPageNum - 1) * itemsPerPage;
+        let pageItems = vocaData[currentBookName].splice(startIndex, itemsPerPage);
+        pageItems.sort(() => Math.random() - 0.5);
+        vocaData[currentBookName].splice(startIndex, 0, ...pageItems);
         render();
     }
 
     function sortRedToTop() {
-        vocaData[currentBookName].sort((a, b) => {
-            if (a.mark === "red" && b.mark !== "red") return -1;
-            if (a.mark !== "red" && b.mark === "red") return 1;
-            return 0;
-        });
+        const startIndex = (currentPageNum - 1) * itemsPerPage;
+        let pageItems = vocaData[currentBookName].splice(startIndex, itemsPerPage);
+        pageItems.sort((a, b) => (b.mark === 'red' ? 1 : 0) - (a.mark === 'red' ? 1 : 0));
+        vocaData[currentBookName].splice(startIndex, 0, ...pageItems);
         render();
     }
 
-    /* 초기 실행 */
+    // 관리자 기능 함수들
+    function addBook() {
+        const name = prompt("새 단어장 이름을 입력하세요:");
+        if (name && !vocaData[name]) {
+            vocaData[name] = [];
+            currentBookName = name;
+            saveToLocal();
+            render();
+        }
+    }
+
+    function renameCurrentBook() {
+        const newName = prompt("현재 단어장의 새 이름을 입력하세요:", currentBookName);
+        if (newName && newName !== currentBookName) {
+            vocaData[newName] = vocaData[currentBookName];
+            delete vocaData[currentBookName];
+            currentBookName = newName;
+            saveToLocal();
+            render();
+        }
+    }
+
+    function createNewEmptyPage() {
+        for (let i = 0; i < 50; i++) {
+            vocaData[currentBookName].push({ eng: "new word", phon: "[phon]", kor: "새 단어", mark: "" });
+        }
+        saveToLocal();
+        render();
+    }
+
+    function openPageEdit() {
+        const startIndex = (currentPageNum - 1) * itemsPerPage;
+        const pageItems = vocaData[currentBookName].slice(startIndex, startIndex + itemsPerPage);
+        const dataStr = JSON.stringify(pageItems, null, 2);
+        const newStr = prompt("현재 페이지 데이터를 편집하세요 (JSON):", dataStr);
+        if (newStr) {
+            try {
+                const newData = JSON.parse(newStr);
+                vocaData[currentBookName].splice(startIndex, itemsPerPage, ...newData);
+                saveToLocal();
+                render();
+            } catch (e) { alert("형식이 잘못되었습니다."); }
+        }
+    }
+
+    function openFullEdit() {
+        const dataStr = JSON.stringify(vocaData, null, 2);
+        const newStr = prompt("전체 데이터를 편집하세요 (JSON):", dataStr);
+        if (newStr) {
+            try {
+                vocaData = JSON.parse(newStr);
+                currentBookName = Object.keys(vocaData)[0];
+                saveToLocal();
+                render();
+            } catch (e) { alert("형식이 잘못되었습니다."); }
+        }
+    }
+
+    function downloadSelf() {
+        const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'index.html';
+        a.click();
+    }
+
+    function deleteBook() {
+        if (confirm(`'${currentBookName}' 단어장을 삭제하시겠습니까?`)) {
+            delete vocaData[currentBookName];
+            currentBookName = Object.keys(vocaData)[0] || "";
+            saveToLocal();
+            location.reload();
+        }
+    }
+
+    function resetData() {
+        if (confirm("모든 데이터를 초기화하시겠습니까?")) {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+    }
+
     window.onload = render;
 </script>
-
 </body>
 </html>
