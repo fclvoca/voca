@@ -1,243 +1,451 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
+<html lang="ko"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>고교 영어 단어장</title>
+    <title>고교 영어 단어장 - FCL_Voca2</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #f8f9fa; }
-        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 20px; }
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
+        
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
         .book-title-area { font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
         #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
         .search-row { display: flex; gap: 5px; align-items: center; }
         .search-row input { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 15px; }
+        
         .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; min-width: 90px; }
+        
         .admin-check { font-size: 11px; opacity: 0.8; }
         .admin-menu { display: none; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
         .admin-menu button { border: none; color: white; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; }
-        .page-btn { padding: 5px 12px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 13px; cursor: pointer; }
+
+        .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; }
+        .page-btn { padding: 8px 15px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 14px; cursor: pointer; font-weight: bold; }
         .page-btn.active { background: var(--primary); color: white; }
+        
+        /* 유틸리티 버튼 행 (섞기, 정렬) */
+        .util-row { display: flex; gap: 8px; padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; }
+        .util-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fdfdfd; font-size: 12px; font-weight: bold; cursor: pointer; color: #444; }
+
         .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; }
         .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; cursor: pointer; }
         .check-btn.blue { background: #2196F3; border-color: #2196F3; }
         .check-btn.red { background: #F44336; border-color: #F44336; }
+        
         .word-info { flex-grow: 1; }
         .word-eng { font-size: 1.2em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; }
         .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; min-width: 80px; transition: 0.2s; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
+
+        .bottom-controls { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .speed-control { font-size: 12px; font-weight: bold; color: var(--primary); }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: white; width: 90%; height: 80%; margin: 10% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
-        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
+        .modal-content { background: white; width: 90%; height: 85%; margin: 5% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
+        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div class="book-title-area" id="bookTitle">연결 중...</div>
-        <select id="bookSelector" onchange="switchBook()"></select>
+        <div class="book-title-area" id="bookTitle">FCL_Voca2</div>
+        <select id="bookSelector" onchange="switchBook()"><option value="FCL_Voca2" selected="">FCL_Voca2</option></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
+
     <div class="search-row">
-        <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="if(window.event.keyCode==13){searchWord()}">
+        <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="if(event.keyCode==13){searchWord()}">
         <button id="mainToggleBtn" class="toggle-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
     </div>
-    <div id="adminMenu" class="admin-menu">
-        <button onclick="addBook()" style="background:#5C6BC0">추가</button>
-        <button onclick="openFullEdit()" style="background:#4CAF50">일괄편집</button>
-        <button onclick="downloadHTML()" style="background:#E91E63">파일저장</button>
+
+    <div id="adminMenu" class="admin-menu" style="display: flex;">
+        <button onclick="addBook()" style="background:#5C6BC0">단어장추가</button>
+        <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가</button>
+        <button onclick="openPageEdit()" style="background:#9C27B0">현재 페이지 편집</button>
+        <button onclick="openFullEdit()" style="background:#4CAF50">전체 데이터 편집</button>
+        <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
         <button onclick="deleteBook()" style="background:#d32f2f">삭제</button>
     </div>
 </header>
 
-<div class="pagination" id="pageArea"></div>
-<div id="wordListArea"></div>
+<div class="pagination" id="pageArea"><button class="page-btn " onclick="goPage(1)">1</button><button class="page-btn " onclick="goPage(2)">2</button><button class="page-btn " onclick="goPage(3)">3</button><button class="page-btn active" onclick="goPage(4)">4</button><button class="page-btn " onclick="goPage(5)">5</button><button class="page-btn " onclick="goPage(6)">6</button><button class="page-btn " onclick="goPage(7)">7</button><button class="page-btn " onclick="goPage(8)">8</button><button class="page-btn " onclick="goPage(9)">9</button><button class="page-btn " onclick="goPage(10)">10</button><button class="page-btn " onclick="goPage(11)">11</button><button class="page-btn " onclick="goPage(12)">12</button><button class="page-btn " onclick="goPage(13)">13</button><button class="page-btn " onclick="goPage(14)">14</button><button class="page-btn " onclick="goPage(15)">15</button><button class="page-btn " onclick="goPage(16)">16</button><button class="page-btn " onclick="goPage(17)">17</button><button class="page-btn " onclick="goPage(18)">18</button><button class="page-btn " onclick="goPage(19)">19</button><button class="page-btn " onclick="goPage(20)">20</button><button class="page-btn " onclick="goPage(21)">21</button><button class="page-btn " onclick="goPage(22)">22</button><button class="page-btn " onclick="goPage(23)">23</button><button class="page-btn " onclick="goPage(24)">24</button><button class="page-btn " onclick="goPage(25)">25</button><button class="page-btn " onclick="goPage(26)">26</button><button class="page-btn " onclick="goPage(27)">27</button><button class="page-btn " onclick="goPage(28)">28</button><button class="page-btn " onclick="goPage(29)">29</button><button class="page-btn " onclick="goPage(30)">30</button><button class="page-btn " onclick="goPage(31)">31</button><button class="page-btn " onclick="goPage(32)">32</button><button class="page-btn " onclick="goPage(33)">33</button><button class="page-btn " onclick="goPage(34)">34</button><button class="page-btn " onclick="goPage(35)">35</button><button class="page-btn " onclick="goPage(36)">36</button><button class="page-btn " onclick="goPage(37)">37</button><button class="page-btn " onclick="goPage(38)">38</button><button class="page-btn " onclick="goPage(39)">39</button><button class="page-btn " onclick="goPage(40)">40</button><button class="page-btn " onclick="goPage(41)">41</button><button class="page-btn " onclick="goPage(42)">42</button><button class="page-btn " onclick="goPage(43)">43</button><button class="page-btn " onclick="goPage(44)">44</button><button class="page-btn " onclick="goPage(45)">45</button><button class="page-btn " onclick="goPage(46)">46</button><button class="page-btn " onclick="goPage(47)">47</button><button class="page-btn " onclick="goPage(48)">48</button><button class="page-btn " onclick="goPage(49)">49</button><button class="page-btn " onclick="goPage(50)">50</button><button class="page-btn " onclick="goPage(51)">51</button><button class="page-btn " onclick="goPage(52)">52</button><button class="page-btn " onclick="goPage(53)">53</button><button class="page-btn " onclick="goPage(54)">54</button><button class="page-btn " onclick="goPage(55)">55</button><button class="page-btn " onclick="goPage(56)">56</button><button class="page-btn " onclick="goPage(57)">57</button><button class="page-btn " onclick="goPage(58)">58</button><button class="page-btn " onclick="goPage(59)">59</button><button class="page-btn " onclick="goPage(60)">60</button><button class="page-btn " onclick="goPage(61)">61</button><button class="page-btn " onclick="goPage(62)">62</button><button class="page-btn " onclick="goPage(63)">63</button><button class="page-btn " onclick="goPage(64)">64</button><button class="page-btn " onclick="goPage(65)">65</button><button class="page-btn " onclick="goPage(66)">66</button><button class="page-btn " onclick="goPage(67)">67</button><button class="page-btn " onclick="goPage(68)">68</button><button class="page-btn " onclick="goPage(69)">69</button><button class="page-btn " onclick="goPage(70)">70</button><button class="page-btn " onclick="goPage(71)">71</button><button class="page-btn " onclick="goPage(72)">72</button><button class="page-btn " onclick="goPage(73)">73</button><button class="page-btn " onclick="goPage(74)">74</button><button class="page-btn " onclick="goPage(75)">75</button><button class="page-btn " onclick="goPage(76)">76</button><button class="page-btn " onclick="goPage(77)">77</button><button class="page-btn " onclick="goPage(78)">78</button><button class="page-btn " onclick="goPage(79)">79</button></div>
 
-<div id="editModal" class="modal">
+<div class="util-row">
+    <button class="util-btn" onclick="shuffleCurrentPage()">🔀 단어 섞기</button>
+    <button class="util-btn" onclick="sortRedToTop()">🚩 빨간색 위로</button>
+    <button class="util-btn" onclick="render()">🔄 원래대로</button>
+</div>
+
+<div id="wordListArea">
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(60, 0)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('yield')">yield</span>
+                        <div style="font-size:0.75em; color:gray;">[jiːld]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">산출하다, 양보하다, 굴복하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(61, 1)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('devote')">devote</span>
+                        <div style="font-size:0.75em; color:gray;">[dɪˈvəʊt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">바치다, 헌신하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(62, 2)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('indicate')">indicate</span>
+                        <div style="font-size:0.75em; color:gray;">[ˈɪndɪkeɪt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">나타내다, 암시하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(63, 3)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('function')">function</span>
+                        <div style="font-size:0.75em; color:gray;">[ˈfʌŋkʃn]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">기능, 작용하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(64, 4)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('interrupt')">interrupt</span>
+                        <div style="font-size:0.75em; color:gray;">[ˌɪntəˈrʌpt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">방해하다, 중단하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(65, 5)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('objective')">objective</span>
+                        <div style="font-size:0.75em; color:gray;">[əbˈdʒektɪv]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">객관적인, 목표</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(66, 6)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('subjective')">subjective</span>
+                        <div style="font-size:0.75em; color:gray;">[səbˈdʒektɪv]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">주관적인</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(67, 7)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('subject')">subject</span>
+                        <div style="font-size:0.75em; color:gray;">[ˈsʌbdʒɪkt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">주제, 과목</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(68, 8)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('reduce')">reduce</span>
+                        <div style="font-size:0.75em; color:gray;">[rɪˈdjuːs]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">줄이다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(69, 9)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('accelerate')">accelerate</span>
+                        <div style="font-size:0.75em; color:gray;">[əkˈseləreɪt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">가속하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(70, 10)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('declare')">declare</span>
+                        <div style="font-size:0.75em; color:gray;">[dɪˈkleər]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">선언하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(71, 11)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('drastic')">drastic</span>
+                        <div style="font-size:0.75em; color:gray;">[ˈdræstɪk]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">격렬한</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(72, 12)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('disgust')">disgust</span>
+                        <div style="font-size:0.75em; color:gray;">[dɪsˈɡʌst]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">역겹게 하다, 역겨움</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(73, 13)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('disgusting')">disgusting</span>
+                        <div style="font-size:0.75em; color:gray;">[dɪsˈɡʌstɪŋ]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">역겨운</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(74, 14)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('induce')">induce</span>
+                        <div style="font-size:0.75em; color:gray;">[ɪnˈdjuːs]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">권하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(75, 15)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('induction')">induction</span>
+                        <div style="font-size:0.75em; color:gray;">[ɪnˈdʌkʃn]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">유도(유발)</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(76, 16)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('inducement')">inducement</span>
+                        <div style="font-size:0.75em; color:gray;">[ɪnˈdjuːsmənt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">권유</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(77, 17)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('adapt')">adapt</span>
+                        <div style="font-size:0.75em; color:gray;">[əˈdæpt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">적응하다, 개조하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(78, 18)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('adopt')">adopt</span>
+                        <div style="font-size:0.75em; color:gray;">[əˈdɒpt]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">채택하다, 입양하다</div>
+                </div>
+            
+                <div class="word-card">
+                    <div class="check-btn " onclick="cycleMark(79, 19)"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('adaptation')">adaptation</span>
+                        <div style="font-size:0.75em; color:gray;">[ˌædæpˈteɪʃn]</div>
+                    </div>
+                    <div class="word-mean " onclick="toggleSingleMean(this)">적응, 개작</div>
+                </div>
+            </div>
+
+<div class="bottom-controls">
+    <div class="speed-control">발음 속도: <span id="speedVal">1.0</span></div>
+    <input type="range" id="voiceSpeed" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
+</div>
+
+<div id="editModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <h3>데이터 입력 (단어 [발음] 뜻)</h3>
-        <textarea id="fullEditor"></textarea>
+        <h3 id="modalTitle" style="margin:0;">페이지 편집</h3>
+        <p style="font-size:12px; color:#d32f2f; margin:5px 0;">형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
+        <textarea id="fullEditor" placeholder="apple [애플] 사과
+banana [바나나] 바나나"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
-            <button onclick="closeFullEdit()">취소</button>
-            <button onclick="saveFullEdit()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:6px;">저장</button>
+            <button onclick="closeFullEdit()" style="padding:10px 20px;">취소</button>
+            <button id="saveBtn" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">저장하기</button>
         </div>
     </div>
 </div>
 
 <script>
-    // 기본 데이터 설정
-    const defaultData = {
-        "FCL_우선순위 영단어": [
-            { "eng": "tradition", "ph": "[trədíʃən]", "mean": "전통, 전설", "mark": 0 },
-            { "eng": "patriotism", "ph": "[péitriətìzm]", "mean": "애국심", "mark": 0 },
-            { "eng": "religion", "ph": "[rilídʒən]", "mean": "종교", "mark": 0 },
-            { "eng": "conscience", "ph": "[kɑ́nʃəns]", "mean": "양심", "mark": 0 },
-            { "eng": "intellect", "ph": "[íntəlekt]", "mean": "지성", "mark": 0 },
-            { "eng": "culture", "ph": "[kʌ́ltʃər]", "mean": "교양, 문화", "mark": 0 },
-            { "eng": "civilization", "ph": "[sìvəlizéiʃən]", "mean": "문명", "mark": 0 },
-            { "eng": "prejudice", "ph": "[prédʒudis]", "mean": "편견, 선입관", "mark": 0 },
-            { "eng": "instinct", "ph": "[ínstiŋkt]", "mean": "본능", "mark": 0 },
-            { "eng": "privilege", "ph": "[prívəlidʒ]", "mean": "특권", "mark": 0 },
-            { "eng": "impulse", "ph": "[ímpʌls]", "mean": "충동", "mark": 0 },
-            { "eng": "virtue", "ph": "[və́ːrtʃuː]", "mean": "미덕, 장점", "mark": 0 },
-            { "eng": "vice", "ph": "[vais]", "mean": "악덕, 결점", "mark": 0 },
-            { "eng": "revolution", "ph": "[rèvəlúːʃən]", "mean": "혁명", "mark": 0 },
-            { "eng": "stimulus", "ph": "[stímjuləs]", "mean": "자극", "mark": 0 },
-            { "eng": "ambition", "ph": "[æmbíʃən]", "mean": "야심, 염원", "mark": 0 },
-            { "eng": "vanity", "ph": "[vǽnəti]", "mean": "허영심", "mark": 0 },
-            { "eng": "envy", "ph": "[énvi]", "mean": "시기, 부러움", "mark": 0 },
-            { "eng": "jealousy", "ph": "[dʒéləsi]", "mean": "질투", "mark": 0 },
-            { "eng": "fatigue", "ph": "[fətíːɡ]", "mean": "피로", "mark": 0 },
-            { "eng": "passion", "ph": "[pǽʃən]", "mean": "정열", "mark": 0 },
-            { "eng": "famine", "ph": "[fǽmin]", "mean": "기근", "mark": 0 },
-            { "eng": "calamity", "ph": "[kəlǽməti]", "mean": "재난, 불행", "mark": 0 },
-            { "eng": "individual", "ph": "[ìndəvídʒuəl]", "mean": "개인, 개인의", "mark": 0 }
-        ]
+    let vocabularyData = {};
+    let currentBook = "FCL_Voca2";
+    let currentPage = 1;
+    const itemsPerPage = 20;
+    let isMeanHidden = false;
+    let speechRate = 1.0;
+
+    // 현재 화면에 렌더링되고 있는 단어들의 임시 리스트 (섞기/정렬용)
+    let displayWords = [];
+
+    window.onload = function() {
+        const savedData = localStorage.getItem('vocaData_FCL2');
+        vocabularyData = savedData ? JSON.parse(savedData) : { "FCL_Voca2": [] };
+        updateBookSelector();
+        render();
     };
 
-    let allData = JSON.parse(localStorage.getItem('vocaData')) || defaultData;
-    let currentBook = Object.keys(allData)[0];
-    let currentPage = 1;
-    const itemsPerPage = 10;
-    let isHidden = false;
-
-    // 초기화 함수
-    function init() {
-        updateBookSelector();
-        switchBook(currentBook);
-    }
-
-    function updateBookSelector() {
-        const sel = document.getElementById('bookSelector');
-        sel.innerHTML = '';
-        Object.keys(allData).forEach(name => {
-            const opt = document.createElement('option');
-            opt.value = name;
-            opt.innerText = name;
-            if(name === currentBook) opt.selected = true;
-            sel.appendChild(opt);
-        });
-    }
-
-    function switchBook(name) {
-        currentBook = name || document.getElementById('bookSelector').value;
-        document.getElementById('bookTitle').innerText = currentBook;
-        currentPage = 1;
-        renderPagination();
-        goPage(1);
-    }
-
-    function renderPagination() {
-        const area = document.getElementById('pageArea');
-        area.innerHTML = '';
-        const totalItems = allData[currentBook].length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+    function render() {
+        const words = vocabularyData[currentBook] || [];
+        const totalPages = Math.max(1, Math.ceil(words.length / itemsPerPage));
+        
+        // 페이지 버튼 생성
+        let pageHtml = '';
         for(let i=1; i<=totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
-            btn.innerText = i;
-            btn.onclick = () => goPage(i);
-            area.appendChild(btn);
+            pageHtml += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+        }
+        document.getElementById('pageArea').innerHTML = pageHtml;
+
+        const start = (currentPage - 1) * itemsPerPage;
+        // 원본 데이터에서 현재 페이지 단어들 복사
+        displayWords = JSON.parse(JSON.stringify(words.slice(start, start + itemsPerPage)));
+        
+        drawList();
+        document.getElementById('bookTitle').innerText = currentBook;
+        saveToLocal();
+    }
+
+    // 리스트를 실제로 화면에 그리는 함수
+    function drawList() {
+        let listHtml = '';
+        displayWords.forEach((word, idx) => {
+            // 원본 데이터와의 연결을 위한 인덱스 찾기
+            const globalIdx = (currentPage - 1) * itemsPerPage + idx;
+            
+            listHtml += `
+                <div class="word-card">
+                    <div class="check-btn ${word.mark===1?'blue':word.mark===2?'red':''}" onclick="cycleMark(${globalIdx}, ${idx})"></div>
+                    <div class="word-info">
+                        <span class="word-eng" onclick="speak('${word.eng}')">${word.eng}</span>
+                        <div style="font-size:0.75em; color:gray;">${word.ph}</div>
+                    </div>
+                    <div class="word-mean ${isMeanHidden?'hidden':''}" onclick="toggleSingleMean(this)">${word.mean}</div>
+                </div>
+            `;
+        });
+        document.getElementById('wordListArea').innerHTML = listHtml || '<p style="text-align:center; padding:20px; color:gray;">단어가 없습니다.</p>';
+    }
+
+    // [기능 1] 현재 페이지 단어 섞기
+    function shuffleCurrentPage() {
+        for (let i = displayWords.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [displayWords[i], displayWords[j]] = [displayWords[j], displayWords[i]];
+        }
+        drawList();
+    }
+
+    // [기능 2] 빨간색 체크 단어 상단 정렬
+    function sortRedToTop() {
+        displayWords.sort((a, b) => {
+            if (a.mark === 2 && b.mark !== 2) return -1;
+            if (a.mark !== 2 && b.mark === 2) return 1;
+            return 0;
+        });
+        drawList();
+    }
+
+    function cycleMark(globalIdx, localIdx) {
+        // 원본 데이터 변경
+        const word = vocabularyData[currentBook][globalIdx];
+        if (word) {
+            word.mark = (word.mark + 1) % 3;
+            // 현재 화면 리스트도 동기화
+            displayWords[localIdx].mark = word.mark;
+            drawList();
+            saveToLocal();
         }
     }
 
-    function goPage(p) {
-        currentPage = p;
-        const btns = document.querySelectorAll('.page-btn');
-        btns.forEach((b, idx) => b.className = (idx + 1 === p ? 'page-btn active' : 'page-btn'));
+    // 기존 나머지 함수들 (편집, 저장 등)
+    function createNewEmptyPage() {
+        const words = vocabularyData[currentBook];
+        const currentTotalPages = Math.ceil(words.length / itemsPerPage);
+        const targetLength = (currentTotalPages + 1) * itemsPerPage;
+        while(words.length < targetLength) {
+            words.push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
+        }
+        currentPage = currentTotalPages + 1;
+        render();
+    }
+
+    function openPageEdit() {
+        const modal = document.getElementById('editModal');
+        const editor = document.getElementById('fullEditor');
+        const saveBtn = document.getElementById('saveBtn');
+        const start = (currentPage - 1) * itemsPerPage;
+        const pageWords = vocabularyData[currentBook].slice(start, start + itemsPerPage);
         
-        const start = (p - 1) * itemsPerPage;
-        const words = allData[currentBook].slice(start, start + itemsPerPage);
-        renderWords(words);
+        editor.value = pageWords.filter(w => w.eng || w.mean).map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
+        saveBtn.onclick = function() {
+            const lines = editor.value.split('\n').filter(l => l.trim());
+            const newData = lines.map(line => parseLine(line));
+            vocabularyData[currentBook].splice(start, itemsPerPage, ...newData);
+            while(vocabularyData[currentBook].length < start + itemsPerPage) {
+                vocabularyData[currentBook].push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
+            }
+            closeFullEdit();
+            render();
+        };
+        modal.style.display = 'block';
     }
 
-    function renderWords(words) {
-        const area = document.getElementById('wordListArea');
-        area.innerHTML = '';
-        words.forEach((w, idx) => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerHTML = `
-                <div class="check-btn ${w.mark === 1 ? 'blue' : w.mark === 2 ? 'red' : ''}" onclick="cycleMark(${(currentPage-1)*itemsPerPage + idx})"></div>
-                <div class="word-info">
-                    <span class="word-eng" onclick="speak('${w.eng}')">${w.eng}</span>
-                    <div style="font-size:0.75em; color:gray;">${w.ph}</div>
-                </div>
-                <div class="word-mean ${isHidden ? 'hidden' : ''}" onclick="toggleSingleMean(this)">${w.mean}</div>
-            `;
-            area.appendChild(card);
-        });
-    }
-
-    function toggleGlobalVisibility() {
-        isHidden = !isHidden;
-        const btn = document.getElementById('mainToggleBtn');
-        btn.innerText = isHidden ? "뜻 보기" : "뜻 숨기기";
-        const means = document.querySelectorAll('.word-mean');
-        means.forEach(m => isHidden ? m.classList.add('hidden') : m.classList.remove('hidden'));
-    }
-
-    function toggleSingleMean(el) {
-        el.classList.toggle('hidden');
-    }
-
-    function toggleAdminMode() {
-        const menu = document.getElementById('adminMenu');
-        menu.style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none';
-    }
-
-    function cycleMark(idx) {
-        const word = allData[currentBook][idx];
-        word.mark = (word.mark + 1) % 3;
-        saveData();
-        goPage(currentPage);
-    }
-
-    function saveData() {
-        localStorage.setItem('vocaData', JSON.stringify(allData));
+    function parseLine(line) {
+        const phMatch = line.match(/\[.*?\]/);
+        const ph = phMatch ? phMatch[0] : "";
+        const parts = line.split(ph);
+        const eng = parts[0].trim();
+        const mean = parts[1] ? parts[1].trim() : "";
+        return { eng, ph, mean, mark: 0 };
     }
 
     function openFullEdit() {
-        const area = document.getElementById('fullEditor');
-        const content = allData[currentBook].map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
-        area.value = content;
-        document.getElementById('editModal').style.display = 'block';
+        const modal = document.getElementById('editModal');
+        const editor = document.getElementById('fullEditor');
+        const saveBtn = document.getElementById('saveBtn');
+        editor.value = vocabularyData[currentBook].filter(w => w.eng || w.mean).map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
+        saveBtn.onclick = function() {
+            const lines = editor.value.split('\n').filter(l => l.trim());
+            vocabularyData[currentBook] = lines.map(line => parseLine(line));
+            closeFullEdit();
+            render();
+        };
+        modal.style.display = 'block';
     }
 
-    function closeFullEdit() {
-        document.getElementById('editModal').style.display = 'none';
+    function goPage(p) { currentPage = p; render(); window.scrollTo(0,0); }
+    function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
+    function closeFullEdit() { document.getElementById('editModal').style.display = 'none'; }
+    function toggleGlobalVisibility() { isMeanHidden = !isMeanHidden; document.getElementById('mainToggleBtn').innerText = isMeanHidden ? "뜻 보이기" : "뜻 숨기기"; drawList(); }
+    function toggleSingleMean(el) { el.classList.toggle('hidden'); }
+    function switchBook() { currentBook = document.getElementById('bookSelector').value; currentPage = 1; render(); }
+    function updateBookSelector() { document.getElementById('bookSelector').innerHTML = Object.keys(vocabularyData).map(name => `<option value="${name}" ${name===currentBook?'selected':''}>${name}</option>`).join(''); }
+    function addBook() { const name = prompt("새 단어장 이름:"); if(name && !vocabularyData[name]) { vocabularyData[name] = []; currentBook = name; updateBookSelector(); render(); } }
+    function deleteBook() { if(confirm(`${currentBook}을(를) 삭제하시겠습니까?`)) { delete vocabularyData[currentBook]; currentBook = Object.keys(vocabularyData)[0] || "기본 단어장"; if(!vocabularyData[currentBook]) vocabularyData[currentBook] = []; updateBookSelector(); render(); } }
+    function saveToLocal() { localStorage.setItem('vocaData_FCL2', JSON.stringify(vocabularyData)); }
+    function updateSpeed(val) { speechRate = parseFloat(val); document.getElementById('speedVal').innerText = val; }
+    function speak(text) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'en-US'; msg.rate = speechRate; window.speechSynthesis.speak(msg); }
+    function downloadSelf() { const html = document.documentElement.outerHTML; const blob = new Blob([html], {type: 'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'index.html'; a.click(); }
+    function searchWord() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        if(!query) { render(); return; }
+        const filtered = vocabularyData[currentBook].filter(w => w.eng.toLowerCase().includes(query) || w.mean.includes(query));
+        displayWords = filtered;
+        drawList();
     }
-
-    function saveFullEdit() {
-        const lines = document.getElementById('fullEditor').value.split('\n');
-        const newData = lines.map(line => {
-            const parts = line.split(' ');
-            return {
-                eng: parts[0] || "",
-                ph: parts[1] || "",
-                mean: parts.slice(2).join(' ') || "",
-                mark: 0
-            };
-        }).filter(w => w.eng);
-        
-        allData[currentBook] = newData;
-        saveData();
-        closeFullEdit();
-        switchBook(currentBook);
-    }
-
-    function speak(text) {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-US';
-        window.speechSynthesis.speak(msg);
-    }
-
-    init();
 </script>
 
-</body>
-</html>
+
+
+</body></html>
