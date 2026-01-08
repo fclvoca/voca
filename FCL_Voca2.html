@@ -9,34 +9,52 @@
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
         #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
+        
+        .btn-row { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 5px; }
+        .action-btn { padding: 8px 12px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 13px; }
+        
         .admin-menu { display: none; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
         .admin-menu button { border: none; color: white; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        
         .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; }
         .page-btn { padding: 5px 12px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 13px; cursor: pointer; }
         .page-btn.active { background: var(--primary); color: white; }
-        .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; }
-        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; }
+        
+        .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; gap: 10px; }
+        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; flex-shrink: 0; cursor: pointer; }
         .check-btn.blue { background: #2196F3; border-color: #2196F3; }
         .check-btn.red { background: #F44336; border-color: #F44336; }
-        .word-info { flex-grow: 1; min-width: 0; }
-        .word-eng { font-size: 1.15em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; word-break: break-word; }
-        .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; min-width: 100px; }
+        
+        .word-info { flex: 1.5; min-width: 0; }
+        .word-eng { font-size: 1.15em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; word-break: break-word; line-height: 1.2; }
+        .word-ph { font-size: 0.8em; color: #757575; margin-top: 4px; }
+        
+        .word-mean { flex: 1; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; word-break: keep-all; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
         .modal-content { background: white; width: 90%; height: 85%; margin: 5% auto; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; box-sizing: border-box; }
-        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; line-height: 1.6; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div id="bookTitle" style="font-weight:bold;">단어장</div>
+        <div id="bookTitle" style="font-weight:bold; font-size: 1.1em;">단어장</div>
         <select id="bookSelector" onchange="switchBook()"></select>
-        <label style="font-size:11px;">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
+        <label style="font-size:11px; opacity: 0.9;">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
+
+    <div class="btn-row">
+        <button id="mainToggleBtn" class="action-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
+        <button class="action-btn" onclick="shuffleCurrentPage()" style="background:#673AB7;">단어 섞기</button>
+        <button class="action-btn" onclick="goPage(currentPage)" style="background:#607D8B;">원래 순서</button>
+    </div>
+
     <div id="adminMenu" class="admin-menu">
         <button onclick="addBook()" style="background:#5C6BC0">교재 추가</button>
+        <button onclick="renameBook()" style="background:#009688">교재명 수정</button>
         <button id="pageEditBtn" onclick="openPageEdit()" style="background:#4CAF50">현재 페이지 편집</button>
         <button onclick="addPage()" style="background:#FF9800">새 페이지 추가</button>
         <button onclick="deleteCurrentPage()" style="background:#d32f2f">현재 페이지 삭제</button>
@@ -49,12 +67,12 @@
 
 <div id="editModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">페이지 편집</h3>
-        <p style="font-size:12px; color:#d32f2f;">* 숙어 입력 예시: compare A with B [발음] 뜻</p>
-        <textarea id="pageEditor"></textarea>
+        <h3 id="modalTitle" style="margin-top:0;">페이지 편집</h3>
+        <p style="font-size:12px; color:#d32f2f; margin:0;">* 형식: 숙어 전체 [발음] 뜻</p>
+        <textarea id="pageEditor" spellcheck="false"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
-            <button onclick="closePageEdit()">취소</button>
-            <button onclick="savePageEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px;">저장</button>
+            <button onclick="closePageEdit()" style="padding:10px 20px; border-radius:6px; border:none; cursor:pointer;">취소</button>
+            <button onclick="savePageEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">저장</button>
         </div>
     </div>
 </div>
@@ -93,28 +111,64 @@
         }
     }
 
+    function displayWords(words, isShuffled = false) {
+        const area = document.getElementById('wordListArea');
+        area.innerHTML = '';
+        const start = (currentPage - 1) * WORDS_PER_PAGE;
+        
+        words.forEach((w, idx) => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            // 섞였을 때는 체크 기능을 비활성화하거나 정확한 인덱스 매칭이 필요하므로 원본 인덱스 유지 로직 사용 가능
+            const originalIdx = isShuffled ? w.originalIdx : start + idx;
+            
+            card.innerHTML = `
+                <div class="check-btn ${w.mark === 1 ? 'blue' : w.mark === 2 ? 'red' : ''}" onclick="cycleMark(${originalIdx}, this)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('${w.eng.replace(/'/g, "\\'")}')">${w.eng}</span>
+                    <div class="word-ph">${w.ph ? '[' + w.ph + ']' : ''}</div>
+                </div>
+                <div class="word-mean ${isMeanHidden ? 'hidden' : ''}" onclick="this.classList.toggle('hidden')">${w.mean}</div>
+            `;
+            area.appendChild(card);
+        });
+    }
+
     function goPage(p) {
         currentPage = p;
         renderPages();
         document.getElementById('pageEditBtn').innerText = `${p}페이지 편집`;
         const start = (p-1) * WORDS_PER_PAGE;
         const words = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE);
-        const area = document.getElementById('wordListArea');
-        area.innerHTML = '';
+        displayWords(words, false);
+    }
+
+    // --- 단어 섞기 기능 ---
+    function shuffleCurrentPage() {
+        const start = (currentPage - 1) * WORDS_PER_PAGE;
+        let words = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE).map((w, i) => ({...w, originalIdx: start + i}));
         
-        words.forEach((w, idx) => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerHTML = `
-                <div class="check-btn ${w.mark === 1 ? 'blue' : w.mark === 2 ? 'red' : ''}" onclick="cycleMark(${start + idx}, this)"></div>
-                <div class="word-info">
-                    <span class="word-eng" onclick="speak('${w.eng.replace(/'/g, "\\'")}')">${w.eng}</span>
-                    <div style="font-size:0.75em; color:gray;">${w.ph || ''}</div>
-                </div>
-                <div class="word-mean ${isMeanHidden ? 'hidden' : ''}" onclick="this.classList.toggle('hidden')">${w.mean}</div>
-            `;
-            area.appendChild(card);
-        });
+        for (let i = words.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [words[i], words[j]] = [words[j], words[i]];
+        }
+        displayWords(words, true);
+    }
+
+    // --- 교재명 수정 기능 ---
+    function renameBook() {
+        const newName = prompt("새로운 단어장 이름을 입력하세요:", currentBook);
+        if (newName && newName !== currentBook) {
+            if (vocaData[newName]) {
+                alert("이미 존재하는 이름입니다.");
+                return;
+            }
+            vocaData[newName] = vocaData[currentBook];
+            delete vocaData[currentBook];
+            currentBook = newName;
+            saveToLocal();
+            updateBookSelector();
+        }
     }
 
     function speak(txt) {
@@ -127,31 +181,32 @@
     function openPageEdit() {
         const start = (currentPage - 1) * WORDS_PER_PAGE;
         const pageWords = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE);
-        document.getElementById('pageEditor').value = pageWords.map(w => `${w.eng} ${w.ph ? '['+w.ph+'] ' : ''}${w.mean}`).join('\n');
+        document.getElementById('pageEditor').value = pageWords.map(w => {
+            const phPart = w.ph ? ` [${w.ph}]` : "";
+            return `${w.eng}${phPart} ${w.mean}`.trim();
+        }).join('\n');
         document.getElementById('editModal').style.display = 'block';
     }
 
     function savePageEdit() {
         const lines = document.getElementById('pageEditor').value.split('\n').filter(l => l.trim());
         const newPageData = lines.map(l => {
-            let eng, ph = '', mean;
+            let eng = "", ph = "", mean = "";
             if (l.includes('[')) {
-                eng = l.split('[')[0].trim();
-                const rest = l.split('[')[1].split(']');
-                ph = rest[0].trim();
-                mean = rest[1] ? rest[1].trim() : '';
+                const parts = l.split('[');
+                eng = parts[0].trim();
+                const afterBracket = parts[1].split(']');
+                ph = afterBracket[0].trim();
+                mean = afterBracket[1] ? afterBracket[1].trim() : "";
             } else {
-                const firstSpace = l.indexOf(' ');
+                const firstSpace = l.trim().indexOf(' ');
                 if (firstSpace !== -1) {
                     eng = l.substring(0, firstSpace).trim();
                     mean = l.substring(firstSpace).trim();
-                } else {
-                    eng = l; mean = '';
-                }
+                } else { eng = l.trim(); }
             }
             return { eng, ph, mean, mark: 0 };
         });
-
         const start = (currentPage - 1) * WORDS_PER_PAGE;
         vocaData[currentBook].splice(start, WORDS_PER_PAGE, ...newPageData);
         saveToLocal(); closePageEdit(); goPage(currentPage);
@@ -159,6 +214,8 @@
 
     function closePageEdit() { document.getElementById('editModal').style.display = 'none'; }
     function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
+    function toggleGlobalVisibility() { isMeanHidden = !isMeanHidden; document.getElementById('mainToggleBtn').innerText = isMeanHidden ? "뜻 보기" : "뜻 숨기기"; goPage(currentPage); }
+    function cycleMark(idx, el) { vocaData[currentBook][idx].mark = (vocaData[currentBook][idx].mark + 1) % 3; el.className = 'check-btn ' + (vocaData[currentBook][idx].mark === 1 ? 'blue' : vocaData[currentBook][idx].mark === 2 ? 'red' : ''); saveToLocal(); }
     function saveToLocal() { localStorage.setItem('fclVoca_v2', JSON.stringify(vocaData)); }
     function switchBook() { currentBook = document.getElementById('bookSelector').value; goPage(1); }
     function addPage() { for(let i=0; i<WORDS_PER_PAGE; i++) vocaData[currentBook].push({ eng: '-', ph: '', mean: '새 단어', mark: 0 }); saveToLocal(); goPage(Math.ceil(vocaData[currentBook].length / WORDS_PER_PAGE)); }
