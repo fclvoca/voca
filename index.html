@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FCL_Voca_Final_System</title>
+    <title>FCL_Voca_Pro_System</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #ffffff; }
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
@@ -30,18 +30,19 @@
         .word-mean { padding-left: 10px; text-align: right; color: #1A237E; font-weight: bold; font-size: 1.15em; cursor: pointer; min-width: 120px; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
 
-        /* 편집용 모달 스타일 */
-        #editModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px; box-sizing: border-box; flex-direction: column; }
-        #editTextArea { width: 100%; flex-grow: 1; font-family: monospace; font-size: 14px; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
-        .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
-        .modal-btns button { padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        /* 대형 편집 모달 스타일 */
+        #editOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; padding: 20px; box-sizing: border-box; flex-direction: column; }
+        #modalHeader { display: flex; justify-content: space-between; align-items: center; color: white; margin-bottom: 10px; }
+        #editArea { width: 100%; flex-grow: 1; font-family: 'Consolas', monospace; font-size: 14px; padding: 15px; border-radius: 8px; border: none; resize: none; background: #f9f9f9; }
+        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+        .modal-footer button { padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-row">
-        <div id="bookTitle" style="font-weight:bold;">로딩중...</div>
+        <div id="bookTitle" style="font-weight:bold;">단어장 선택</div>
         <select id="bookSelector" onchange="switchBook()"></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
@@ -53,8 +54,8 @@
         <button onclick="addBook()" style="background:#3F51B5">단어장추가</button>
         <button onclick="renameCurrentBook()" style="background:#FF5722">이름수정</button>
         <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가(50개)</button>
-        <button onclick="openEdit('page')" style="background:#9C27B0">현재 페이지 편집</button>
-        <button onclick="openEdit('full')" style="background:#4CAF50">전체 데이터 편집</button>
+        <button onclick="openEditor('page')" style="background:#9C27B0">현재 페이지 편집</button>
+        <button onclick="openEditor('full')" style="background:#4CAF50">전체 데이터 편집</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
         <button onclick="deleteBook()" style="background:#f44336">삭제</button>
         <button onclick="resetData()" style="background:#000000">데이터 초기화</button>
@@ -69,54 +70,57 @@
 </div>
 <div id="wordListArea"></div>
 
-<div id="editModal">
-    <h3 style="color:white; margin-top:0;" id="modalTitle">데이터 편집</h3>
-    <textarea id="editTextArea"></textarea>
-    <div class="modal-btns">
-        <button onclick="closeEditModal()" style="background:#ccc;">취소</button>
-        <button onclick="saveEdit()" style="background:var(--accent); color:white;">저장하기</button>
+<div id="editOverlay">
+    <div id="modalHeader">
+        <h2 id="modalTitle" style="margin:0;">데이터 편집</h2>
+        <span style="font-size:12px; color:#ddd;">JSON 형식을 유지해 주세요.</span>
+    </div>
+    <textarea id="editArea" spellcheck="false"></textarea>
+    <div class="modal-footer">
+        <button onclick="closeEditor()" style="background:#888; color:white;">취소</button>
+        <button onclick="saveFromEditor()" style="background:var(--accent); color:white;">저장하기</button>
     </div>
 </div>
 
 <script>
-    const STORAGE_KEY = 'FCL_VOCA_MASTER_ULTIMATE';
-    let vocaData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+    const KEY = 'FCL_VOCA_ULTRA_SAVE';
+    let data = JSON.parse(localStorage.getItem(KEY)) || {
         "FCL_고교필수단어": [
             { eng: "release", phon: "[rɪˈliːs]", kor: "놓아주다, 개봉하다", mark: "" },
             { eng: "attempt", phon: "[əˈtempt]", kor: "시도하다", mark: "" }
         ]
     };
 
-    let currentBookName = Object.keys(vocaData)[0];
-    let currentPageNum = 1;
-    let currentEditMode = '';
-    const itemsPerPage = 50;
+    let currentBook = Object.keys(data)[0];
+    let pageNum = 1;
+    let editMode = ''; // 'page' or 'full'
+    const perPage = 50;
 
-    function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(vocaData)); }
+    function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
     function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
 
     function render() {
-        const selector = document.getElementById('bookSelector');
-        selector.innerHTML = "";
-        Object.keys(vocaData).forEach(name => {
-            const opt = document.createElement('option');
-            opt.value = name; opt.innerText = name; opt.selected = (name === currentBookName);
-            selector.appendChild(opt);
+        const sel = document.getElementById('bookSelector');
+        sel.innerHTML = "";
+        Object.keys(data).forEach(n => {
+            const o = document.createElement('option');
+            o.value = n; o.innerText = n; o.selected = (n === currentBook);
+            sel.appendChild(o);
         });
-        document.getElementById('bookTitle').innerText = currentBookName;
+        document.getElementById('bookTitle').innerText = currentBook;
 
         const area = document.getElementById('wordListArea');
-        const fullList = vocaData[currentBookName] || [];
-        const startIndex = (currentPageNum - 1) * itemsPerPage;
-        const pageList = fullList.slice(startIndex, startIndex + itemsPerPage);
+        const list = data[currentBook] || [];
+        const start = (pageNum - 1) * perPage;
+        const pageList = list.slice(start, start + perPage);
         
         area.innerHTML = "";
         pageList.forEach((item, idx) => {
-            const globalIdx = startIndex + idx;
+            const gIdx = start + idx;
             const card = document.createElement('div');
             card.className = 'word-card';
             card.innerHTML = `
-                <div class="check-btn ${item.mark}" onclick="cycleMark(${globalIdx})"></div>
+                <div class="check-btn ${item.mark}" onclick="cycleMark(${gIdx})"></div>
                 <div class="word-info">
                     <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
                     <span style="font-size:0.8em; color:gray;">${item.phon || ''}</span>
@@ -125,106 +129,99 @@
             `;
             area.appendChild(card);
         });
-        updatePagination();
+        updatePages();
     }
 
-    function updatePagination() {
+    function updatePages() {
         const area = document.getElementById('pageArea');
-        const fullList = vocaData[currentBookName] || [];
-        const totalPages = Math.ceil(fullList.length / itemsPerPage) || 1;
+        const total = Math.ceil((data[currentBook] || []).length / perPage) || 1;
         area.innerHTML = "";
-        for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.className = `page-btn ${i === currentPageNum ? 'active' : ''}`;
-            btn.innerText = i;
-            btn.onclick = () => { currentPageNum = i; render(); window.scrollTo(0,0); };
-            area.appendChild(btn);
+        for (let i = 1; i <= total; i++) {
+            const b = document.createElement('button');
+            b.className = `page-btn ${i === pageNum ? 'active' : ''}`;
+            b.innerText = i;
+            b.onclick = () => { pageNum = i; render(); window.scrollTo(0,0); };
+            area.appendChild(b);
         }
     }
 
     function cycleMark(idx) {
-        const item = vocaData[currentBookName][idx];
-        item.mark = item.mark === "" ? "blue" : (item.mark === "blue" ? "red" : "");
-        saveToLocal(); render();
+        const m = data[currentBook][idx].mark;
+        data[currentBook][idx].mark = m === "" ? "blue" : (m === "blue" ? "red" : "");
+        save(); render();
     }
 
-    function switchBook() { currentBookName = document.getElementById('bookSelector').value; currentPageNum = 1; render(); }
+    function switchBook() { currentBook = document.getElementById('bookSelector').value; pageNum = 1; render(); }
     function speak(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'en-US'; window.speechSynthesis.speak(m); }
-    function toggleGlobalVisibility() {
-        const isHidden = document.getElementById('mainToggleBtn').innerText === "뜻 숨기기";
-        document.querySelectorAll('.word-mean').forEach(m => isHidden ? m.classList.add('hidden') : m.classList.remove('hidden'));
-        document.getElementById('mainToggleBtn').innerText = isHidden ? "뜻 보이기" : "뜻 숨기기";
-    }
-
-    // 전용 모달 편집 로직
-    function openEdit(mode) {
-        currentEditMode = mode;
-        const modal = document.getElementById('editModal');
-        const textArea = document.getElementById('editTextArea');
+    
+    // 편집 창 로직 (보안 정책 회피 및 대용량 편집 가능)
+    function openEditor(mode) {
+        editMode = mode;
+        const overlay = document.getElementById('editOverlay');
+        const textArea = document.getElementById('editArea');
         const title = document.getElementById('modalTitle');
         
         if(mode === 'page') {
-            title.innerText = `현재 페이지(${currentPageNum}) 편집`;
-            const start = (currentPageNum-1)*itemsPerPage;
-            const part = vocaData[currentBookName].slice(start, start+itemsPerPage);
+            title.innerText = `현재 페이지(${pageNum}) 편집`;
+            const start = (pageNum-1)*perPage;
+            const part = data[currentBook].slice(start, start+perPage);
             textArea.value = JSON.stringify(part, null, 2);
         } else {
             title.innerText = "전체 데이터 편집";
-            textArea.value = JSON.stringify(vocaData, null, 2);
+            textArea.value = JSON.stringify(data, null, 2);
         }
-        modal.style.display = 'flex';
+        overlay.style.display = 'flex';
     }
 
-    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+    function closeEditor() { document.getElementById('editOverlay').style.display = 'none'; }
 
-    function saveEdit() {
-        const textArea = document.getElementById('editTextArea');
+    function saveFromEditor() {
+        const txt = document.getElementById('editArea').value;
         try {
-            const newData = JSON.parse(textArea.value);
-            if(currentEditMode === 'page') {
-                const start = (currentPageNum-1)*itemsPerPage;
-                vocaData[currentBookName].splice(start, itemsPerPage, ...newData);
+            const parsed = JSON.parse(txt);
+            if(editMode === 'page') {
+                const start = (pageNum-1)*perPage;
+                data[currentBook].splice(start, perPage, ...parsed);
             } else {
-                vocaData = newData;
-                currentBookName = Object.keys(vocaData)[0];
+                data = parsed;
+                currentBook = Object.keys(data)[0];
             }
-            saveToLocal();
-            render();
-            closeEditModal();
-        } catch(e) { alert("JSON 형식이 잘못되었습니다. 다시 확인해주세요."); }
+            save(); render(); closeEditor();
+            alert("저장되었습니다.");
+        } catch(e) { alert("JSON 형식이 잘못되었습니다. 중괄호나 쉼표를 확인해 주세요."); }
     }
 
     function addBook() {
         const n = prompt("새 단어장 이름:");
-        if (n && !vocaData[n]) { vocaData[n] = []; currentBookName = n; saveToLocal(); render(); }
+        if (n && !data[n]) { data[n] = []; currentBook = n; save(); render(); }
     }
     function renameCurrentBook() {
-        const n = prompt("새 이름:", currentBookName);
-        if (n && n !== currentBookName) { vocaData[n] = vocaData[currentBookName]; delete vocaData[currentBookName]; currentBookName = n; saveToLocal(); render(); }
+        const n = prompt("새 이름:", currentBook);
+        if (n && n !== currentBook) { data[n] = data[currentBook]; delete data[currentBook]; currentBook = n; save(); render(); }
     }
     function createNewEmptyPage() {
-        for(let i=0; i<50; i++) vocaData[currentBookName].push({eng:"New", phon:"[phon]", kor:"뜻", mark:""});
-        saveToLocal(); render();
+        for(let i=0; i<50; i++) data[currentBook].push({eng:"New", phon:"[phon]", kor:"뜻", mark:""});
+        save(); render();
     }
     function downloadSelf() {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob(["<!DOCTYPE html>\n"+document.documentElement.outerHTML], {type:'text/html'}));
         a.download = 'index.html'; a.click();
     }
-    function deleteBook() { if(confirm("현재 단어장을 정말 삭제할까요?")) { delete vocaData[currentBookName]; currentBookName = Object.keys(vocaData)[0] || ""; saveToLocal(); location.reload(); } }
-    function resetData() { if(confirm("모든 데이터를 초기화하시겠습니까?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+    function deleteBook() { if(confirm("정말 삭제할까요?")) { delete data[currentBook]; currentBook = Object.keys(data)[0] || ""; save(); location.reload(); } }
+    function resetData() { if(confirm("초기화할까요?")) { localStorage.removeItem(KEY); location.reload(); } }
     
     function shuffleCurrentPage() {
-        const start = (currentPageNum-1)*itemsPerPage;
-        let p = vocaData[currentBookName].splice(start, itemsPerPage);
+        const start = (pageNum-1)*perPage;
+        let p = data[currentBook].splice(start, perPage);
         p.sort(()=>Math.random()-0.5);
-        vocaData[currentBookName].splice(start, 0, ...p); render();
+        data[currentBook].splice(start, 0, ...p); render();
     }
     function sortRedToTop() {
-        const start = (currentPageNum-1)*itemsPerPage;
-        let p = vocaData[currentBookName].splice(start, itemsPerPage);
+        const start = (pageNum-1)*perPage;
+        let p = data[currentBook].splice(start, perPage);
         p.sort((a,b)=>(b.mark==='red'?1:0)-(a.mark==='red'?1:0));
-        vocaData[currentBookName].splice(start, 0, ...p); render();
+        data[currentBook].splice(start, 0, ...p); render();
     }
     window.onload = render;
 </script>
