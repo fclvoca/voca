@@ -22,8 +22,8 @@
         .admin-menu { display: none; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
         .admin-menu button { border: none; color: white; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; }
-        .page-btn { padding: 5px 12px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 13px; cursor: pointer; }
+        .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #ccc; }
+        .page-btn { padding: 8px 15px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 14px; cursor: pointer; font-weight: bold; }
         .page-btn.active { background: var(--primary); color: white; }
         
         .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; }
@@ -40,8 +40,8 @@
         .speed-control { font-size: 12px; font-weight: bold; color: var(--primary); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: white; width: 90%; height: 80%; margin: 10% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
-        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; font-family: monospace; }
+        .modal-content { background: white; width: 90%; height: 85%; margin: 5% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
+        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -60,9 +60,9 @@
 
     <div id="adminMenu" class="admin-menu">
         <button onclick="addBook()" style="background:#5C6BC0">단어장추가</button>
-        <button onclick="addNewPage()" style="background:#009688">페이지추가</button>
-        <button onclick="openFullEdit('all')" style="background:#4CAF50">전체편집</button>
-        <button onclick="openFullEdit('page')" style="background:#9C27B0">현재페이지편집</button>
+        <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가</button>
+        <button onclick="openPageEdit()" style="background:#9C27B0">현재 페이지 편집</button>
+        <button onclick="openFullEdit()" style="background:#4CAF50">전체 데이터 편집</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
         <button onclick="deleteBook()" style="background:#d32f2f">삭제</button>
     </div>
@@ -78,12 +78,12 @@
 
 <div id="editModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">데이터 입력</h3>
-        <p style="font-size:11px; color:gray;">형식: 단어 [발음기호] 뜻 (엔터로 구분)</p>
-        <textarea id="fullEditor"></textarea>
+        <h3 id="modalTitle" style="margin:0;">페이지 편집</h3>
+        <p style="font-size:12px; color:#d32f2f; margin:5px 0;">형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
+        <textarea id="fullEditor" placeholder="apple [애플] 사과&#10;banana [바나나] 바나나"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
-            <button onclick="closeFullEdit()">취소</button>
-            <button id="saveBtn" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:6px;">저장</button>
+            <button onclick="closeFullEdit()" style="padding:10px 20px;">취소</button>
+            <button id="saveBtn" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">저장하기</button>
         </div>
     </div>
 </div>
@@ -92,7 +92,7 @@
     let vocabularyData = {};
     let currentBook = "FCL_Voca2";
     let currentPage = 1;
-    const itemsPerPage = 50;
+    const itemsPerPage = 20;
     let isMeanHidden = false;
     let speechRate = 1.0;
 
@@ -110,25 +110,10 @@
         render();
     };
 
-    function updateSpeed(val) {
-        speechRate = parseFloat(val);
-        document.getElementById('speedVal').innerText = val;
-    }
-
-    function speak(text) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-US';
-        msg.rate = speechRate;
-        window.speechSynthesis.speak(msg);
-    }
-
     function render() {
         const words = vocabularyData[currentBook] || [];
-        const totalPages = Math.ceil(words.length / itemsPerPage) || 1;
+        const totalPages = Math.max(1, Math.ceil(words.length / itemsPerPage));
         
-        if (currentPage > totalPages) currentPage = totalPages;
-
         let pageHtml = '';
         for(let i=1; i<=totalPages; i++) {
             pageHtml += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
@@ -136,8 +121,7 @@
         document.getElementById('pageArea').innerHTML = pageHtml;
 
         const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageWords = words.slice(start, end);
+        const pageWords = words.slice(start, start + itemsPerPage);
 
         let listHtml = '';
         pageWords.forEach((word, idx) => {
@@ -153,180 +137,105 @@
                 </div>
             `;
         });
-        document.getElementById('wordListArea').innerHTML = listHtml;
+        document.getElementById('wordListArea').innerHTML = listHtml || '<p style="text-align:center; padding:20px; color:gray;">이 페이지에 단어가 없습니다. [현재 페이지 편집]을 눌러 추가하세요.</p>';
         document.getElementById('bookTitle').innerText = currentBook;
         saveToLocal();
     }
 
-    // [페이지 추가 기능]
-    function addNewPage() {
+    // 1. 새로운 빈 페이지 추가 (20개의 빈 칸 확보)
+    function createNewEmptyPage() {
         const words = vocabularyData[currentBook];
-        // 빈 데이터 20개를 추가하여 새로운 페이지 생성
-        for(let i=0; i<itemsPerPage; i++) {
-            words.push({ "eng": "NewWord", "ph": "[발음]", "mean": "뜻", "mark": 0 });
+        const currentTotalPages = Math.ceil(words.length / itemsPerPage);
+        
+        // 현재 마지막 페이지가 꽉 차지 않았다면 20개를 채워주고, 그 다음 20개를 더 추가
+        const targetLength = (currentTotalPages + 1) * itemsPerPage;
+        while(words.length < targetLength) {
+            words.push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
         }
-        currentPage = Math.ceil(words.length / itemsPerPage);
+        
+        currentPage = currentTotalPages + 1;
         render();
-        alert(currentPage + "페이지가 추가되었습니다. '현재페이지편집'을 눌러 내용을 수정하세요.");
+        alert(currentPage + "페이지가 생성되었습니다. 편집을 시작하세요.");
     }
 
-    function goPage(p) {
-        currentPage = p;
-        render();
-        window.scrollTo(0,0);
-    }
-
-    function toggleAdminMode() {
-        const menu = document.getElementById('adminMenu');
-        menu.style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none';
-    }
-
-    function openFullEdit(mode) {
+    // 2. 현재 페이지만 편집 (해당 페이지의 20개 행만 추출)
+    function openPageEdit() {
         const modal = document.getElementById('editModal');
         const editor = document.getElementById('fullEditor');
         const title = document.getElementById('modalTitle');
         const saveBtn = document.getElementById('saveBtn');
 
-        let textData = "";
-        if(mode === 'all') {
-            title.innerText = "전체 단어 편집";
-            textData = vocabularyData[currentBook].map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
-            saveBtn.onclick = saveFullEditAll;
-        } else {
-            title.innerText = `현재 페이지(${currentPage}p) 편집`;
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const pageWords = vocabularyData[currentBook].slice(start, end);
-            textData = pageWords.map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
-            saveBtn.onclick = saveFullEditPage;
-        }
+        title.innerText = `${currentPage} 페이지 편집 (최대 20개)`;
+        
+        const start = (currentPage - 1) * itemsPerPage;
+        const pageWords = vocabularyData[currentBook].slice(start, start + itemsPerPage);
+        
+        // 텍스트 영역에 현재 페이지 단어 노출 (비어있지 않은 것 위주로)
+        editor.value = pageWords
+            .filter(w => w.eng || w.mean)
+            .map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
 
-        editor.value = textData;
+        saveBtn.onclick = function() {
+            const lines = editor.value.split('\n').filter(l => l.trim());
+            const newData = lines.map(line => parseLine(line));
+            
+            // 기존 페이지 위치에 덮어쓰기
+            vocabularyData[currentBook].splice(start, itemsPerPage, ...newData);
+            
+            // 만약 20개보다 적게 입력했다면 나머지 공간을 빈 객체로 채움 (페이지 유지용)
+            while(vocabularyData[currentBook].length < start + itemsPerPage) {
+                vocabularyData[currentBook].push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
+            }
+
+            closeFullEdit();
+            render();
+        };
+
         modal.style.display = 'block';
     }
 
-    function saveFullEditAll() {
-        const lines = document.getElementById('fullEditor').value.split('\n');
-        const newData = lines.filter(l => l.trim()).map(line => {
-            const phMatch = line.match(/\[.*?\]/);
-            const ph = phMatch ? phMatch[0] : "";
-            const eng = line.split(ph)[0].trim();
-            const mean = line.split(ph)[1] ? line.split(ph)[1].trim() : "";
-            return { eng, ph, mean, mark: 0 };
-        });
-        vocabularyData[currentBook] = newData;
-        closeFullEdit();
-        render();
-    }
+    // 3. 전체 데이터 편집
+    function openFullEdit() {
+        const modal = document.getElementById('editModal');
+        const editor = document.getElementById('fullEditor');
+        const title = document.getElementById('modalTitle');
+        const saveBtn = document.getElementById('saveBtn');
 
-    function saveFullEditPage() {
-        const lines = document.getElementById('fullEditor').value.split('\n');
-        const start = (currentPage - 1) * itemsPerPage;
-        
-        const newPageData = lines.filter(l => l.trim()).map(line => {
-            const phMatch = line.match(/\[.*?\]/);
-            const ph = phMatch ? phMatch[0] : "";
-            const eng = line.split(ph)[0].trim();
-            const mean = line.split(ph)[1] ? line.split(ph)[1].trim() : "";
-            return { eng, ph, mean, mark: 0 };
-        });
+        title.innerText = "전체 단어장 편집";
+        editor.value = vocabularyData[currentBook]
+            .filter(w => w.eng || w.mean)
+            .map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
 
-        vocabularyData[currentBook].splice(start, itemsPerPage, ...newPageData);
-        closeFullEdit();
-        render();
-    }
-
-    function closeFullEdit() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-
-    function toggleGlobalVisibility() {
-        isMeanHidden = !isMeanHidden;
-        document.getElementById('mainToggleBtn').innerText = isMeanHidden ? "뜻 보이기" : "뜻 숨기기";
-        render();
-    }
-
-    function toggleSingleMean(el) {
-        el.classList.toggle('hidden');
-    }
-
-    function cycleMark(idx) {
-        const word = vocabularyData[currentBook][idx];
-        word.mark = (word.mark + 1) % 3;
-        render();
-    }
-
-    function switchBook() {
-        currentBook = document.getElementById('bookSelector').value;
-        currentPage = 1;
-        render();
-    }
-
-    function updateBookSelector() {
-        const sel = document.getElementById('bookSelector');
-        sel.innerHTML = Object.keys(vocabularyData).map(name => 
-            `<option value="${name}" ${name===currentBook?'selected':''}>${name}</option>`
-        ).join('');
-    }
-
-    function addBook() {
-        const name = prompt("새 단어장 이름:");
-        if(name && !vocabularyData[name]) {
-            vocabularyData[name] = [];
-            currentBook = name;
-            updateBookSelector();
+        saveBtn.onclick = function() {
+            const lines = editor.value.split('\n').filter(l => l.trim());
+            vocabularyData[currentBook] = lines.map(line => parseLine(line));
+            closeFullEdit();
             render();
-        }
+        };
+
+        modal.style.display = 'block';
     }
 
-    function deleteBook() {
-        if(confirm(`${currentBook}을(를) 삭제하시겠습니까?`)) {
-            delete vocabularyData[currentBook];
-            currentBook = Object.keys(vocabularyData)[0] || "";
-            if(!currentBook) {
-                vocabularyData["기본 단어장"] = [];
-                currentBook = "기본 단어장";
-            }
-            updateBookSelector();
-            render();
-        }
+    function parseLine(line) {
+        const phMatch = line.match(/\[.*?\]/);
+        const ph = phMatch ? phMatch[0] : "";
+        const parts = line.split(ph);
+        const eng = parts[0].trim();
+        const mean = parts[1] ? parts[1].trim() : "";
+        return { eng, ph, mean, mark: 0 };
     }
 
-    function saveToLocal() {
-        localStorage.setItem('vocaData_FCL2', JSON.stringify(vocabularyData));
-    }
-
+    function goPage(p) { currentPage = p; render(); window.scrollTo(0,0); }
+    function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
+    function closeFullEdit() { document.getElementById('editModal').style.display = 'none'; }
+    function toggleGlobalVisibility() { isMeanHidden = !isMeanHidden; document.getElementById('mainToggleBtn').innerText = isMeanHidden ? "뜻 보이기" : "뜻 숨기기"; render(); }
+    function toggleSingleMean(el) { el.classList.toggle('hidden'); }
+    function cycleMark(idx) { vocabularyData[currentBook][idx].mark = (vocabularyData[currentBook][idx].mark + 1) % 3; render(); }
+    function switchBook() { currentBook = document.getElementById('bookSelector').value; currentPage = 1; render(); }
+    function updateBookSelector() { document.getElementById('bookSelector').innerHTML = Object.keys(vocabularyData).map(name => `<option value="${name}" ${name===currentBook?'selected':''}>${name}</option>`).join(''); }
+    function addBook() { const name = prompt("새 단어장 이름:"); if(name && !vocabularyData[name]) { vocabularyData[name] = []; currentBook = name; updateBookSelector(); render(); } }
+    function deleteBook() { if(confirm(`${currentBook}을(를) 삭제하시겠습니까?`)) { delete vocabularyData[currentBook]; currentBook = Object.keys(vocabularyData)[0] || "기본 단어장"; if(!vocabularyData[currentBook]) vocabularyData[currentBook] = []; updateBookSelector(); render(); } }
+    function saveToLocal() { localStorage.setItem('vocaData_FCL2', JSON.stringify(vocabularyData)); }
+    function updateSpeed(val) { speechRate = parseFloat(val); document.getElementById('speedVal').innerText = val; }
+    function speak(text) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'en-US'; msg.rate = speechRate; window.speechSynthesis.speak(msg); }
     function downloadSelf() {
-        const html = document.documentElement.outerHTML;
-        const blob = new Blob([html], {type: 'text/html'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'index.html';
-        a.click();
-    }
-
-    function searchWord() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        if(!query) { render(); return; }
-        const words = vocabularyData[currentBook];
-        const filtered = words.filter(w => w.eng.toLowerCase().includes(query) || w.mean.includes(query));
-        
-        let listHtml = '';
-        filtered.forEach((word) => {
-            listHtml += `
-                <div class="word-card">
-                    <div class="check-btn ${word.mark===1?'blue':word.mark===2?'red':''}"></div>
-                    <div class="word-info">
-                        <span class="word-eng" onclick="speak('${word.eng}')">${word.eng}</span>
-                        <div style="font-size:0.75em; color:gray;">${word.ph}</div>
-                    </div>
-                    <div class="word-mean">${word.mean}</div>
-                </div>
-            `;
-        });
-        document.getElementById('wordListArea').innerHTML = listHtml;
-    }
-</script>
-
-</body>
-</html>
