@@ -10,7 +10,13 @@
         
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .book-title-area { font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* 이름 수정을 위한 스타일 추가 */
+        .book-title-area { 
+            font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            cursor: pointer; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;
+        }
+        .book-title-area:hover { background: rgba(255,255,255,0.2); }
         
         #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
         .search-row { display: flex; gap: 5px; align-items: center; }
@@ -51,7 +57,7 @@
 
 <header>
     <div class="top-row">
-        <div class="book-title-area" id="bookTitle">FCL_Voca2</div>
+        <div class="book-title-area" id="bookTitle" onclick="renameCurrentBook()" title="단어장 이름 수정">FCL_Voca2</div>
         <select id="bookSelector" onchange="switchBook()"></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
@@ -103,7 +109,6 @@
     let vocabularyData = {};
     let currentBook = "FCL_Voca2";
     let currentPage = 1;
-    // 한 페이지당 단어 개수 수정 (20 -> 50)
     const itemsPerPage = 50; 
     let isMeanHidden = false;
     let speechRate = 1.0;
@@ -148,6 +153,23 @@
         saveToLocal();
     }
 
+    // 단어장 이름 수정 기능
+    function renameCurrentBook() {
+        const newName = prompt("단어장의 새 이름을 입력하세요:", currentBook);
+        if (newName && newName.trim() !== "" && newName !== currentBook) {
+            if (vocabularyData[newName]) {
+                alert("이미 같은 이름의 단어장이 존재합니다.");
+                return;
+            }
+            // 데이터 키 교체
+            vocabularyData[newName] = vocabularyData[currentBook];
+            delete vocabularyData[currentBook];
+            currentBook = newName;
+            updateBookSelector();
+            render();
+        }
+    }
+
     function drawList() {
         let listHtml = '';
         if (displayWords.length === 0) {
@@ -171,7 +193,6 @@
 
     function createNewEmptyPage() {
         const words = vocabularyData[currentBook] || (vocabularyData[currentBook] = []);
-        // 50개 단위로 빈 칸 확보
         const targetLength = (Math.ceil(words.length / itemsPerPage) + 1) * itemsPerPage;
         while(words.length < targetLength) {
             words.push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
@@ -196,7 +217,6 @@
             const lines = editor.value.split('\n').filter(l => l.trim());
             const newData = lines.map(line => parseLine(line));
             vocabularyData[currentBook].splice(start, itemsPerPage, ...newData);
-            // 50개를 다 안 채웠을 경우 빈 칸 유지
             while(vocabularyData[currentBook].length < start + itemsPerPage) {
                 vocabularyData[currentBook].push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
             }
