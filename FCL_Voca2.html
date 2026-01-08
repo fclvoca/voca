@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
+<html lang="ko"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>고교 영어 단어장 - FCL_Voca2</title>
@@ -40,6 +38,8 @@
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
 
         .bottom-controls { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .speed-control { font-size: 12px; font-weight: bold; color: var(--primary); }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
         .modal-content { background: white; width: 90%; height: 85%; margin: 5% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
         textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; border: 1px solid #ccc; }
@@ -49,8 +49,8 @@
 
 <header>
     <div class="top-row">
-        <div class="book-title-area" id="bookTitle">FCL_단어장</div>
-        <select id="bookSelector" onchange="switchBook()"></select>
+        <div class="book-title-area" id="bookTitle">FCL_우선순위단어</div>
+        <select id="bookSelector" onchange="switchBook()"><option value="FCL_고교필수단어">FCL_고교필수단어</option><option value="FCL_우선순위단어" selected="">FCL_우선순위단어</option></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
 
@@ -59,109 +59,693 @@
         <button id="mainToggleBtn" class="toggle-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
     </div>
 
-    <div id="adminMenu" class="admin-menu">
+    <div id="adminMenu" class="admin-menu" style="display: flex;">
         <button onclick="addBook()" style="background:#5C6BC0">단어장추가</button>
         <button onclick="renameCurrentBook()" style="background:#FF5722">이름수정</button>
-        <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가</button>
+        <button onclick="createNewEmptyPage()" style="background:#009688">새 페이지 추가(50개)</button>
+        <button onclick="openPageEdit()" style="background:#9C27B0">현재 페이지 편집</button>
         <button onclick="openFullEdit()" style="background:#4CAF50">전체 데이터 편집</button>
         <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
+        <button onclick="deleteBook()" style="background:#d32f2f">삭제</button>
         <button onclick="resetData()" style="background:#000">데이터 초기화</button>
     </div>
 </header>
 
-<div class="pagination" id="pageArea"></div>
+<div class="pagination" id="pageArea"><button class="page-btn active" onclick="goPage(1)">1</button><button class="page-btn " onclick="goPage(2)">2</button><button class="page-btn " onclick="goPage(3)">3</button><button class="page-btn " onclick="goPage(4)">4</button><button class="page-btn " onclick="goPage(5)">5</button><button class="page-btn " onclick="goPage(6)">6</button><button class="page-btn " onclick="goPage(7)">7</button><button class="page-btn " onclick="goPage(8)">8</button><button class="page-btn " onclick="goPage(9)">9</button><button class="page-btn " onclick="goPage(10)">10</button><button class="page-btn " onclick="goPage(11)">11</button><button class="page-btn " onclick="goPage(12)">12</button><button class="page-btn " onclick="goPage(13)">13</button><button class="page-btn " onclick="goPage(14)">14</button><button class="page-btn " onclick="goPage(15)">15</button><button class="page-btn " onclick="goPage(16)">16</button><button class="page-btn " onclick="goPage(17)">17</button><button class="page-btn " onclick="goPage(18)">18</button><button class="page-btn " onclick="goPage(19)">19</button><button class="page-btn " onclick="goPage(20)">20</button><button class="page-btn " onclick="goPage(21)">21</button><button class="page-btn " onclick="goPage(22)">22</button><button class="page-btn " onclick="goPage(23)">23</button><button class="page-btn " onclick="goPage(24)">24</button><button class="page-btn " onclick="goPage(25)">25</button><button class="page-btn " onclick="goPage(26)">26</button><button class="page-btn " onclick="goPage(27)">27</button><button class="page-btn " onclick="goPage(28)">28</button><button class="page-btn " onclick="goPage(29)">29</button><button class="page-btn " onclick="goPage(30)">30</button><button class="page-btn " onclick="goPage(31)">31</button><button class="page-btn " onclick="goPage(32)">32</button><button class="page-btn " onclick="goPage(33)">33</button><button class="page-btn " onclick="goPage(34)">34</button><button class="page-btn " onclick="goPage(35)">35</button><button class="page-btn " onclick="goPage(36)">36</button><button class="page-btn " onclick="goPage(37)">37</button><button class="page-btn " onclick="goPage(38)">38</button><button class="page-btn " onclick="goPage(39)">39</button><button class="page-btn " onclick="goPage(40)">40</button><button class="page-btn " onclick="goPage(41)">41</button><button class="page-btn " onclick="goPage(42)">42</button><button class="page-btn " onclick="goPage(43)">43</button><button class="page-btn " onclick="goPage(44)">44</button><button class="page-btn " onclick="goPage(45)">45</button><button class="page-btn " onclick="goPage(46)">46</button><button class="page-btn " onclick="goPage(47)">47</button><button class="page-btn " onclick="goPage(48)">48</button><button class="page-btn " onclick="goPage(49)">49</button><button class="page-btn " onclick="goPage(50)">50</button><button class="page-btn " onclick="goPage(51)">51</button><button class="page-btn " onclick="goPage(52)">52</button></div>
 
 <div class="util-row">
     <button class="util-btn" onclick="shuffleCurrentPage()">🔀 단어 섞기</button>
+    <button class="util-btn" onclick="sortRedToTop()">🚩 빨간색 위로</button>
     <button class="util-btn" onclick="render()">🔄 원래 순서대로</button>
 </div>
 
-<div id="wordListArea"></div>
+<div id="wordListArea">
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(0)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('tradition')">tradition</span>
+                            <div style="font-size:0.75em; color:gray;">[trədíʃən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 전통, 전설</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(1)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('patriotism')">patriotism</span>
+                            <div style="font-size:0.75em; color:gray;">[péitriətìzm]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 애국심</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(2)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('religion')">religion</span>
+                            <div style="font-size:0.75em; color:gray;">[rilídʒən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 종교</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(3)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('conscience')">conscience</span>
+                            <div style="font-size:0.75em; color:gray;">[kɑ́nʃəns]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 양심</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(4)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('intellect')">intellect</span>
+                            <div style="font-size:0.75em; color:gray;">[íntəlekt]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 지성</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(5)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('culture')">culture</span>
+                            <div style="font-size:0.75em; color:gray;">[kʌ́ltʃər]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 교양, 문화</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(6)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('civilization')">civilization</span>
+                            <div style="font-size:0.75em; color:gray;">[sìvəlizéiʃən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 문명</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(7)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('prejudice')">prejudice</span>
+                            <div style="font-size:0.75em; color:gray;">[prédʒudis]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 편편, 선입관</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(8)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('instinct')">instinct</span>
+                            <div style="font-size:0.75em; color:gray;">[ínstiŋkt]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 본능</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(9)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('privilege')">privilege</span>
+                            <div style="font-size:0.75em; color:gray;">[prívəlidʒ]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 특권 / 특권을 주다</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(10)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('impulse')">impulse</span>
+                            <div style="font-size:0.75em; color:gray;">[ímpʌls]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 충동</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(11)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('virtue')">virtue</span>
+                            <div style="font-size:0.75em; color:gray;">[və́ːrtʃuː]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 미덕, 장점</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(12)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('vice')">vice</span>
+                            <div style="font-size:0.75em; color:gray;">[vais]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 악덕, 결점</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(13)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('revolution')">revolution</span>
+                            <div style="font-size:0.75em; color:gray;">[rèvəlúːʃən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 혁명, (천체의)운행</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(14)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('stimulus')">stimulus</span>
+                            <div style="font-size:0.75em; color:gray;">[stímjuləs]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 자극</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(15)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('ambition')">ambition</span>
+                            <div style="font-size:0.75em; color:gray;">[æmbíʃən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 대망, 야심, 염원</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(16)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('vanity')">vanity</span>
+                            <div style="font-size:0.75em; color:gray;">[vǽnəti]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 허영심</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(17)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('envy')">envy</span>
+                            <div style="font-size:0.75em; color:gray;">[énvi]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 시기, 부러움 / 시기하다</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(18)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('jealousy')">jealousy</span>
+                            <div style="font-size:0.75em; color:gray;">[dʒéləsi]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 질투</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(19)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('fatigue')">fatigue</span>
+                            <div style="font-size:0.75em; color:gray;">[fətíːɡ]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 피로</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(20)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('passion')">passion</span>
+                            <div style="font-size:0.75em; color:gray;">[pǽʃən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 정열</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(21)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('famine')">famine</span>
+                            <div style="font-size:0.75em; color:gray;">[fǽmin]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 기근</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(22)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('calamity')">calamity</span>
+                            <div style="font-size:0.75em; color:gray;">[kəlǽməti]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 재난, 불행</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(23)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('individual')">individual</span>
+                            <div style="font-size:0.75em; color:gray;">[ìndəvídʒuəl]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 개인 / 개인의</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(24)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('emotion')">emotion</span>
+                            <div style="font-size:0.75em; color:gray;">[imóuʃən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 정서, 감정</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(25)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('evolution')">evolution</span>
+                            <div style="font-size:0.75em; color:gray;">[èvəlúːʃən]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 진화, 발전</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(26)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('hypocrisy')">hypocrisy</span>
+                            <div style="font-size:0.75em; color:gray;">[hipɑ́krəsi]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 위선</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(27)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('character')">character</span>
+                            <div style="font-size:0.75em; color:gray;">[kǽriktər]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 특징, 인격, 문자</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(28)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('method')">method</span>
+                            <div style="font-size:0.75em; color:gray;">[méθəd]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 방법</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(29)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('psychology')">psychology</span>
+                            <div style="font-size:0.75em; color:gray;">[saikɑ́lədʒi]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 심리(학)</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(30)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('chivalry')">chivalry</span>
+                            <div style="font-size:0.75em; color:gray;">[ʃívəlri]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 기사도</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(31)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('literature')">literature</span>
+                            <div style="font-size:0.75em; color:gray;">[lítərətʃər]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 문학</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(32)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('responsibility')">responsibility</span>
+                            <div style="font-size:0.75em; color:gray;">[rispɑ̀nsəbíləti]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 책임</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(33)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('system')">system</span>
+                            <div style="font-size:0.75em; color:gray;">[sístəm]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 조직, 체계, 제도</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(34)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('challenge')">challenge</span>
+                            <div style="font-size:0.75em; color:gray;">[tʃǽlindʒ]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 도전 / 도전하다</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(35)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('monotony')">monotony</span>
+                            <div style="font-size:0.75em; color:gray;">[mənɑ́tni]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 단조로움</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(36)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('disgrace')">disgrace</span>
+                            <div style="font-size:0.75em; color:gray;">[disɡréis]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 불명예, 치욕</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(37)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('luxury')">luxury</span>
+                            <div style="font-size:0.75em; color:gray;">[lʌ́kʃəri]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 사치(품)</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(38)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('anachronism')">anachronism</span>
+                            <div style="font-size:0.75em; color:gray;">[ənǽkrənìzm]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 시대착오</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(39)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('conquest')">conquest</span>
+                            <div style="font-size:0.75em; color:gray;">[kɑ́ŋkwest]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 정복</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(40)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('siege')">siege</span>
+                            <div style="font-size:0.75em; color:gray;">[siːdʒ]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 포위 공격</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(41)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('insight')">insight</span>
+                            <div style="font-size:0.75em; color:gray;">[ínsait]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 통찰력</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(42)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('panic')">panic</span>
+                            <div style="font-size:0.75em; color:gray;">[pǽnik]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 공황, 당황</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(43)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('universe')">universe</span>
+                            <div style="font-size:0.75em; color:gray;">[júːnəvə̀ːrs]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 우주, 전세계</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(44)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('criticism')">criticism</span>
+                            <div style="font-size:0.75em; color:gray;">[krítəsìzm]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 비평, 비판</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(45)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('influence')">influence</span>
+                            <div style="font-size:0.75em; color:gray;">[ínfluəns]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 영향(력) / 영향을 미치다</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(46)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('resistance')">resistance</span>
+                            <div style="font-size:0.75em; color:gray;">[rizístəns]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 저항</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(47)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('convenience')">convenience</span>
+                            <div style="font-size:0.75em; color:gray;">[kənvíːnjəns]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 편리</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(48)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('hardship')">hardship</span>
+                            <div style="font-size:0.75em; color:gray;">[hɑ́ːrdʃip]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 고난</div>
+                    </div>
+                
+                    <div class="word-card">
+                        <div class="check-btn " onclick="cycleMark(49)"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('existence')">existence</span>
+                            <div style="font-size:0.75em; color:gray;">[eɡzístəns]</div>
+                        </div>
+                        <div class="word-mean " onclick="toggleSingleMean(this)">: 존재, 생존</div>
+                    </div>
+                </div>
 
-<div id="editModal" class="modal">
+<div class="bottom-controls">
+    <div class="speed-control">발음 속도: <span id="speedVal">1.0</span></div>
+    <input type="range" id="voiceSpeed" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
+</div>
+
+<div id="editModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <h3 id="modalTitle">데이터 편집</h3>
-        <textarea id="dataEditor"></textarea>
-        <button onclick="saveFullEdit()" style="padding:15px; background:var(--primary); color:white; border:none; border-radius:8px;">저장하기</button>
-        <button onclick="closeModal()" style="margin-top:5px; padding:10px; background:#ccc; border:none; border-radius:8px;">닫기</button>
+        <h3 id="modalTitle" style="margin:0;">페이지 편집</h3>
+        <p style="font-size:12px; color:#d32f2f; margin:5px 0;">형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
+        <textarea id="fullEditor" placeholder="apple [애플] 사과"></textarea>
+        <div style="display:flex; justify-content: flex-end; gap:10px;">
+            <button onclick="closeFullEdit()" style="padding:10px 20px;">취소</button>
+            <button id="saveBtn" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">저장하기</button>
+        </div>
     </div>
 </div>
 
 <script>
-    let vocaData = JSON.parse(localStorage.getItem('vocaData_FCL2')) || { "기본단어장": [] };
-    let currentBook = Object.keys(vocaData)[0];
+    let vocabularyData = {};
+    let currentBook = "FCL_Voca2";
     let currentPage = 1;
-    const itemsPerPage = 50;
+    const itemsPerPage = 50; 
+    let isMeanHidden = false;
+    let speechRate = 1.0;
+    let displayWords = [];
 
-    function save() { localStorage.setItem('vocaData_FCL2', JSON.stringify(vocaData)); }
-
-    function toggleAdminMode() {
-        document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none';
-    }
+    window.onload = function() {
+        try {
+            const savedData = localStorage.getItem('vocaData_FCL2');
+            if (savedData) {
+                vocabularyData = JSON.parse(savedData);
+                if (Object.keys(vocabularyData).length === 0) vocabularyData = { "FCL_Voca2": [] };
+            } else {
+                vocabularyData = { "FCL_Voca2": [] };
+            }
+            const books = Object.keys(vocabularyData);
+            if (!books.includes(currentBook)) currentBook = books[0] || "FCL_Voca2";
+            updateBookSelector();
+            render();
+        } catch (e) {
+            console.error("초기화 오류:", e);
+        }
+    };
 
     function render() {
-        const book = vocaData[currentBook] || [];
-        const area = document.getElementById('wordListArea');
-        area.innerHTML = '';
-        
-        const start = (currentPage - 1) * itemsPerPage;
-        const pageData = book.slice(start, start + itemsPerPage);
+        const words = vocabularyData[currentBook] || [];
+        const totalPages = Math.max(1, Math.ceil(words.length / itemsPerPage));
+        if (currentPage > totalPages) currentPage = totalPages;
 
-        pageData.forEach((w, i) => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerHTML = `
-                <div class="check-btn ${w.mark || ''}" onclick="cycleMark(${start + i})"></div>
-                <div class="word-info">
-                    <span class="word-eng">${w.eng}</span>
-                    <div style="font-size:0.75em; color:gray;">${w.ph || ''}</div>
-                </div>
-                <div class="word-mean">${w.mean}</div>
-            `;
-            area.appendChild(card);
-        });
-        renderPagination();
+        let pageHtml = '';
+        for(let i=1; i<=totalPages; i++) {
+            pageHtml += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+        }
+        document.getElementById('pageArea').innerHTML = pageHtml;
+
+        const start = (currentPage - 1) * itemsPerPage;
+        displayWords = JSON.parse(JSON.stringify(words.slice(start, start + itemsPerPage)));
+        displayWords = displayWords.map((w, i) => ({ ...w, originalIdx: start + i }));
+        
+        drawList();
+        document.getElementById('bookTitle').innerText = currentBook;
+        saveToLocal();
     }
 
-    function renderPagination() {
-        const book = vocaData[currentBook] || [];
-        const totalPages = Math.ceil(book.length / itemsPerPage) || 1;
-        const area = document.getElementById('pageArea');
-        area.innerHTML = '';
-        for(let i=1; i<=totalPages; i++) {
-            area.innerHTML += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    // 이름 수정 기능 강화
+    function renameCurrentBook() {
+        const oldName = currentBook;
+        const newName = prompt("단어장의 새 이름을 입력하세요:", oldName);
+        
+        if (newName && newName.trim() !== "" && newName !== oldName) {
+            if (vocabularyData[newName]) {
+                alert("이미 같은 이름의 단어장이 존재합니다.");
+                return;
+            }
+            // 기존 데이터 복사 후 이전 데이터 삭제
+            vocabularyData[newName] = [...vocabularyData[oldName]];
+            delete vocabularyData[oldName];
+            currentBook = newName;
+            
+            updateBookSelector();
+            render();
+            alert("단어장 이름이 성공적으로 변경되었습니다.");
         }
     }
 
-    function goPage(p) { currentPage = p; render(); }
-
-    function openFullEdit() {
-        document.getElementById('editModal').style.display = 'block';
-        document.getElementById('dataEditor').value = JSON.stringify(vocaData[currentBook], null, 2);
+    function drawList() {
+        let listHtml = '';
+        if (displayWords.length === 0) {
+            listHtml = '<p style="text-align:center; padding:50px; color:gray;">단어가 없습니다.<br>교사 모드에서 단어를 추가해 보세요.</p>';
+        } else {
+            displayWords.forEach((word) => {
+                listHtml += `
+                    <div class="word-card">
+                        <div class="check-btn ${word.mark===1?'blue':word.mark===2?'red':''}" onclick="cycleMark(${word.originalIdx})"></div>
+                        <div class="word-info">
+                            <span class="word-eng" onclick="speak('${word.eng}')">${word.eng || '(빈 단어)'}</span>
+                            <div style="font-size:0.75em; color:gray;">${word.ph || ''}</div>
+                        </div>
+                        <div class="word-mean ${isMeanHidden?'hidden':''}" onclick="toggleSingleMean(this)">${word.mean || '(빈 뜻)'}</div>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('wordListArea').innerHTML = listHtml;
     }
 
-    function saveFullEdit() {
-        try {
-            vocaData[currentBook] = JSON.parse(document.getElementById('dataEditor').value);
-            save();
-            closeModal();
-            render();
-        } catch(e) { alert("형식이 올바르지 않습니다."); }
-    }
-
-    function closeModal() { document.getElementById('editModal').style.display = 'none'; }
-
-    // 초기 실행
-    function init() {
-        const sel = document.getElementById('bookSelector');
-        Object.keys(vocaData).forEach(k => {
-            const opt = document.createElement('option');
-            opt.value = k; opt.innerText = k;
-            sel.appendChild(opt);
-        });
+    function createNewEmptyPage() {
+        if(!vocabularyData[currentBook]) vocabularyData[currentBook] = [];
+        const words = vocabularyData[currentBook];
+        const targetLength = (Math.ceil(words.length / itemsPerPage) + 1) * itemsPerPage;
+        while(words.length < targetLength) {
+            words.push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
+        }
+        currentPage = Math.ceil(words.length / itemsPerPage);
         render();
     }
-    window.onload = init;
+
+    function openPageEdit() {
+        const modal = document.getElementById('editModal');
+        const editor = document.getElementById('fullEditor');
+        const saveBtn = document.getElementById('saveBtn');
+        const start = (currentPage - 1) * itemsPerPage;
+        const pageWords = vocabularyData[currentBook].slice(start, start + itemsPerPage);
+        
+        editor.value = pageWords.filter(w => w.eng.trim() || w.mean.trim()).map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
+        
+        saveBtn.onclick = function() {
+            const lines = editor.value.split('\n').filter(l => l.trim());
+            const newData = lines.map(line => parseLine(line));
+            vocabularyData[currentBook].splice(start, itemsPerPage, ...newData);
+            while(vocabularyData[currentBook].length < start + itemsPerPage) {
+                vocabularyData[currentBook].push({ "eng": "", "ph": "", "mean": "", "mark": 0 });
+            }
+            closeFullEdit();
+            render();
+        };
+        modal.style.display = 'block';
+    }
+
+    function parseLine(line) {
+        const phMatch = line.match(/\[.*?\]/);
+        const ph = phMatch ? phMatch[0] : "";
+        const parts = line.split(ph);
+        const eng = parts[0].trim();
+        const mean = parts[1] ? parts[1].trim() : "";
+        return { eng, ph, mean, mark: 0 };
+    }
+
+    function openFullEdit() {
+        const modal = document.getElementById('editModal');
+        const editor = document.getElementById('fullEditor');
+        const saveBtn = document.getElementById('saveBtn');
+        editor.value = vocabularyData[currentBook].filter(w => w.eng.trim() || w.mean.trim()).map(w => `${w.eng} ${w.ph} ${w.mean}`).join('\n');
+        saveBtn.onclick = function() {
+            const lines = editor.value.split('\n').filter(l => l.trim());
+            vocabularyData[currentBook] = lines.map(line => parseLine(line));
+            closeFullEdit();
+            render();
+        };
+        modal.style.display = 'block';
+    }
+
+    function shuffleCurrentPage() {
+        for (let i = displayWords.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [displayWords[i], displayWords[j]] = [displayWords[j], displayWords[i]];
+        }
+        drawList();
+    }
+
+    function sortRedToTop() {
+        displayWords.sort((a, b) => {
+            if (a.mark === 2 && b.mark !== 2) return -1;
+            if (a.mark !== 2 && b.mark === 2) return 1;
+            return 0;
+        });
+        drawList();
+    }
+
+    function cycleMark(globalIdx) {
+        const word = vocabularyData[currentBook][globalIdx];
+        if (word) {
+            word.mark = (word.mark + 1) % 3;
+            const target = displayWords.find(w => w.originalIdx === globalIdx);
+            if (target) target.mark = word.mark;
+            drawList();
+            saveToLocal();
+        }
+    }
+
+    function goPage(p) { currentPage = p; render(); window.scrollTo(0,0); }
+    function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
+    function closeFullEdit() { document.getElementById('editModal').style.display = 'none'; }
+    function toggleGlobalVisibility() { isMeanHidden = !isMeanHidden; document.getElementById('mainToggleBtn').innerText = isMeanHidden ? "뜻 보이기" : "뜻 숨기기"; drawList(); }
+    function toggleSingleMean(el) { el.classList.toggle('hidden'); }
+    function switchBook() { currentBook = document.getElementById('bookSelector').value; currentPage = 1; render(); }
+    function updateBookSelector() { 
+        document.getElementById('bookSelector').innerHTML = Object.keys(vocabularyData).map(name => `<option value="${name}" ${name===currentBook?'selected':''}>${name}</option>`).join(''); 
+    }
+    function addBook() { const name = prompt("새 단어장 이름:"); if(name && !vocabularyData[name]) { vocabularyData[name] = []; currentBook = name; updateBookSelector(); render(); } }
+    function deleteBook() { if(confirm(`${currentBook}을(를) 삭제하시겠습니까?`)) { delete vocabularyData[currentBook]; const books = Object.keys(vocabularyData); currentBook = books[0] || "FCL_Voca2"; if(!vocabularyData[currentBook]) vocabularyData[currentBook] = []; updateBookSelector(); render(); } }
+    function saveToLocal() { localStorage.setItem('vocaData_FCL2', JSON.stringify(vocabularyData)); }
+    function resetData() { if(confirm("모든 데이터를 초기화하시겠습니까?")) { localStorage.removeItem('vocaData_FCL2'); location.reload(); } }
+    function updateSpeed(val) { speechRate = parseFloat(val); document.getElementById('speedVal').innerText = val; }
+    function speak(text) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'en-US'; msg.rate = speechRate; window.speechSynthesis.speak(msg); }
+    function downloadSelf() { const html = document.documentElement.outerHTML; const blob = new Blob([html], {type: 'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'FCL_Voca2.html'; a.click(); }
+    function searchWord() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        if(!query) { render(); return; }
+        displayWords = vocabularyData[currentBook].filter(w => w.eng.toLowerCase().includes(query) || w.mean.includes(query))
+                        .map((w, i) => ({ ...w, originalIdx: i }));
+        drawList();
+    }
 </script>
-</body>
-</html>
+
+
+
+</body></html>
