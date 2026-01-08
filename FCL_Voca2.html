@@ -27,7 +27,6 @@
         
         .word-info { flex: 2.5; min-width: 0; }
         .word-eng { font-size: 1.15em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; word-break: break-word; line-height: 1.3; }
-        /* 발음기호 스타일: 이탤릭 제거 및 가독성 좋은 정자체 */
         .word-ph { font-size: 0.95em; color: #444; margin-top: 5px; font-family: sans-serif; font-style: normal; }
         
         .word-mean { flex: 1; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; word-break: keep-all; }
@@ -46,13 +45,11 @@
         <select id="bookSelector" onchange="switchBook()"></select>
         <label style="font-size:11px;">교사 모드 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
-
     <div class="btn-row">
         <button id="mainToggleBtn" class="action-btn" onclick="toggleGlobalVisibility()">뜻 숨기기</button>
         <button class="action-btn" onclick="shuffleCurrentPage()" style="background:#673AB7;">단어 섞기</button>
         <button class="action-btn" onclick="goPage(currentPage)" style="background:#607D8B;">원래 순서</button>
     </div>
-
     <div id="adminMenu" class="admin-menu">
         <button onclick="addBook()" style="background:#5C6BC0">교재 추가</button>
         <button onclick="renameBook()" style="background:#009688">교재명 수정</button>
@@ -68,9 +65,9 @@
 
 <div id="editModal" class="modal">
     <div class="modal-content">
-        <h3 style="margin:0;">일괄 편집 모드</h3>
-        <p style="font-size:12px; color:#d32f2f; margin:5px 0;">* 반드시 <b>|</b> 기호를 사용하여 단어(숙어)와 뜻을 구분하세요.</p>
-        <textarea id="pageEditor" spellcheck="false" placeholder="숙어 [발음] | 뜻"></textarea>
+        <h3 style="margin:0;">페이지 편집</h3>
+        <p style="font-size:12px; color:#d32f2f; margin:5px 0;">* 단어 [발음] 뜻 순서로 입력하세요. 구분선 | 이 없어도 자동으로 분리됩니다.</p>
+        <textarea id="pageEditor" spellcheck="false"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
             <button onclick="closePageEdit()" style="padding:10px 20px;">취소</button>
             <button onclick="savePageEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">저장하기</button>
@@ -116,12 +113,10 @@
         const area = document.getElementById('wordListArea');
         area.innerHTML = '';
         const start = (currentPage - 1) * WORDS_PER_PAGE;
-        
         words.forEach((w, idx) => {
             const card = document.createElement('div');
             card.className = 'word-card';
             const originalIdx = isShuffled ? w.originalIdx : start + idx;
-            
             card.innerHTML = `
                 <div class="check-btn ${w.mark === 1 ? 'blue' : w.mark === 2 ? 'red' : ''}" onclick="cycleMark(${originalIdx}, this)"></div>
                 <div class="word-info">
@@ -135,8 +130,7 @@
     }
 
     function goPage(p) {
-        currentPage = p;
-        renderPages();
+        currentPage = p; renderPages();
         document.getElementById('pageEditBtn').innerText = `${p}페이지 편집`;
         const start = (p-1) * WORDS_PER_PAGE;
         const words = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE);
@@ -146,15 +140,13 @@
     function openPageEdit() {
         const start = (currentPage - 1) * WORDS_PER_PAGE;
         const pageWords = vocaData[currentBook].slice(start, start + WORDS_PER_PAGE);
-        
-        // 중요: 편집창을 열 때 저장된 데이터를 '숙어 [발음] | 뜻'으로 명확히 규격화하여 출력
         document.getElementById('pageEditor').value = pageWords.map(w => {
+            // 저장된 데이터를 편집창에 띄울 때 항상 규격화된 형태로 출력
             let line = w.eng;
             if(w.ph) line += ` [${w.ph}]`;
             line += ` | ${w.mean}`;
             return line;
         }).join('\n');
-        
         document.getElementById('editModal').style.display = 'block';
     }
 
@@ -163,31 +155,27 @@
         const newPageData = lines.map(l => {
             let eng = "", ph = "", mean = "";
             
-            // 1. | 기호가 있는 경우 (정상)
-            if (l.includes('|')) {
-                const parts = l.split('|');
-                const left = parts[0].trim();
-                mean = parts[1] ? parts[1].trim() : "";
-                
-                if (left.includes('[') && left.includes(']')) {
-                    eng = left.split('[')[0].trim();
-                    ph = left.split('[')[1].split(']')[0].trim();
-                } else {
-                    eng = left;
-                }
+            // 1. 발음기호 [ ] 가 있는지 먼저 확인 (가장 확실한 기준)
+            if (l.includes('[') && l.includes(']')) {
+                eng = l.split('[')[0].trim();
+                const afterBracket = l.split(']');
+                ph = l.split('[')[1].split(']')[0].trim();
+                // 발음기호 뒤에 뜻이 오는 경우 (구분선 | 이 있든 없든 처리)
+                let rest = afterBracket[1] || "";
+                mean = rest.replace('|', '').trim();
             } 
-            // 2. | 기호가 없는 기존 데이터 (첫 공백 기준 분리)
+            // 2. 발음기호는 없지만 구분선 | 이 있는 경우
+            else if (l.includes('|')) {
+                const parts = l.split('|');
+                eng = parts[0].trim();
+                mean = parts[1].trim();
+            }
+            // 3. 둘 다 없는 경우 (기존처럼 첫 공백 기준)
             else {
                 const firstSpace = l.trim().indexOf(' ');
                 if(firstSpace !== -1) {
                     eng = l.substring(0, firstSpace).trim();
                     mean = l.substring(firstSpace).trim();
-                    // mean 쪽에 발음기호가 섞여 들어간 경우 추출
-                    if (mean.includes('[') && mean.includes(']')) {
-                        const mParts = mean.split(']');
-                        ph = mParts[0].replace('[','').trim();
-                        mean = mParts[1] ? mParts[1].trim() : "";
-                    }
                 } else { eng = l.trim(); }
             }
             return { eng, ph, mean, mark: 0 };
@@ -208,17 +196,6 @@
         displayWords(words, true);
     }
 
-    function renameBook() {
-        const newName = prompt("새로운 단어장 이름을 입력하세요:", currentBook);
-        if (newName && newName !== currentBook) {
-            vocaData[newName] = vocaData[currentBook];
-            delete vocaData[currentBook];
-            currentBook = newName;
-            saveToLocal();
-            updateBookSelector();
-        }
-    }
-
     function speak(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
@@ -234,6 +211,7 @@
     function switchBook() { currentBook = document.getElementById('bookSelector').value; goPage(1); }
     function addPage() { for(let i=0; i<WORDS_PER_PAGE; i++) vocaData[currentBook].push({ eng: '-', ph: '', mean: '새 단어', mark: 0 }); saveToLocal(); goPage(Math.ceil(vocaData[currentBook].length / WORDS_PER_PAGE)); }
     function deleteCurrentPage() { if(confirm(`${currentPage}페이지를 삭제할까요?`)) { vocaData[currentBook].splice((currentPage-1)*WORDS_PER_PAGE, WORDS_PER_PAGE); saveToLocal(); goPage(currentPage); } }
+    function renameBook() { const n = prompt("새 교재명:", currentBook); if(n && n !== currentBook) { vocaData[n] = vocaData[currentBook]; delete vocaData[currentBook]; currentBook = n; saveToLocal(); updateBookSelector(); } }
     function addBook() { const n = prompt("교재명:"); if(n) { vocaData[n] = []; currentBook = n; saveToLocal(); updateBookSelector(); goPage(1); } }
     function downloadSelf() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([document.documentElement.outerHTML], {type: 'text/html'})); a.download = 'index.html'; a.click(); }
 
