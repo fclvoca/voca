@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FCL_Voca_Pro_System</title>
+    <title>고교 영어 단어장 - FCL_Voca_Final</title>
     <style>
         :root { --primary: #1A237E; --accent: #FF9800; --bg: #ffffff; }
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
@@ -30,7 +30,7 @@
         .word-mean { padding-left: 10px; text-align: right; color: #1A237E; font-weight: bold; font-size: 1.15em; cursor: pointer; min-width: 120px; }
         .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
 
-        /* 사진과 똑같은 편집 모달 */
+        /* 대형 편집 모달 (voca2 스타일) */
         #vocaModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-body { background: white; width: 95%; max-width: 900px; height: 85%; border-radius: 12px; display: flex; flex-direction: column; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
         .modal-head { border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
@@ -45,7 +45,7 @@
 
 <header>
     <div class="top-row">
-        <div id="bookTitle" style="font-weight:bold;">단어장 로딩...</div>
+        <div id="bookTitle" style="font-weight:bold;">로딩중...</div>
         <select id="bookSelector" onchange="switchBook()"></select>
         <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
@@ -76,7 +76,7 @@
 <div id="vocaModal">
     <div class="modal-body">
         <div class="modal-head">
-            <h2 id="vocaModalTitle">페이지 편집</h2>
+            <h2 id="vocaModalTitle">편집</h2>
             <p>형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
         </div>
         <textarea id="vocaEditorArea" spellcheck="false"></textarea>
@@ -88,7 +88,7 @@
 </div>
 
 <script>
-    const KEY = 'FCL_VOCA_REBORN';
+    const KEY = 'FCL_VOCA_ULTIMATE_SAVE';
     let data = JSON.parse(localStorage.getItem(KEY)) || {
         "FCL_고교필수단어": [
             { eng: "release", phon: "[rɪˈliːs]", kor: "놓아주다, 개봉하다", mark: "" },
@@ -164,20 +164,22 @@
         document.getElementById('mainToggleBtn').innerText = isHidden ? "뜻 보이기" : "뜻 숨기기";
     }
 
-    // 사진 속 편집 방식 구현 (텍스트 -> JSON 자동 변환)
     function openVocaEditor(mode) {
         editMode = mode;
         const area = document.getElementById('vocaEditorArea');
         const title = document.getElementById('vocaModalTitle');
+        const headP = document.querySelector('.modal-head p');
         
         let text = "";
         if(mode === 'page') {
             title.innerText = `현재 페이지(${curPage}) 편집`;
+            headP.innerText = "형식: 단어 [발음] 뜻 (한 줄에 하나씩)";
             const start = (curPage-1)*per;
             const part = data[curBook].slice(start, start+per);
             text = part.map(i => `${i.eng} ${i.phon || ''} ${i.kor}`).join('\n');
         } else {
-            title.innerText = "전체 데이터 편집 (JSON)";
+            title.innerText = "전체 데이터 편집";
+            headP.innerText = "JSON 형식을 유지해 주세요.";
             text = JSON.stringify(data, null, 2);
         }
         
