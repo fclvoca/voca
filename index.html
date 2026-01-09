@@ -5,64 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FCL 고교필수단어</title>
     <style>
-        :root { --primary: #1a1a5e; --bg: #f4f7f9; }
-        body { font-family: sans-serif; background-color: var(--bg); margin: 0; padding: 0; }
+        :root { --primary: #1a1a5e; --bg: #f0f2f5; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); margin: 0; padding: 0; }
         
-        /* 헤더 */
-        .header { background: var(--primary); color: white; padding: 20px; position: sticky; top: 0; z-index: 10; }
-        .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .search-bar { width: 100%; padding: 12px; border-radius: 5px; border: none; font-size: 16px; box-sizing: border-box; }
+        .header { background: var(--primary); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         
-        /* 버튼 */
-        .btn-toggle { background: #ffa000; color: white; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; }
+        .search-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        #searchInput { flex-grow: 1; padding: 12px; border-radius: 8px; border: none; font-size: 16px; }
+        .btn-orange { background: #ffa000; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* 페이지네이션 */
-        .pages { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: #ddd; }
-        .p-btn { min-width: 40px; height: 40px; background: white; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+        .admin-bar { display: flex; flex-wrap: wrap; gap: 5px; background: #303f9f; padding: 8px; border-radius: 8px; }
+        .admin-bar button { border: none; color: white; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+        .pages { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: #e8eaf6; }
+        .p-btn { min-width: 35px; height: 35px; background: white; border: 1px solid #3f51b5; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; }
         .p-btn.active { background: var(--primary); color: white; }
 
-        /* 단어 리스트 - 발음기호를 단어 바로 아래 배치 */
-        .list { padding: 15px; }
-        .item { background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .info { flex-grow: 1; display: flex; flex-direction: column; } /* 세로 정렬 */
-        .eng { font-size: 20px; font-weight: bold; color: #1a1a5e; }
-        .phon { font-size: 14px; color: #666; margin-top: 3px; } /* 단어 바로 밑 */
-        .mean { font-size: 18px; color: #333; text-align: right; width: 40%; font-weight: 500; }
-        .hidden { display: none; }
+        .list { padding: 10px; }
+        .item { background: white; margin-bottom: 8px; padding: 15px; border-radius: 8px; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .info { flex-grow: 1; display: flex; flex-direction: column; cursor: pointer; }
+        .eng { font-size: 19px; font-weight: bold; color: #1a1a5e; }
+        .phon { font-size: 14px; color: #757575; margin-top: 2px; } /* 단어 바로 아래 고정 */
+        .mean { font-size: 17px; width: 45%; text-align: right; color: #333; font-weight: 500; }
+        .hidden { opacity: 0; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .modal-content { background: white; width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border-radius: 12px; }
+        textarea { width: 100%; height: 400px; font-family: monospace; padding: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="title-row">
-        <div style="font-size: 20px; font-weight: bold;">FCL 단어장</div>
-        <div id="bookName" style="font-size: 14px; opacity: 0.8;">단어장</div>
+    <div class="top-row">
+        <div id="bookTitle" style="font-size: 18px; font-weight: bold;">단어장</div>
+        <select id="bookSelect" onchange="changeBook()" style="padding: 5px;"></select>
     </div>
-    <input type="text" id="searchInput" class="search-bar" placeholder="단어 검색..." oninput="render()">
-    <button class="btn-toggle" onclick="toggleMean()">뜻 숨기기 / 보이기</button>
+    <div class="search-row">
+        <input type="text" id="searchInput" placeholder="단어 검색..." oninput="render()">
+        <button class="btn-orange" onclick="toggleMean()">뜻 숨기기</button>
+    </div>
+    <div class="admin-bar">
+        <button onclick="openEditor()" style="background:#4caf50">전체 데이터 편집</button>
+        <button onclick="addPage()" style="background:#26a69a">페이지 추가</button>
+        <button onclick="addBook()" style="background:#5c6bc0">단어장 추가</button>
+        <button onclick="location.reload()" style="background:#607d8b">새로고침(동기화)</button>
+    </div>
 </div>
 
 <div class="pages" id="pageNav"></div>
 <div class="list" id="wordList"></div>
 
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0;">데이터 편집</h3>
+        <p style="font-size:12px; color:blue;">단어 [발음기호] 뜻 (줄바꿈으로 구분)</p>
+        <textarea id="editText" spellcheck="false"></textarea>
+        <div style="display:flex; justify-content: flex-end; gap:10px; margin-top:10px;">
+            <button onclick="closeEditor()" style="padding:10px;">닫기</button>
+            <button onclick="copyData()" style="background:#1a1a5e; color:white; border:none; padding:10px; border-radius:5px;">데이터 복사하기</button>
+        </div>
+        <p style="font-size:11px; color:red; margin-top:10px;">
+            * 편집 후 '데이터 복사하기'를 눌러 GitHub의 index.html 내 <b>vocaData</b> 부분에 붙여넣고 저장(Commit)하세요. 그래야 모바일에도 반영됩니다.
+        </p>
+    </div>
+</div>
+
 <script>
     /* =========================================================
-       선생님, 이 아래 [vocaData] 안에만 단어를 넣으시면 끝납니다. 
-       PC에서 수정 후 커밋하면 모바일에서도 무조건 이 데이터만 읽습니다.
+       이곳 [vocaData]가 선생님의 실제 저장소입니다. 
+       PC GitHub에서 이 부분만 수정하시면 모바일도 즉시 바뀝니다.
        =========================================================
     */
     const vocaData = {
-        "고교필수단어": [
+        "FCL_고교필수단어": [
             {w: "tradition", p: "[trəˈdɪʃən]", m: "전통, 전설"},
             {w: "education", p: "[ˌedʒuˈkeɪʃn]", m: "교육"},
-            {w: "example", p: "[ɪɡˈzæmpl]", m: "예시, 본보기"}
+            {w: "example", p: "[ɪɡˈzæmpl]", m: "예시"}
         ]
     };
 
     let currentBook = Object.keys(vocaData)[0];
     let currentPage = 1;
     let showMean = true;
-    const size = 50;
+    const pageSize = 50;
+
+    function init() {
+        const sel = document.getElementById('bookSelect');
+        sel.innerHTML = Object.keys(vocaData).map(k => `<option value="${k}">${k}</option>`).join('');
+        render();
+    }
 
     function render() {
         const nav = document.getElementById('pageNav');
@@ -70,17 +103,15 @@
         const search = document.getElementById('searchInput').value.toLowerCase();
         
         const data = vocaData[currentBook];
-        const totalPages = Math.ceil(data.length / size) || 1;
+        const totalPages = Math.ceil(data.length / pageSize) || 1;
         
-        // 페이지 버튼 생성
         nav.innerHTML = "";
         for(let i=1; i<=totalPages; i++) {
             nav.innerHTML += `<div class="p-btn ${i===currentPage?'active':''}" onclick="setPage(${i})">${i}</div>`;
         }
 
-        // 단어 목록 생성
-        const start = (currentPage - 1) * size;
-        const target = data.slice(start, start + size);
+        const start = (currentPage - 1) * pageSize;
+        const target = data.slice(start, start + pageSize);
         
         list.innerHTML = target.map(item => {
             if(search && !item.w.toLowerCase().includes(search) && !item.m.includes(search)) return '';
@@ -94,20 +125,42 @@
                 </div>
             `;
         }).join('');
-        
-        document.getElementById('bookName').innerText = currentBook;
+        document.getElementById('bookTitle').innerText = currentBook;
+    }
+
+    function openEditor() {
+        document.getElementById('editModal').style.display = 'block';
+        document.getElementById('editText').value = vocaData[currentBook].map(i => `${i.w} ${i.p} ${i.m}`).join('\n');
+    }
+
+    function copyData() {
+        const txt = document.getElementById('editText');
+        txt.select();
+        document.execCommand('copy');
+        alert("데이터가 복사되었습니다! 이제 GitHub 소스코드의 vocaData 부분에 붙여넣으세요.");
+    }
+
+    function addPage() {
+        for(let i=0; i<50; i++) vocaData[currentBook].push({w:"New", p:"[]", m:"뜻"});
+        render();
+    }
+
+    function addBook() {
+        const n = prompt("새 단어장 이름:");
+        if(n) { vocaData[n] = []; currentBook = n; init(); }
     }
 
     function setPage(p) { currentPage = p; render(); }
     function toggleMean() { showMean = !showMean; render(); }
+    function changeBook() { currentBook = document.getElementById('bookSelect').value; currentPage = 1; render(); }
+    function closeEditor() { document.getElementById('editModal').style.display = 'none'; }
     function speak(t) {
         const s = new SpeechSynthesisUtterance(t);
         s.lang = 'en-US';
         speechSynthesis.speak(s);
     }
 
-    render();
+    init();
 </script>
-
 </body>
 </html>
