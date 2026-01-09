@@ -9,7 +9,7 @@
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 20px; }
         header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
-        #bookSelector { flex-grow: 1; padding: 8px; border-radius: 6px; border: none; font-size: 14px; background: white; font-weight: bold; }
+        #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: white; font-weight: bold; }
         .search-row { display: flex; gap: 5px; }
         #searchInput { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 15px; }
         .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; font-size: 14px; min-width: 90px; }
@@ -19,9 +19,6 @@
         .p-btn { padding: 6px 12px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 13px; cursor: pointer; font-weight: bold; }
         .p-btn.active { background: var(--primary); color: white; }
         .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; }
-        .check-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; }
-        .check-dot.blue { background: #2196F3; border-color: #2196F3; }
-        .check-dot.red { background: #F44336; border-color: #F44336; }
         .word-info { flex-grow: 1; cursor: pointer; }
         .word-eng { font-size: 1.25em; font-weight: bold; color: #1a237e; display: block; }
         .word-ph { font-size: 0.9em; color: #666; margin-top: 2px; }
@@ -37,7 +34,6 @@
 <header>
     <div class="top-row">
         <select id="bookSelector" onchange="switchBook()"></select>
-        <button onclick="localStorage.clear(); location.reload();" style="background:#000; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:10px;">브라우저 초기화</button>
     </div>
     <div class="search-row">
         <input type="text" id="searchInput" placeholder="검색..." oninput="render()">
@@ -57,18 +53,20 @@
 <div id="editModal" class="modal">
     <div class="modal-content">
         <h3>일괄 편집 (단어 [발음] 뜻)</h3>
+        <p style="font-size:12px; color:red;">※ 수정 후 아래 '적용'을 누르고 메인화면에서 '파일 저장' 하세요!</p>
         <textarea id="editor" spellcheck="false"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
             <button onclick="closeEdit()">취소</button>
-            <button onclick="saveEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">화면에 적용</button>
+            <button onclick="saveEdit()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold;">적용</button>
         </div>
     </div>
 </div>
 
 <script>
-    /* ---------------------------------------------------------
-       ★ 선생님, 사진 속의 단어 데이터는 여기에 있습니다 ★
-       --------------------------------------------------------- */
+    /* =========================================================
+       ★ 선생님, 이 아래 데이터가 사진 속 단어들입니다! ★
+       여기를 수정하시면 컴퓨터와 모바일 모두에 똑같이 나옵니다.
+       ========================================================= */
     const vocaData = {
         "FCL_고교필수단어": [
             {eng: "ridiculous", ph: "[rɪˈdɪkjələs]", mean: "말도 안 되는", mark: 0},
@@ -76,9 +74,9 @@
         ]
     };
 
-    // 브라우저 저장소가 꼬였을 때를 대비해 초기 데이터와 합치는 로직
-    let db = JSON.parse(localStorage.getItem('fcl_voca_final')) || vocaData;
-    let currentKey = Object.keys(db)[0] || "단어장";
+    // 브라우저 저장소를 완전히 배제하고 소스코드의 vocaData만 사용
+    let db = vocaData; 
+    let currentKey = Object.keys(db)[0];
     let page = 1;
     let hide = false;
 
@@ -98,7 +96,7 @@
         const start = (page - 1) * 50;
         area.innerHTML = filtered.slice(start, start + 50).map((item, idx) => `
             <div class="word-card">
-                <div class="check-dot ${item.mark==1?'blue':item.mark==2?'red':''}" onclick="mark(${start+idx})"></div>
+                <div style="width:10px; height:10px; border-radius:50%; background:${item.mark==1?'#2196F3':item.mark==2?'#F44336':'#ddd'}; margin-right:15px;"></div>
                 <div class="word-info" onclick="speak('${item.eng}')">
                     <span class="word-eng">${item.eng}</span>
                     <div class="word-ph">${item.ph}</div>
@@ -108,11 +106,10 @@
         `).join('');
     }
 
-    function save() { localStorage.setItem('fcl_voca_final', JSON.stringify(db)); }
     function goPage(p) { page = p; render(); }
     function switchBook() { currentKey = document.getElementById('bookSelector').value; page = 1; render(); }
     function toggleMean() { hide = !hide; document.getElementById('toggleBtn').innerText = hide ? "뜻 보이기" : "뜻 숨기기"; render(); }
-    function mark(idx) { db[currentKey][idx].mark = ((db[currentKey][idx].mark || 0) + 1) % 3; save(); render(); }
+    function speak(t) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
     
     function openEdit() { 
         document.getElementById('editModal').style.display = 'block'; 
@@ -128,13 +125,9 @@
             const mean = line.split(']')[1] ? line.split(']')[1].trim() : "";
             return {eng, ph, mean, mark: 0};
         });
-        save(); closeEdit(); render();
+        closeEdit(); render();
+        alert("화면에 적용되었습니다. '파일 저장' 버튼을 눌러주세요!");
     }
-
-    function closeEdit() { document.getElementById('editModal').style.display = 'none'; }
-    function addBook() { const n = prompt("새 단어장 이름:"); if(n) { db[n]=[]; currentKey=n; save(); updateSel(); render(); } }
-    function deleteBook() { if(confirm("삭제하시겠습니까?")) { delete db[currentKey]; currentKey=Object.keys(db)[0]; save(); updateSel(); render(); } }
-    function speak(t) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
 
     function downloadSelf() {
         const script = `const vocaData = ${JSON.stringify(db, null, 4)};`;
@@ -146,6 +139,10 @@
         a.click();
     }
 
+    function closeEdit() { document.getElementById('editModal').style.display = 'none'; }
+    function addBook() { const n = prompt("새 이름:"); if(n) { db[n]=[]; currentKey=n; updateSel(); render(); } }
+    function deleteBook() { if(confirm("삭제하시겠습니까?")) { delete db[currentKey]; currentKey=Object.keys(db)[0]; updateSel(); render(); } }
+    
     function updateSel() {
         document.getElementById('bookSelector').innerHTML = Object.keys(db).map(k => `<option value="${k}" ${k===currentKey?'selected':''}>${k}</option>`).join('');
     }
