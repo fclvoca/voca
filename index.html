@@ -27,35 +27,30 @@
         .btn-toggle-main { background-color: #ffa000; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
 
         .admin-group { display: flex; flex-wrap: wrap; gap: 5px; background: #303f9f; padding: 10px; border-radius: 8px; }
-        .admin-group button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: 500; }
-        .btn-voca-add { background-color: var(--btn-blue); }
-        .btn-name-edit { background-color: var(--btn-orange); }
-        .btn-page-add { background-color: var(--btn-green); }
-        .btn-page-edit { background-color: var(--btn-purple); }
-        .btn-page-del { background-color: #ff5252; border: 1px solid white; }
-        .btn-data-edit { background-color: #4caf50; }
-        .btn-save { background-color: #e91e63; }
-        .btn-del { background-color: var(--btn-red); }
-        .btn-reset { background-color: var(--btn-black); }
-
+        .admin-group button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500; }
+        
+        /* Pagination */
         .pagination { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: #e8eaf6; white-space: nowrap; border-bottom: 1px solid #ccc; }
         .page-item { min-width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #3f51b5; border-radius: 5px; color: #3f51b5; cursor: pointer; font-weight: bold; }
         .page-item.active { background: #1a237e; color: white; }
 
+        /* Word List - 발음기호를 단어 아래로 강제 배치 */
         .word-list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
         .word-item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .status-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
         .status-1 { background: #2196f3; border-color: #2196f3; }
         .status-2 { background: #f44336; border-color: #f44336; }
-        .word-info { flex-grow: 1; cursor: pointer; }
+        
+        .word-info { flex-grow: 1; cursor: pointer; display: flex; flex-direction: column; } /* 세로 배치 */
         .word-eng { font-size: 19px; font-weight: bold; color: #1a237e; }
-        .word-phon { font-size: 14px; color: #666; margin-top: 3px; background: #f0f0f0; display: inline-block; padding: 0 5px; border-radius: 4px; }
+        .word-phon { font-size: 14px; color: #757575; margin-top: 2px; } /* 단어 바로 아래 */
+        
         .word-mean { font-size: 17px; width: 45%; text-align: right; color: #333; font-weight: 500; cursor: pointer; }
         .hidden { opacity: 0; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
         .modal-content { background: white; width: 95%; max-width: 600px; margin: 20px auto; padding: 20px; border-radius: 12px; }
-        textarea { width: 100%; height: 450px; margin: 10px 0; font-family: 'Courier New', monospace; padding: 10px; box-sizing: border-box; font-size: 14px; line-height: 1.6; }
+        textarea { width: 100%; height: 450px; margin: 10px 0; font-family: monospace; padding: 10px; box-sizing: border-box; font-size: 14px; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -70,15 +65,15 @@
         <button class="btn-toggle-main" onclick="toggleAll()">뜻 숨기기</button>
     </div>
     <div class="admin-group">
-        <button class="btn-voca-add" onclick="vocaAdd()">단어장추가</button>
-        <button class="btn-name-edit" onclick="vocaRename()">이름수정</button>
-        <button class="btn-page-add" onclick="pageAdd()">새 페이지 추가</button>
-        <button class="btn-page-del" onclick="pageDelete()">현재 페이지 삭제</button>
-        <button class="btn-page-edit" onclick="openEditor('page')">현재 페이지 편집</button>
-        <button class="btn-data-edit" onclick="openEditor('all')">전체 데이터 편집</button>
-        <button class="btn-save" onclick="exportToFile()">파일저장</button>
-        <button class="btn-del" onclick="vocaDelete()">단어장 삭제</button>
-        <button class="btn-reset" onclick="dataReset()">전체 초기화</button>
+        <button style="background:#5c6bc0" onclick="vocaAdd()">단어장추가</button>
+        <button style="background:#ff7043" onclick="vocaRename()">이름수정</button>
+        <button style="background:#26a69a" onclick="pageAdd()">새 페이지 추가</button>
+        <button style="background:#ff5252" onclick="pageDelete()">현재 페이지 삭제</button>
+        <button style="background:#ab47bc" onclick="openEditor('page')">현재 페이지 편집</button>
+        <button style="background:#4caf50" onclick="openEditor('all')">전체 데이터 편집</button>
+        <button style="background:#e91e63" onclick="exportToFile()">파일저장</button>
+        <button style="background:#ef5350" onclick="vocaDelete()">단어장 삭제</button>
+        <button style="background:#212121" onclick="dataReset()">전체 초기화</button>
     </div>
 </div>
 
@@ -88,17 +83,17 @@
 <div id="editorModal" class="modal">
     <div class="modal-content">
         <h3 style="margin-top:0;">데이터 순서/기호 편집</h3>
-        <p style="font-size:12px; color:blue;">형식 예시: tradition [trəˈdɪʃən] 전통, 전설</p>
-        <textarea id="editorArea" spellcheck="false" placeholder="단어 [발음기호] 뜻"></textarea>
+        <p style="font-size:12px; color:blue;">단어 [발음기호] 뜻 (예: apple [ˈæpl] 사과)</p>
+        <textarea id="editorArea" spellcheck="false"></textarea>
         <div style="display:flex; justify-content: flex-end; gap:10px;">
             <button onclick="closeEditor()" style="padding:10px 20px;">취소</button>
-            <button class="btn-voca-add" style="border:none; color:white; padding:10px 20px; border-radius:5px;" onclick="saveEditor()">순서대로 저장</button>
+            <button style="background:#5c6bc0; border:none; color:white; padding:10px 20px; border-radius:5px;" onclick="saveEditor()">저장하기</button>
         </div>
     </div>
 </div>
 
 <script>
-    const STORAGE_KEY = 'fcl_voca_v6';
+    const STORAGE_KEY = 'fcl_voca_v7';
     let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         "FCL_고교필수단어": [
             {eng: "tradition", phon: "[trəˈdɪʃən]", mean: "전통, 전설", status: 0},
@@ -109,13 +104,9 @@
     let currentBook = Object.keys(db)[0] || "FCL_고교필수단어";
     let currentPage = 1;
     let showMeanings = true;
-    let editTarget = 'page'; 
     const ITEMS_PER_PAGE = 50;
 
-    function init() {
-        updateBookList();
-        renderAll();
-    }
+    function init() { updateBookList(); renderAll(); }
 
     function updateBookList() {
         const sel = document.getElementById('bookSelect');
@@ -123,15 +114,11 @@
         document.getElementById('displayBookName').innerText = currentBook;
     }
 
-    function renderAll() {
-        renderPagination();
-        renderWords();
-    }
+    function renderAll() { renderPagination(); renderWords(); }
 
     function renderPagination() {
         const nav = document.getElementById('pageNav');
-        const totalItems = db[currentBook].length;
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+        const totalPages = Math.ceil(db[currentBook].length / ITEMS_PER_PAGE) || 1;
         let html = '';
         for(let i=1; i<=totalPages; i++) {
             html += `<div class="page-item ${i===currentPage?'active':''}" onclick="setPage(${i})">${i}</div>`;
@@ -160,33 +147,28 @@
         }).join('');
     }
 
-    /* 발음기호 파싱 로직 개선 */
+    /* 발음기호 위치 수정 로직 */
     function saveEditor() {
-        const text = document.getElementById('editorArea').value;
-        const lines = text.split(/\r?\n/);
+        const lines = document.getElementById('editorArea').value.split(/\r?\n/);
         const newBatch = [];
 
         lines.forEach(line => {
             const trimmed = line.trim();
             if(!trimmed) return;
 
-            // 대괄호 [ ] 를 기준으로 단어, 발음기호, 뜻을 더 넓게 매칭
-            // [ ] 안에는 어떠한 문자도 올 수 있게 수정
-            const match = trimmed.match(/^([^\[]+)\s*(\[.*?\])\s*(.*)$/);
+            // 정규식 개선: 대괄호 안의 내용을 phon으로, 그 뒤를 mean으로 분리
+            const openIdx = trimmed.indexOf('[');
+            const closeIdx = trimmed.indexOf(']');
 
-            if(match) {
-                newBatch.push({
-                    eng: match[1].trim(),
-                    phon: match[2].trim(),
-                    mean: match[3].trim(),
-                    status: 0
-                });
+            if (openIdx !== -1 && closeIdx !== -1 && closeIdx > openIdx) {
+                const eng = trimmed.substring(0, openIdx).trim();
+                const phon = trimmed.substring(openIdx, closeIdx + 1).trim();
+                const mean = trimmed.substring(closeIdx + 1).trim();
+                newBatch.push({ eng, phon, mean, status: 0 });
             } else {
                 // 발음기호가 없는 경우 (단어 뜻)
                 const parts = trimmed.split(/\s+/);
-                if(parts.length >= 2) {
-                    newBatch.push({ eng: parts[0], phon: "", mean: parts.slice(1).join(" "), status: 0 });
-                }
+                newBatch.push({ eng: parts[0], phon: "", mean: parts.slice(1).join(" "), status: 0 });
             }
         });
 
@@ -196,7 +178,6 @@
         } else {
             db[currentBook] = newBatch;
         }
-
         saveDB(); closeEditor(); renderAll();
     }
 
@@ -204,12 +185,11 @@
         editTarget = type;
         const area = document.getElementById('editorArea');
         document.getElementById('editorModal').style.display = 'block';
-        let dataToEdit = (type === 'page') 
-            ? db[currentBook].slice((currentPage-1)*ITEMS_PER_PAGE, currentPage*ITEMS_PER_PAGE)
-            : db[currentBook];
+        let dataToEdit = (type === 'page') ? db[currentBook].slice((currentPage-1)*ITEMS_PER_PAGE, currentPage*ITEMS_PER_PAGE) : db[currentBook];
         area.value = dataToEdit.map(w => `${w.eng} ${w.phon} ${w.mean}`).join('\n');
     }
 
+    /* 기타 기능 */
     function pageAdd() {
         const newItems = Array.from({length: 50}, () => ({eng: "NewWord", phon: "[...]", mean: "뜻", status: 0}));
         db[currentBook] = [...db[currentBook], ...newItems];
@@ -244,9 +224,8 @@
 
     function exportToFile() {
         const blob = new Blob([JSON.stringify(db, null, 2)], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = `voca_backup.json`; a.click();
+        a.href = URL.createObjectURL(blob); a.download = `voca_backup.json`; a.click();
     }
 
     function vocaDelete() {
@@ -259,10 +238,7 @@
     }
 
     function dataReset() {
-        if(confirm("모든 데이터를 초기화하시겠습니까?")) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
+        if(confirm("모든 데이터를 초기화하시겠습니까?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
     }
 
     function setPage(p) { currentPage = p; renderWords(); renderPagination(); }
