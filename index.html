@@ -1,213 +1,6560 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
+<html lang="ko"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스마트 단어장</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>고교 영어 단어장</title>
     <style>
-        :root { --primary-dark: #1a1a5e; --bg-light: #f0f2f5; }
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-light); margin: 0; padding: 0; }
-
-        /* 상단 레이아웃 */
-        .header-main { background-color: var(--primary-dark); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; }
-        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .title { font-size: 20px; font-weight: bold; }
+        :root { --primary: #1A237E; --accent: #FF9800; --bg: #f8f9fa; }
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: var(--bg); padding-bottom: 20px; }
         
-        .mode-toggle { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        /* 헤더 압축 및 효율적 배치 */
+        header { background: var(--primary); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .book-title-area { font-weight: bold; font-size: 1.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-        #searchInput { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 16px; }
-        .btn-toggle { background-color: #607d8b; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        /* 셀렉트 박스 상단 배치 */
+        #bookSelector { flex-grow: 1; padding: 6px; border-radius: 6px; border: none; font-size: 14px; background: rgba(255,255,255,0.9); font-weight: bold; max-width: 150px; }
 
-        /* 관리자 기능군 */
-        .admin-group { display: none; flex-wrap: wrap; gap: 5px; background: #303f9f; padding: 10px; border-radius: 8px; margin-bottom: 5px; }
-        .admin-group button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; }
-
-        /* 발음 속도 조절 */
-        .speed-row { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-top: 5px; }
-        input[type="range"] { flex-grow: 1; height: 5px; }
-
-        /* 페이지네이션 */
-        .pagination { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: #e8eaf6; white-space: nowrap; }
-        .page-item { min-width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #3f51b5; border-radius: 5px; color: #3f51b5; cursor: pointer; font-weight: bold; }
-        .page-item.active { background: #1a237e; color: white; }
-
-        /* 단어 리스트 - 발음기호 위치 교정 */
-        .word-list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .word-item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .status-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
-        .status-1 { background: #2196f3; border-color: #2196f3; } /* 파란색: 암기완료 */
-        .status-2 { background: #f44336; border-color: #f44336; } /* 빨간색: 미암기 */
+        .search-row { display: flex; gap: 5px; align-items: center; }
+        .search-row input { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 15px; }
         
-        .word-info { flex-grow: 1; cursor: pointer; display: flex; flex-direction: column; }
-        .word-eng { font-size: 19px; font-weight: bold; color: #1a237e; }
-        .word-phon { font-size: 14px; color: #757575; margin-top: 2px; } /* 단어 바로 아래 고정 */
+        /* 통합 토글 버튼 스타일 */
+        .toggle-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; min-width: 90px; }
         
-        .word-mean { font-size: 17px; width: 45%; text-align: right; color: #333; font-weight: 500; cursor: pointer; }
-        .hidden { opacity: 0; }
+        .admin-check { font-size: 11px; opacity: 0.8; }
+        .admin-menu { display: none; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .admin-menu button { border: none; color: white; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        /* 모달 */
+        .pagination { display: flex; gap: 5px; background: #e8eaf6; padding: 8px 15px; overflow-x: auto; white-space: nowrap; }
+        .page-btn { padding: 5px 12px; border: 1px solid var(--primary); border-radius: 4px; background: white; font-size: 13px; }
+        .page-btn.active { background: var(--primary); color: white; }
+        
+        .word-card { display: flex; align-items: center; background: white; padding: 15px; border-bottom: 1px solid #eee; }
+        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; flex-shrink: 0; }
+        .check-btn.blue { background: #2196F3; border-color: #2196F3; }
+        .check-btn.red { background: #F44336; border-color: #F44336; }
+        
+        .word-info { flex-grow: 1; }
+        .word-eng { font-size: 1.2em; font-weight: bold; color: #1a1a1a; cursor: pointer; display: block; }
+        .word-mean { padding-left: 10px; text-align: right; color: var(--primary); font-weight: bold; font-size: 1.05em; cursor: pointer; min-width: 80px; transition: 0.2s; }
+        .word-mean.hidden { color: transparent; background: #eee; border-radius: 4px; }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: white; width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border-radius: 12px; }
-        textarea { width: 100%; height: 400px; font-family: monospace; padding: 10px; box-sizing: border-box; }
+        .modal-content { background: white; width: 90%; height: 80%; margin: 10% auto; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; }
+        textarea { flex-grow: 1; width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div class="header-main">
+<header>
     <div class="top-row">
-        <div class="title" id="displayBookName">FCL 고교필수단어</div>
-        <div class="mode-toggle">
-            교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()">
-        </div>
+        <div class="book-title-area" id="bookTitle">FCL_우선순위 영단어</div>
+        <select id="bookSelector" onchange="switchBook()"><option value="FCL_우선순위 영단어" selected="">FCL_우선순위 영단어</option></select>
+        <label class="admin-check">교사 <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()"></label>
     </div>
-    
+
     <div class="search-row">
-        <select id="bookSelect" onchange="switchBook()"></select>
-        <input type="text" id="searchInput" placeholder="단어 검색..." oninput="renderWords()">
-        <button class="btn-toggle" onclick="toggleMeanings()">뜻 보임/숨김</button>
+        <input type="text" id="searchInput" placeholder="단어 검색..." onkeyup="if(window.event.keyCode==13){searchWord()}">
+        <button id="mainToggleBtn" class="toggle-btn" onclick="toggleGlobalVisibility()" style="background: rgb(255, 152, 0);">뜻 숨기기</button>
     </div>
 
-    <div class="speed-row">
-        발음 속도: <input type="range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.8">
+    <div id="adminMenu" class="admin-menu" style="display: flex;">
+        <button onclick="addBook()" style="background:#5C6BC0">추가</button>
+        <button onclick="openFullEdit()" style="background:#4CAF50">일괄편집</button>
+        <button onclick="downloadSelf()" style="background:#E91E63">파일저장</button>
+        <button onclick="deleteBook()" style="background:#d32f2f">삭제</button>
     </div>
+</header>
 
-    <div id="adminPanel" class="admin-group">
-        <button style="background:#5c6bc0" onclick="vocaAdd()">단어장추가</button>
-        <button style="background:#ff7043" onclick="vocaRename()">이름수정</button>
-        <button style="background:#26a69a" onclick="pageAdd()">새 페이지 추가</button>
-        <button style="background:#ab47bc" onclick="openEditor()">전체 데이터 편집</button>
-        <button style="background:#ef5350" onclick="vocaDelete()">삭제</button>
-        <button style="background:#212121" onclick="resetLocal()">동기화 초기화</button>
-    </div>
-</div>
+<div class="pagination" id="pageArea"><button class="page-btn active" onclick="goPage(1)">1</button><button class="page-btn " onclick="goPage(2)">2</button><button class="page-btn " onclick="goPage(3)">3</button><button class="page-btn " onclick="goPage(4)">4</button><button class="page-btn " onclick="goPage(5)">5</button><button class="page-btn " onclick="goPage(6)">6</button><button class="page-btn " onclick="goPage(7)">7</button><button class="page-btn " onclick="goPage(8)">8</button><button class="page-btn " onclick="goPage(9)">9</button><button class="page-btn " onclick="goPage(10)">10</button><button class="page-btn " onclick="goPage(11)">11</button><button class="page-btn " onclick="goPage(12)">12</button><button class="page-btn " onclick="goPage(13)">13</button><button class="page-btn " onclick="goPage(14)">14</button><button class="page-btn " onclick="goPage(15)">15</button><button class="page-btn " onclick="goPage(16)">16</button><button class="page-btn " onclick="goPage(17)">17</button><button class="page-btn " onclick="goPage(18)">18</button><button class="page-btn " onclick="goPage(19)">19</button><button class="page-btn " onclick="goPage(20)">20</button></div>
+<div id="wordListArea"><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(0)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('tradition')">tradition</span>
+                    <div style="font-size:0.75em; color:gray;">[trədíʃən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 전통, 전설</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(1)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('patriotism')">patriotism</span>
+                    <div style="font-size:0.75em; color:gray;">[péitriətìzm]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 애국심</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(2)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('religion')">religion</span>
+                    <div style="font-size:0.75em; color:gray;">[rilídʒən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 종교</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(3)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('conscience')">conscience</span>
+                    <div style="font-size:0.75em; color:gray;">[kɑ́nʃəns]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 양심</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(4)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('intellect')">intellect</span>
+                    <div style="font-size:0.75em; color:gray;">[íntəlekt]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 지성</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(5)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('culture')">culture</span>
+                    <div style="font-size:0.75em; color:gray;">[kʌ́ltʃər]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 교양, 문화</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(6)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('civilization')">civilization</span>
+                    <div style="font-size:0.75em; color:gray;">[sìvəlizéiʃən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 문명</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(7)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('prejudice')">prejudice</span>
+                    <div style="font-size:0.75em; color:gray;">[prédʒudis]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 편편, 선입관</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(8)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('instinct')">instinct</span>
+                    <div style="font-size:0.75em; color:gray;">[ínstiŋkt]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 본능</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(9)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('privilege')">privilege</span>
+                    <div style="font-size:0.75em; color:gray;">[prívəlidʒ]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 특권 / 특권을 주다</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(10)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('impulse')">impulse</span>
+                    <div style="font-size:0.75em; color:gray;">[ímpʌls]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 충동</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(11)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('virtue')">virtue</span>
+                    <div style="font-size:0.75em; color:gray;">[və́ːrtʃuː]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 미덕, 장점</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(12)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('vice')">vice</span>
+                    <div style="font-size:0.75em; color:gray;">[vais]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 악덕, 결점</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(13)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('revolution')">revolution</span>
+                    <div style="font-size:0.75em; color:gray;">[rèvəlúːʃən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 혁명, (천체의)운행</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(14)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('stimulus')">stimulus</span>
+                    <div style="font-size:0.75em; color:gray;">[stímjuləs]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 자극</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(15)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('ambition')">ambition</span>
+                    <div style="font-size:0.75em; color:gray;">[æmbíʃən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 대망, 야심, 염원</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(16)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('vanity')">vanity</span>
+                    <div style="font-size:0.75em; color:gray;">[vǽnəti]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 허영심</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(17)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('envy')">envy</span>
+                    <div style="font-size:0.75em; color:gray;">[énvi]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 시기, 부러움 / 시기하다</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(18)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('jealousy')">jealousy</span>
+                    <div style="font-size:0.75em; color:gray;">[dʒéləsi]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 질투</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(19)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('fatigue')">fatigue</span>
+                    <div style="font-size:0.75em; color:gray;">[fətíːɡ]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 피로</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(20)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('passion')">passion</span>
+                    <div style="font-size:0.75em; color:gray;">[pǽʃən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 정열</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(21)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('famine')">famine</span>
+                    <div style="font-size:0.75em; color:gray;">[fǽmin]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 기근</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(22)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('calamity')">calamity</span>
+                    <div style="font-size:0.75em; color:gray;">[kəlǽməti]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 재난, 불행</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(23)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('individual')">individual</span>
+                    <div style="font-size:0.75em; color:gray;">[ìndəvídʒuəl]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 개인 / 개인의</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(24)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('emotion')">emotion</span>
+                    <div style="font-size:0.75em; color:gray;">[imóuʃən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 정서, 감정</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(25)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('evolution')">evolution</span>
+                    <div style="font-size:0.75em; color:gray;">[èvəlúːʃən]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 진화, 발전</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(26)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('hypocrisy')">hypocrisy</span>
+                    <div style="font-size:0.75em; color:gray;">[hipɑ́krəsi]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 위선</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(27)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('character')">character</span>
+                    <div style="font-size:0.75em; color:gray;">[kǽriktər]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 특징, 인격, 문자</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(28)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('method')">method</span>
+                    <div style="font-size:0.75em; color:gray;">[méθəd]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 방법</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(29)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('psychology')">psychology</span>
+                    <div style="font-size:0.75em; color:gray;">[saikɑ́lədʒi]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 심리(학)</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(30)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('chivalry')">chivalry</span>
+                    <div style="font-size:0.75em; color:gray;">[ʃívəlri]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 기사도</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(31)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('literature')">literature</span>
+                    <div style="font-size:0.75em; color:gray;">[lítərətʃər]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 문학</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(32)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('responsibility')">responsibility</span>
+                    <div style="font-size:0.75em; color:gray;">[rispɑ̀nsəbíləti]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 책임</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(33)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('system')">system</span>
+                    <div style="font-size:0.75em; color:gray;">[sístəm]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 조직, 체계, 제도</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(34)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('challenge')">challenge</span>
+                    <div style="font-size:0.75em; color:gray;">[tʃǽlindʒ]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 도전 / 도전하다</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(35)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('monotony')">monotony</span>
+                    <div style="font-size:0.75em; color:gray;">[mənɑ́tni]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 단조로움</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(36)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('disgrace')">disgrace</span>
+                    <div style="font-size:0.75em; color:gray;">[disɡréis]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 불명예, 치욕</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(37)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('luxury')">luxury</span>
+                    <div style="font-size:0.75em; color:gray;">[lʌ́kʃəri]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 사치(품)</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(38)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('anachronism')">anachronism</span>
+                    <div style="font-size:0.75em; color:gray;">[ənǽkrənìzm]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 시대착오</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(39)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('conquest')">conquest</span>
+                    <div style="font-size:0.75em; color:gray;">[kɑ́ŋkwest]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 정복</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(40)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('siege')">siege</span>
+                    <div style="font-size:0.75em; color:gray;">[siːdʒ]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 포위 공격</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(41)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('insight')">insight</span>
+                    <div style="font-size:0.75em; color:gray;">[ínsait]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 통찰력</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(42)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('panic')">panic</span>
+                    <div style="font-size:0.75em; color:gray;">[pǽnik]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 공황, 당황</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(43)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('universe')">universe</span>
+                    <div style="font-size:0.75em; color:gray;">[júːnəvə̀ːrs]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 우주, 전세계</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(44)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('criticism')">criticism</span>
+                    <div style="font-size:0.75em; color:gray;">[krítəsìzm]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 비평, 비판</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(45)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('influence')">influence</span>
+                    <div style="font-size:0.75em; color:gray;">[ínfluəns]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 영향(력) / 영향을 미치다</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(46)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('resistance')">resistance</span>
+                    <div style="font-size:0.75em; color:gray;">[rizístəns]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 저항</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(47)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('convenience')">convenience</span>
+                    <div style="font-size:0.75em; color:gray;">[kənvíːnjəns]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 편리</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(48)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('hardship')">hardship</span>
+                    <div style="font-size:0.75em; color:gray;">[hɑ́ːrdʃip]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 고난</div>
+            </div><div class="word-card">
+                <div class="check-btn " onclick="cycleMark(49)"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('existence')">existence</span>
+                    <div style="font-size:0.75em; color:gray;">[eɡzístəns]</div>
+                </div>
+                <div class="word-mean " onclick="toggleSingleMean(this)">: 존재, 생존</div>
+            </div></div>
 
-<div class="pagination" id="pageNav"></div>
-<div id="wordList" class="word-list"></div>
-
-<div id="editorModal" class="modal">
+<div id="editModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <h3>데이터 일괄 편집</h3>
-        <textarea id="editorArea" spellcheck="false"></textarea>
-        <div style="display:flex; justify-content: flex-end; gap:10px; margin-top:10px;">
-            <button onclick="closeEditor()">닫기</button>
-            <button style="background:#1a1a5e; color:white; border:none; padding:10px 20px; border-radius:5px;" onclick="copyToClip()">코드용 데이터 복사</button>
+        <h3>데이터 입력 (단어 [발음] 뜻)</h3>
+        <textarea id="fullEditor"></textarea>
+        <div style="display:flex; justify-content: flex-end; gap:10px;">
+            <button onclick="closeFullEdit()">취소</button>
+            <button onclick="saveFullEdit()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:6px;">저장</button>
         </div>
-        <p style="font-size:11px; color:red; margin-top:10px;">* 편집 후 복사하여 GitHub index.html의 <b>raw_db</b> 부분에 붙여넣으세요.</p>
     </div>
 </div>
 
 <script>
-    /* =========================================================
-       [raw_db] - 여기가 선생님의 메인 데이터 저장소입니다.
-       GitHub에서 이 부분만 수정하시면 모든 기기에 반영됩니다.
-       ========================================================= */
-    const raw_db = {
-        "FCL_고교필수단어": [
-            {eng: "tradition", phon: "[trəˈdɪʃən]", mean: "전통, 전설", status: 0},
-            {eng: "education", phon: "[ˌedʒuˈkeɪʃn]", mean: "교육", status: 0}
-        ]
-    };
+    const currentVersion = "1767736925468";
+    const defaultData = {
+  "FCL_우선순위 영단어": [
+    {
+      "eng": "tradition",
+      "ph": "[trədíʃən]",
+      "mean": ": 전통, 전설",
+      "mark": 0
+    },
+    {
+      "eng": "patriotism",
+      "ph": "[péitriətìzm]",
+      "mean": ": 애국심",
+      "mark": 0
+    },
+    {
+      "eng": "religion",
+      "ph": "[rilídʒən]",
+      "mean": ": 종교",
+      "mark": 0
+    },
+    {
+      "eng": "conscience",
+      "ph": "[kɑ́nʃəns]",
+      "mean": ": 양심",
+      "mark": 0
+    },
+    {
+      "eng": "intellect",
+      "ph": "[íntəlekt]",
+      "mean": ": 지성",
+      "mark": 0
+    },
+    {
+      "eng": "culture",
+      "ph": "[kʌ́ltʃər]",
+      "mean": ": 교양, 문화",
+      "mark": 0
+    },
+    {
+      "eng": "civilization",
+      "ph": "[sìvəlizéiʃən]",
+      "mean": ": 문명",
+      "mark": 0
+    },
+    {
+      "eng": "prejudice",
+      "ph": "[prédʒudis]",
+      "mean": ": 편편, 선입관",
+      "mark": 0
+    },
+    {
+      "eng": "instinct",
+      "ph": "[ínstiŋkt]",
+      "mean": ": 본능",
+      "mark": 0
+    },
+    {
+      "eng": "privilege",
+      "ph": "[prívəlidʒ]",
+      "mean": ": 특권 / 특권을 주다",
+      "mark": 0
+    },
+    {
+      "eng": "impulse",
+      "ph": "[ímpʌls]",
+      "mean": ": 충동",
+      "mark": 0
+    },
+    {
+      "eng": "virtue",
+      "ph": "[və́ːrtʃuː]",
+      "mean": ": 미덕, 장점",
+      "mark": 0
+    },
+    {
+      "eng": "vice",
+      "ph": "[vais]",
+      "mean": ": 악덕, 결점",
+      "mark": 0
+    },
+    {
+      "eng": "revolution",
+      "ph": "[rèvəlúːʃən]",
+      "mean": ": 혁명, (천체의)운행",
+      "mark": 0
+    },
+    {
+      "eng": "stimulus",
+      "ph": "[stímjuləs]",
+      "mean": ": 자극",
+      "mark": 0
+    },
+    {
+      "eng": "ambition",
+      "ph": "[æmbíʃən]",
+      "mean": ": 대망, 야심, 염원",
+      "mark": 0
+    },
+    {
+      "eng": "vanity",
+      "ph": "[vǽnəti]",
+      "mean": ": 허영심",
+      "mark": 0
+    },
+    {
+      "eng": "envy",
+      "ph": "[énvi]",
+      "mean": ": 시기, 부러움 / 시기하다",
+      "mark": 0
+    },
+    {
+      "eng": "jealousy",
+      "ph": "[dʒéləsi]",
+      "mean": ": 질투",
+      "mark": 0
+    },
+    {
+      "eng": "fatigue",
+      "ph": "[fətíːɡ]",
+      "mean": ": 피로",
+      "mark": 0
+    },
+    {
+      "eng": "passion",
+      "ph": "[pǽʃən]",
+      "mean": ": 정열",
+      "mark": 0
+    },
+    {
+      "eng": "famine",
+      "ph": "[fǽmin]",
+      "mean": ": 기근",
+      "mark": 0
+    },
+    {
+      "eng": "calamity",
+      "ph": "[kəlǽməti]",
+      "mean": ": 재난, 불행",
+      "mark": 0
+    },
+    {
+      "eng": "individual",
+      "ph": "[ìndəvídʒuəl]",
+      "mean": ": 개인 / 개인의",
+      "mark": 0
+    },
+    {
+      "eng": "emotion",
+      "ph": "[imóuʃən]",
+      "mean": ": 정서, 감정",
+      "mark": 0
+    },
+    {
+      "eng": "evolution",
+      "ph": "[èvəlúːʃən]",
+      "mean": ": 진화, 발전",
+      "mark": 0
+    },
+    {
+      "eng": "hypocrisy",
+      "ph": "[hipɑ́krəsi]",
+      "mean": ": 위선",
+      "mark": 0
+    },
+    {
+      "eng": "character",
+      "ph": "[kǽriktər]",
+      "mean": ": 특징, 인격, 문자",
+      "mark": 0
+    },
+    {
+      "eng": "method",
+      "ph": "[méθəd]",
+      "mean": ": 방법",
+      "mark": 0
+    },
+    {
+      "eng": "psychology",
+      "ph": "[saikɑ́lədʒi]",
+      "mean": ": 심리(학)",
+      "mark": 0
+    },
+    {
+      "eng": "chivalry",
+      "ph": "[ʃívəlri]",
+      "mean": ": 기사도",
+      "mark": 0
+    },
+    {
+      "eng": "literature",
+      "ph": "[lítərətʃər]",
+      "mean": ": 문학",
+      "mark": 0
+    },
+    {
+      "eng": "responsibility",
+      "ph": "[rispɑ̀nsəbíləti]",
+      "mean": ": 책임",
+      "mark": 0
+    },
+    {
+      "eng": "system",
+      "ph": "[sístəm]",
+      "mean": ": 조직, 체계, 제도",
+      "mark": 0
+    },
+    {
+      "eng": "challenge",
+      "ph": "[tʃǽlindʒ]",
+      "mean": ": 도전 / 도전하다",
+      "mark": 0
+    },
+    {
+      "eng": "monotony",
+      "ph": "[mənɑ́tni]",
+      "mean": ": 단조로움",
+      "mark": 0
+    },
+    {
+      "eng": "disgrace",
+      "ph": "[disɡréis]",
+      "mean": ": 불명예, 치욕",
+      "mark": 0
+    },
+    {
+      "eng": "luxury",
+      "ph": "[lʌ́kʃəri]",
+      "mean": ": 사치(품)",
+      "mark": 0
+    },
+    {
+      "eng": "anachronism",
+      "ph": "[ənǽkrənìzm]",
+      "mean": ": 시대착오",
+      "mark": 0
+    },
+    {
+      "eng": "conquest",
+      "ph": "[kɑ́ŋkwest]",
+      "mean": ": 정복",
+      "mark": 0
+    },
+    {
+      "eng": "siege",
+      "ph": "[siːdʒ]",
+      "mean": ": 포위 공격",
+      "mark": 0
+    },
+    {
+      "eng": "insight",
+      "ph": "[ínsait]",
+      "mean": ": 통찰력",
+      "mark": 0
+    },
+    {
+      "eng": "panic",
+      "ph": "[pǽnik]",
+      "mean": ": 공황, 당황",
+      "mark": 0
+    },
+    {
+      "eng": "universe",
+      "ph": "[júːnəvə̀ːrs]",
+      "mean": ": 우주, 전세계",
+      "mark": 0
+    },
+    {
+      "eng": "criticism",
+      "ph": "[krítəsìzm]",
+      "mean": ": 비평, 비판",
+      "mark": 0
+    },
+    {
+      "eng": "influence",
+      "ph": "[ínfluəns]",
+      "mean": ": 영향(력) / 영향을 미치다",
+      "mark": 0
+    },
+    {
+      "eng": "resistance",
+      "ph": "[rizístəns]",
+      "mean": ": 저항",
+      "mark": 0
+    },
+    {
+      "eng": "convenience",
+      "ph": "[kənvíːnjəns]",
+      "mean": ": 편리",
+      "mark": 0
+    },
+    {
+      "eng": "hardship",
+      "ph": "[hɑ́ːrdʃip]",
+      "mean": ": 고난",
+      "mark": 0
+    },
+    {
+      "eng": "existence",
+      "ph": "[eɡzístəns]",
+      "mean": ": 존재, 생존",
+      "mark": 0
+    },
+    {
+      "eng": "fortitude",
+      "ph": "[fɔ́ːrtətjùːd]",
+      "mean": ": 인내, 용기",
+      "mark": 0
+    },
+    {
+      "eng": "compromise",
+      "ph": "[kɑ́mprəmàiz]",
+      "mean": ": 타협(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "prosperity",
+      "ph": "[prɑspérəti]",
+      "mean": ": 번영",
+      "mark": 0
+    },
+    {
+      "eng": "comfort",
+      "ph": "[kʌ́mfərt]",
+      "mean": ": 위안, 안락 / 위로하다",
+      "mark": 0
+    },
+    {
+      "eng": "sacrifice",
+      "ph": "[sǽkrəfàis]",
+      "mean": ": 희생 / 희생하다",
+      "mark": 0
+    },
+    {
+      "eng": "superstition",
+      "ph": "[sùːpərstíʃən]",
+      "mean": ": 미신",
+      "mark": 0
+    },
+    {
+      "eng": "sympathy",
+      "ph": "[símpəθi]",
+      "mean": ": 동정, 공감",
+      "mark": 0
+    },
+    {
+      "eng": "perseverance",
+      "ph": "[pə̀ːrsəvíərəns]",
+      "mean": ": 인내",
+      "mark": 0
+    },
+    {
+      "eng": "disgust",
+      "ph": "[disɡʌ́st]",
+      "mean": ": 혐오 / 불쾌하게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "monopoly",
+      "ph": "[mənɑ́pəli]",
+      "mean": ": 독점",
+      "mark": 0
+    },
+    {
+      "eng": "species",
+      "ph": "[spíːʃiːz]",
+      "mean": ": 인류, 종(류)",
+      "mark": 0
+    },
+    {
+      "eng": "moisture",
+      "ph": "[mɔ́istʃər]",
+      "mean": ": 습기",
+      "mark": 0
+    },
+    {
+      "eng": "solitude",
+      "ph": "[sɑ́lətjùːd]",
+      "mean": ": 고독",
+      "mark": 0
+    },
+    {
+      "eng": "candidate",
+      "ph": "[kǽndidèit]",
+      "mean": ": 지원자, 후보자",
+      "mark": 0
+    },
+    {
+      "eng": "environment",
+      "ph": "[inváiərənmənt]",
+      "mean": ": 환경",
+      "mark": 0
+    },
+    {
+      "eng": "destiny",
+      "ph": "[déstəni]",
+      "mean": ": 운명",
+      "mark": 0
+    },
+    {
+      "eng": "hindrance",
+      "ph": "[híndrəns]",
+      "mean": ": 방해",
+      "mark": 0
+    },
+    {
+      "eng": "property",
+      "ph": "[prɑ́pərti]",
+      "mean": ": 재산, 소유권, 특성",
+      "mark": 0
+    },
+    {
+      "eng": "increase",
+      "ph": "[inkríːs]",
+      "mean": ": 증가 / 증가하다",
+      "mark": 0
+    },
+    {
+      "eng": "decrease",
+      "ph": "[dikríːs]",
+      "mean": ": 감소 / 감소하다",
+      "mark": 0
+    },
+    {
+      "eng": "courtesy",
+      "ph": "[kə́ːrtəsi]",
+      "mean": ": 예절",
+      "mark": 0
+    },
+    {
+      "eng": "theory",
+      "ph": "[θíːəri]",
+      "mean": ": 이론",
+      "mark": 0
+    },
+    {
+      "eng": "medium",
+      "ph": "[míːdiəm]",
+      "mean": ": 매개 / 중간의",
+      "mark": 0
+    },
+    {
+      "eng": "principle",
+      "ph": "[prínsəpl]",
+      "mean": ": 원리, 주의",
+      "mark": 0
+    },
+    {
+      "eng": "shortcoming",
+      "ph": "[ʃɔ́ːrtkʌ̀mmiŋ]",
+      "mean": ": 결점",
+      "mark": 0
+    },
+    {
+      "eng": "crisis",
+      "ph": "[kráisis]",
+      "mean": ": 위기",
+      "mark": 0
+    },
+    {
+      "eng": "policy",
+      "ph": "[pɑ́ləsi]",
+      "mean": ": 정책, 방침",
+      "mark": 0
+    },
+    {
+      "eng": "affection",
+      "ph": "[əfékʃən]",
+      "mean": ": 애정",
+      "mark": 0
+    },
+    {
+      "eng": "homage",
+      "ph": "[hɑ́midʒ]",
+      "mean": ": 경의",
+      "mark": 0
+    },
+    {
+      "eng": "conceit",
+      "ph": "[kənsíːt]",
+      "mean": ": 자부심",
+      "mark": 0
+    },
+    {
+      "eng": "hostility",
+      "ph": "[hɑstíləti]",
+      "mean": ": 적의, 적개심",
+      "mark": 0
+    },
+    {
+      "eng": "frustration",
+      "ph": "[frʌstréiʃən]",
+      "mean": ": 좌절, 욕구불만",
+      "mark": 0
+    },
+    {
+      "eng": "victory",
+      "ph": "[víktəri]",
+      "mean": ": 승리",
+      "mark": 0
+    },
+    {
+      "eng": "triumph",
+      "ph": "[tráiəmf]",
+      "mean": ": 승리",
+      "mark": 0
+    },
+    {
+      "eng": "hatred",
+      "ph": "[héitrid]",
+      "mean": ": 증오",
+      "mark": 0
+    },
+    {
+      "eng": "purpose",
+      "ph": "[pə́ːrpəs]",
+      "mean": ": 목적",
+      "mark": 0
+    },
+    {
+      "eng": "fantasy",
+      "ph": "[fǽntəsi]",
+      "mean": ": 공상, 환상",
+      "mark": 0
+    },
+    {
+      "eng": "struggle",
+      "ph": "[strʌ́ɡl]",
+      "mean": ": 분투 노력(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "access",
+      "ph": "[ǽkses]",
+      "mean": ": 접근",
+      "mark": 0
+    },
+    {
+      "eng": "contempt",
+      "ph": "[kəntémpt]",
+      "mean": ": 경멸",
+      "mark": 0
+    },
+    {
+      "eng": "convention",
+      "ph": "[kənvénʃən]",
+      "mean": ": 회의, 인습",
+      "mark": 0
+    },
+    {
+      "eng": "harmony",
+      "ph": "[hɑ́ːrməni]",
+      "mean": ": 조화",
+      "mark": 0
+    },
+    {
+      "eng": "scorn",
+      "ph": "[skɔːrn]",
+      "mean": ": 경멸",
+      "mark": 0
+    },
+    {
+      "eng": "comment",
+      "ph": "[kɑ́ment]",
+      "mean": ": 주석, 논평 / 주석을 달다",
+      "mark": 0
+    },
+    {
+      "eng": "dignity",
+      "ph": "[díɡnəti]",
+      "mean": ": 위엄",
+      "mark": 0
+    },
+    {
+      "eng": "mercy",
+      "ph": "[mə́ːrsi]",
+      "mean": ": 자비",
+      "mark": 0
+    },
+    {
+      "eng": "cowardice",
+      "ph": "[káuərdis]",
+      "mean": ": 겁, 비겁",
+      "mark": 0
+    },
+    {
+      "eng": "logic",
+      "ph": "[lɑ́dʒik]",
+      "mean": ": 논리학",
+      "mark": 0
+    },
+    {
+      "eng": "eloquence",
+      "ph": "[éləkwəns]",
+      "mean": ": 웅변",
+      "mark": 0
+    },
+    {
+      "eng": "pastime",
+      "ph": "[pǽstàim]",
+      "mean": ": 오락, 기분전환",
+      "mark": 0
+    },
+    {
+      "eng": "talent",
+      "ph": "[tǽlənt]",
+      "mean": ": 재능",
+      "mark": 0
+    },
+    {
+      "eng": "misery",
+      "ph": "[mízəri]",
+      "mean": ": 비참",
+      "mark": 0
+    },
+    {
+      "eng": "modesty",
+      "ph": "[mɑ́disti]",
+      "mean": ": 겸손",
+      "mark": 0
+    },
+    {
+      "eng": "circumstance",
+      "ph": "[sə́ːrkəmstæ̀ns]",
+      "mean": ": (pl.)환경, 사정",
+      "mark": 0
+    },
+    {
+      "eng": "quality",
+      "ph": "[kwɑ́ləti]",
+      "mean": ": 질, 특질, 성질",
+      "mark": 0
+    },
+    {
+      "eng": "quantity",
+      "ph": "[kwɑ́ntəti]",
+      "mean": ": 양(量)",
+      "mark": 0
+    },
+    {
+      "eng": "commerce",
+      "ph": "[kɑ́mərs]",
+      "mean": ": 상업",
+      "mark": 0
+    },
+    {
+      "eng": "conception",
+      "ph": "[kənsépʃən]",
+      "mean": ": 개념",
+      "mark": 0
+    },
+    {
+      "eng": "identity",
+      "ph": "[aidéntəti]",
+      "mean": ": 신원, 정체, 동일성",
+      "mark": 0
+    },
+    {
+      "eng": "legend",
+      "ph": "[lédʒənd]",
+      "mean": ": 전설",
+      "mark": 0
+    },
+    {
+      "eng": "trick",
+      "ph": "[trik]",
+      "mean": ": 계략, 장난 / 속이다",
+      "mark": 0
+    },
+    {
+      "eng": "wealth",
+      "ph": "[welθ]",
+      "mean": ": 부(富), 재산",
+      "mark": 0
+    },
+    {
+      "eng": "charity",
+      "ph": "[tʃǽrəti]",
+      "mean": ": 자비, 자선",
+      "mark": 0
+    },
+    {
+      "eng": "fate",
+      "ph": "[feit]",
+      "mean": ": 운명",
+      "mark": 0
+    },
+    {
+      "eng": "evidence",
+      "ph": "[évidəns]",
+      "mean": ": 증거",
+      "mark": 0
+    },
+    {
+      "eng": "tension",
+      "ph": "[ténʃən]",
+      "mean": ": 긴장",
+      "mark": 0
+    },
+    {
+      "eng": "impression",
+      "ph": "[impréʃən]",
+      "mean": ": 인상, 감명",
+      "mark": 0
+    },
+    {
+      "eng": "elegy",
+      "ph": "[élədʒi]",
+      "mean": ": 애가, 비가(悲歌)",
+      "mark": 0
+    },
+    {
+      "eng": "strain",
+      "ph": "[strein]",
+      "mean": ": 긴장, 압박 / 긴장시키다",
+      "mark": 0
+    },
+    {
+      "eng": "bribe",
+      "ph": "[braib]",
+      "mean": ": 뇌물 / 뇌물을 주다",
+      "mark": 0
+    },
+    {
+      "eng": "fame",
+      "ph": "[feim]",
+      "mean": ": 명성",
+      "mark": 0
+    },
+    {
+      "eng": "soul",
+      "ph": "[soul]",
+      "mean": ": 영혼, 사람, 진수",
+      "mark": 0
+    },
+    {
+      "eng": "gratitude",
+      "ph": "[ɡrætətjùːd]",
+      "mean": ": 감사",
+      "mark": 0
+    },
+    {
+      "eng": "sin",
+      "ph": "[sin]",
+      "mean": ": 죄",
+      "mark": 0
+    },
+    {
+      "eng": "crime",
+      "ph": "[kraim]",
+      "mean": ": 범죄",
+      "mark": 0
+    },
+    {
+      "eng": "strategy",
+      "ph": "[strætədʒi]",
+      "mean": ": 전략, 전술",
+      "mark": 0
+    },
+    {
+      "eng": "heritage",
+      "ph": "[hérətidʒ]",
+      "mean": ": 유산",
+      "mark": 0
+    },
+    {
+      "eng": "strife",
+      "ph": "[straif]",
+      "mean": ": 투쟁",
+      "mark": 0
+    },
+    {
+      "eng": "pollution",
+      "ph": "[pəlúːʃən]",
+      "mean": ": 오염",
+      "mark": 0
+    },
+    {
+      "eng": "industry",
+      "ph": "[índəstri]",
+      "mean": ": 산업, 근면, 공업",
+      "mark": 0
+    },
+    {
+      "eng": "defect",
+      "ph": "[diːfekt]",
+      "mean": ": 결점, 단점",
+      "mark": 0
+    },
+    {
+      "eng": "sincerity",
+      "ph": "[sinsérəti]",
+      "mean": ": 성실",
+      "mark": 0
+    },
+    {
+      "eng": "piety",
+      "ph": "[páiəti]",
+      "mean": ": 경건, 신앙심, 효성",
+      "mark": 0
+    },
+    {
+      "eng": "adolescence",
+      "ph": "[æ̀dəlésəns]",
+      "mean": ": 청년기, 청춘기",
+      "mark": 0
+    },
+    {
+      "eng": "phenomenon",
+      "ph": "[finɑ́mənɑ̀n]",
+      "mean": ": 현상",
+      "mark": 0
+    },
+    {
+      "eng": "account",
+      "ph": "[əkáunt]",
+      "mean": ": 계산(하다), 설명(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "emphasis",
+      "ph": "[émfəsis]",
+      "mean": ": 강조",
+      "mark": 0
+    },
+    {
+      "eng": "proportion",
+      "ph": "[prəpɔ́ːrʃən]",
+      "mean": ": 비례, 비율",
+      "mark": 0
+    },
+    {
+      "eng": "rumor",
+      "ph": "[rúːmər]",
+      "mean": ": 소문 / 소문을 내다",
+      "mark": 0
+    },
+    {
+      "eng": "faculty",
+      "ph": "[fækəlti]",
+      "mean": ": 능력",
+      "mark": 0
+    },
+    {
+      "eng": "worship",
+      "ph": "[wə́ːrʃip]",
+      "mean": ": 숭배(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "doctrine",
+      "ph": "[dɑ́ktrin]",
+      "mean": ": 학설, 주의",
+      "mark": 0
+    },
+    {
+      "eng": "pity",
+      "ph": "[píti]",
+      "mean": ": 연민, 유감",
+      "mark": 0
+    },
+    {
+      "eng": "commodity",
+      "ph": "[kəmɑ́dəti]",
+      "mean": ": 상품, 일용품",
+      "mark": 0
+    },
+    {
+      "eng": "distress",
+      "ph": "[distrés]",
+      "mean": ": 고통 / 괴롭히다",
+      "mark": 0
+    },
+    {
+      "eng": "discourse",
+      "ph": "[diskɔːrs]",
+      "mean": ": 이야기(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "function",
+      "ph": "[fʌ́ŋkʃən]",
+      "mean": ": 기능, 역할 / 작용하다",
+      "mark": 0
+    },
+    {
+      "eng": "fallacy",
+      "ph": "[fǽləsi]",
+      "mean": ": 오류(誤謬)",
+      "mark": 0
+    },
+    {
+      "eng": "violence",
+      "ph": "[váiələns]",
+      "mean": ": 폭력, 맹렬",
+      "mark": 0
+    },
+    {
+      "eng": "appetite",
+      "ph": "[ǽpətàit]",
+      "mean": ": 식욕, 욕구",
+      "mark": 0
+    },
+    {
+      "eng": "revival",
+      "ph": "[rivaivəl]",
+      "mean": ": 부활",
+      "mark": 0
+    },
+    {
+      "eng": "foundation",
+      "ph": "[faundéiʃən]",
+      "mean": ": 기초",
+      "mark": 0
+    },
+    {
+      "eng": "behavior",
+      "ph": "[bihéivjər]",
+      "mean": ": 행위, 태도",
+      "mark": 0
+    },
+    {
+      "eng": "discipline",
+      "ph": "[dísəplin]",
+      "mean": ": 훈련, 규율 / 훈련하다",
+      "mark": 0
+    },
+    {
+      "eng": "poverty",
+      "ph": "[pɑ́vərti]",
+      "mean": ": 가난, 빈곤",
+      "mark": 0
+    },
+    {
+      "eng": "threat",
+      "ph": "[θret]",
+      "mean": ": 협박, 위협",
+      "mark": 0
+    },
+    {
+      "eng": "menace",
+      "ph": "[ménəs]",
+      "mean": ": 협박(하다), 위협(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "plague",
+      "ph": "[pleiɡ]",
+      "mean": ": 전염병",
+      "mark": 0
+    },
+    {
+      "eng": "capacity",
+      "ph": "[kəpǽsəti]",
+      "mean": ": 능력, 수용력",
+      "mark": 0
+    },
+    {
+      "eng": "attitude",
+      "ph": "[ǽtətjùːd]",
+      "mean": ": 태도",
+      "mark": 0
+    },
+    {
+      "eng": "merit",
+      "ph": "[mérit]",
+      "mean": ": 장점, 공적, 실력",
+      "mark": 0
+    },
+    {
+      "eng": "astronomy",
+      "ph": "[əstrɑ́nəmi]",
+      "mean": ": 천문학",
+      "mark": 0
+    },
+    {
+      "eng": "despair",
+      "ph": "[dispéər]",
+      "mean": ": 절망",
+      "mark": 0
+    },
+    {
+      "eng": "patience",
+      "ph": "[péiʃəns]",
+      "mean": ": 인내",
+      "mark": 0
+    },
+    {
+      "eng": "confidence",
+      "ph": "[kɑ́nfidəns]",
+      "mean": ": 신용, 자신",
+      "mark": 0
+    },
+    {
+      "eng": "enthusiasm",
+      "ph": "[enθúːziæ̀zm]",
+      "mean": ": 열광",
+      "mark": 0
+    },
+    {
+      "eng": "peril",
+      "ph": "[pérəl]",
+      "mean": ": 위험",
+      "mark": 0
+    },
+    {
+      "eng": "livelihood",
+      "ph": "[láivlihùd]",
+      "mean": ": 생계, 살림",
+      "mark": 0
+    },
+    {
+      "eng": "opportunity",
+      "ph": "[ɑ̀pərtjúːnəti]",
+      "mean": ": 기회",
+      "mark": 0
+    },
+    {
+      "eng": "ridicule",
+      "ph": "[rídikjùːl]",
+      "mean": ": 조롱, 조소(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "liberty",
+      "ph": "[líbərti]",
+      "mean": ": 자유",
+      "mark": 0
+    },
+    {
+      "eng": "spirit",
+      "ph": "[spírit]",
+      "mean": ": 정신, 원기",
+      "mark": 0
+    },
+    {
+      "eng": "traffic",
+      "ph": "[trǽfik]",
+      "mean": ": 교통(의)",
+      "mark": 0
+    },
+    {
+      "eng": "remedy",
+      "ph": "[rémədi]",
+      "mean": ": 구제책, 요법",
+      "mark": 0
+    },
+    {
+      "eng": "symptom",
+      "ph": "[símptəm]",
+      "mean": ": 징후",
+      "mark": 0
+    },
+    {
+      "eng": "tyranny",
+      "ph": "[tírəni]",
+      "mean": ": 전제정치, 포학",
+      "mark": 0
+    },
+    {
+      "eng": "prospect",
+      "ph": "[prɑ́spekt]",
+      "mean": ": 기대, 전망",
+      "mark": 0
+    },
+    {
+      "eng": "credit",
+      "ph": "[krédit]",
+      "mean": ": 신용, 명예",
+      "mark": 0
+    },
+    {
+      "eng": "profit",
+      "ph": "[prɑ́fit]",
+      "mean": ": 이익 / 이익을 보다",
+      "mark": 0
+    },
+    {
+      "eng": "oblivion",
+      "ph": "[əblíviən]",
+      "mean": ": 망각",
+      "mark": 0
+    },
+    {
+      "eng": "constitution",
+      "ph": "[kɑ̀nstətjúːʃən]",
+      "mean": ": 헌법, 체격, 구성",
+      "mark": 0
+    },
+    {
+      "eng": "extent",
+      "ph": "[ikstént]",
+      "mean": ": 범위, 정도",
+      "mark": 0
+    },
+    {
+      "eng": "efficiency",
+      "ph": "[ifíʃənsi]",
+      "mean": ": 능률, 효율",
+      "mark": 0
+    },
+    {
+      "eng": "genius",
+      "ph": "[dʒíːnjəs]",
+      "mean": ": 천재",
+      "mark": 0
+    },
+    {
+      "eng": "nightmare",
+      "ph": "[náitmèər]",
+      "mean": ": 악몽",
+      "mark": 0
+    },
+    {
+      "eng": "benefit",
+      "ph": "[bénəfit]",
+      "mean": ": 이익, 은혜 / 이익이 되다",
+      "mark": 0
+    },
+    {
+      "eng": "reign",
+      "ph": "[rein]",
+      "mean": ": 통치, 군림(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "ruin",
+      "ph": "[rúːin]",
+      "mean": ": 파멸, (pl.)폐허",
+      "mark": 0
+    },
+    {
+      "eng": "factor",
+      "ph": "[fǽktər]",
+      "mean": ": 요인, 요소",
+      "mark": 0
+    },
+    {
+      "eng": "vocation",
+      "ph": "[vokéiʃən]",
+      "mean": ": 직업",
+      "mark": 0
+    },
+    {
+      "eng": "contract",
+      "ph": "[kɑ́ntrækt]",
+      "mean": ": 계약 / 계약하다",
+      "mark": 0
+    },
+    {
+      "eng": "welfare",
+      "ph": "[wélfèər]",
+      "mean": ": 복지(=well-being)",
+      "mark": 0
+    },
+    {
+      "eng": "community",
+      "ph": "[kəmjúːnəti]",
+      "mean": ": 사회",
+      "mark": 0
+    },
+    {
+      "eng": "faith",
+      "ph": "[feiθ]",
+      "mean": ": 신앙, 신용, 성실",
+      "mark": 0
+    },
+    {
+      "eng": "propaganda",
+      "ph": "[prɑ̀pəɡǽndə]",
+      "mean": ": 선전",
+      "mark": 0
+    },
+    {
+      "eng": "thrift",
+      "ph": "[θrift]",
+      "mean": ": 절약, 검약",
+      "mark": 0
+    },
+    {
+      "eng": "melancholy",
+      "ph": "[mélənkɑ̀li]",
+      "mean": ": 우울 / 우울한",
+      "mark": 0
+    },
+    {
+      "eng": "temper",
+      "ph": "[témpər]",
+      "mean": ": 기질, 기분, 노여움",
+      "mark": 0
+    },
+    {
+      "eng": "finance",
+      "ph": "[fainǽns]",
+      "mean": ": 재정(財政)",
+      "mark": 0
+    },
+    {
+      "eng": "significance",
+      "ph": "[siɡnífikəns]",
+      "mean": ": 의의(意義), 중요성",
+      "mark": 0
+    },
+    {
+      "eng": "suffrage",
+      "ph": "[sʌ́fridʒ]",
+      "mean": ": 참정권, 투표",
+      "mark": 0
+    },
+    {
+      "eng": "rage",
+      "ph": "[reidʒ]",
+      "mean": ": 격노 / 격노하다. 날뛰다",
+      "mark": 0
+    },
+    {
+      "eng": "thirst",
+      "ph": "[θəːrst]",
+      "mean": ": 목마름, 갈망 / 갈망하다",
+      "mark": 0
+    },
+    {
+      "eng": "infancy",
+      "ph": "[ínfənsi]",
+      "mean": ": 유년시대, 초기",
+      "mark": 0
+    },
+    {
+      "eng": "adoration",
+      "ph": "[æ̀dəréiʃən]",
+      "mean": ": 숭배, 동경",
+      "mark": 0
+    },
+    {
+      "eng": "insult",
+      "ph": "[insʌ́lt]",
+      "mean": ": 모욕 / 모욕하다",
+      "mark": 0
+    },
+    {
+      "eng": "epidemic",
+      "ph": "[èpidémik]",
+      "mean": ": 전염병 / 전염성의",
+      "mark": 0
+    },
+    {
+      "eng": "analogy",
+      "ph": "[ənǽlədʒi]",
+      "mean": ": 유사, 유추",
+      "mark": 0
+    },
+    {
+      "eng": "ethics",
+      "ph": "[éθiks]",
+      "mean": ": 윤리학",
+      "mark": 0
+    },
+    {
+      "eng": "analysis",
+      "ph": "[ənǽləsis]",
+      "mean": ": 분석, 분해",
+      "mark": 0
+    },
+    {
+      "eng": "labor",
+      "ph": "[léibər]",
+      "mean": ": 노동, 노력",
+      "mark": 0
+    },
+    {
+      "eng": "indignation",
+      "ph": "[ìndiɡnéiʃən]",
+      "mean": ": 분개, 분노",
+      "mark": 0
+    },
+    {
+      "eng": "substance",
+      "ph": "[sʌ́bstəns]",
+      "mean": ": 실체, 물질",
+      "mark": 0
+    },
+    {
+      "eng": "slang",
+      "ph": "[slæŋ]",
+      "mean": ": 속어",
+      "mark": 0
+    },
+    {
+      "eng": "chaos",
+      "ph": "[kéiɑs]",
+      "mean": ": 혼돈, 무질서",
+      "mark": 0
+    },
+    {
+      "eng": "vigor",
+      "ph": "[víɡər]",
+      "mean": ": 활력, 원기",
+      "mark": 0
+    },
+    {
+      "eng": "heaven",
+      "ph": "[hévən]",
+      "mean": ": 하늘, 천국",
+      "mark": 0
+    },
+    {
+      "eng": "hell",
+      "ph": "[hel]",
+      "mean": ": 지옥",
+      "mark": 0
+    },
+    {
+      "eng": "shame",
+      "ph": "[ʃeim]",
+      "mean": ": 치욕",
+      "mark": 0
+    },
+    {
+      "eng": "dialect",
+      "ph": "[dáiəlekt]",
+      "mean": ": 방언, 사투리",
+      "mark": 0
+    },
+    {
+      "eng": "barrier",
+      "ph": "[bǽriər]",
+      "mean": ": 장애물",
+      "mark": 0
+    },
+    {
+      "eng": "barometer",
+      "ph": "[bərɑ́mətər]",
+      "mean": ": 기압계, 지표",
+      "mark": 0
+    },
+    {
+      "eng": "glory",
+      "ph": "[ɡlɔ́ːri]",
+      "mean": ": 영광",
+      "mark": 0
+    },
+    {
+      "eng": "generosity",
+      "ph": "[dʒènərɑ́səti]",
+      "mean": ": 관대함, 너그러움",
+      "mark": 0
+    },
+    {
+      "eng": "technology",
+      "ph": "[teknɑ́lədʒi]",
+      "mean": ": 과학기술, 공예학",
+      "mark": 0
+    },
+    {
+      "eng": "basis",
+      "ph": "[béisis]",
+      "mean": ": 기초",
+      "mark": 0
+    },
+    {
+      "eng": "biography",
+      "ph": "[baiɑ́ɡrəfi]",
+      "mean": ": 전기(傳記)",
+      "mark": 0
+    },
+    {
+      "eng": "gravity",
+      "ph": "[ɡrǽvəti]",
+      "mean": ": 중력, 인력",
+      "mark": 0
+    },
+    {
+      "eng": "treaty",
+      "ph": "[tríːti]",
+      "mean": ": 조약",
+      "mark": 0
+    },
+    {
+      "eng": "advantage",
+      "ph": "[ədvǽntidʒ]",
+      "mean": ": 유리, 이점, 편의",
+      "mark": 0
+    },
+    {
+      "eng": "vacuum",
+      "ph": "[vǽkjuəm]",
+      "mean": ": 진공(의)",
+      "mark": 0
+    },
+    {
+      "eng": "economy",
+      "ph": "[ikɑ́nəmi]",
+      "mean": ": 경제, 절약",
+      "mark": 0
+    },
+    {
+      "eng": "bravery",
+      "ph": "[bréivəri]",
+      "mean": ": 용기",
+      "mark": 0
+    },
+    {
+      "eng": "epoch",
+      "ph": "[épək]",
+      "mean": ": 신기원, 신시대",
+      "mark": 0
+    },
+    {
+      "eng": "courage",
+      "ph": "[kə́ːridʒ]",
+      "mean": ": 용기",
+      "mark": 0
+    },
+    {
+      "eng": "sphere",
+      "ph": "[sfìər]",
+      "mean": ": 구(球), 범위",
+      "mark": 0
+    },
+    {
+      "eng": "achievement",
+      "ph": "[ətʃíːvmənt]",
+      "mean": ": 성취, 업적, 학력",
+      "mark": 0
+    },
+    {
+      "eng": "biology",
+      "ph": "[baiɑ́lədʒi]",
+      "mean": ": 생물학",
+      "mark": 0
+    },
+    {
+      "eng": "recreation",
+      "ph": "[rèkriéiʃən]",
+      "mean": ": 기분 전환, 오락",
+      "mark": 0
+    },
+    {
+      "eng": "gravitation",
+      "ph": "[ɡræ̀vətéiʃən]",
+      "mean": ": 중력, 인력",
+      "mark": 0
+    },
+    {
+      "eng": "fury",
+      "ph": "[fjúəri]",
+      "mean": ": 격분",
+      "mark": 0
+    },
+    {
+      "eng": "behalf",
+      "ph": "[bihǽf]",
+      "mean": ": 위함. 이익",
+      "mark": 0
+    },
+    {
+      "eng": "generalization",
+      "ph": "[dʒènərəlizéiʃən]",
+      "mean": ": 일반화",
+      "mark": 0
+    },
+    {
+      "eng": "damage",
+      "ph": "[dǽmidʒ]",
+      "mean": ": 손해, 손상 / 손해를 입히다",
+      "mark": 0
+    },
+    {
+      "eng": "horizon",
+      "ph": "[həráizn]",
+      "mean": ": 지평선, 수평선",
+      "mark": 0
+    },
+    {
+      "eng": "degree",
+      "ph": "[diɡríː]",
+      "mean": ": 정도, 학위",
+      "mark": 0
+    },
+    {
+      "eng": "folly",
+      "ph": "[fɑ́li]",
+      "mean": ": 어리석음, 어리석은 짓",
+      "mark": 0
+    },
+    {
+      "eng": "heredity",
+      "ph": "[hirédəti]",
+      "mean": ": 유전",
+      "mark": 0
+    },
+    {
+      "eng": "describe",
+      "ph": "[diskráib]",
+      "mean": ": 묘사하다",
+      "mark": 0
+    },
+    {
+      "eng": "declare",
+      "ph": "[dikléər]",
+      "mean": ": 선언하다",
+      "mark": 0
+    },
+    {
+      "eng": "approve",
+      "ph": "[əprúːv]",
+      "mean": ": 시인하다",
+      "mark": 0
+    },
+    {
+      "eng": "recommend",
+      "ph": "[rèkəménd]",
+      "mean": ": 추천하다",
+      "mark": 0
+    },
+    {
+      "eng": "reconcile",
+      "ph": "[rékənsàil]",
+      "mean": ": 화해시키다. 조정하다",
+      "mark": 0
+    },
+    {
+      "eng": "contribute",
+      "ph": "[kəntríbjuːt]",
+      "mean": ": 공헌하다",
+      "mark": 0
+    },
+    {
+      "eng": "distribute",
+      "ph": "[distríbjuːt]",
+      "mean": ": 분배하다",
+      "mark": 0
+    },
+    {
+      "eng": "extinguish",
+      "ph": "[ikstíŋɡwiʃ]",
+      "mean": ": 끄다(=put out)",
+      "mark": 0
+    },
+    {
+      "eng": "survive",
+      "ph": "[sərváiv]",
+      "mean": ": 살아남다",
+      "mark": 0
+    },
+    {
+      "eng": "contrast",
+      "ph": "[kɑ́ntræst]",
+      "mean": ": 대조하다. 대조를 이루다",
+      "mark": 0
+    },
+    {
+      "eng": "invade",
+      "ph": "[invéid]",
+      "mean": ": 침입하다",
+      "mark": 0
+    },
+    {
+      "eng": "upset",
+      "ph": "[ʌpsét]",
+      "mean": ": 뒤엎다 / 전복, 혼란",
+      "mark": 0
+    },
+    {
+      "eng": "accomplish",
+      "ph": "[əkɑ́mpliʃ]",
+      "mean": ": 성취하다",
+      "mark": 0
+    },
+    {
+      "eng": "violate",
+      "ph": "[váiəléit]",
+      "mean": ": 위반하다",
+      "mark": 0
+    },
+    {
+      "eng": "stride",
+      "ph": "[straid]",
+      "mean": ": 성큼성큼 걷다 / 활보",
+      "mark": 0
+    },
+    {
+      "eng": "forbear",
+      "ph": "[fɔːrbéər]",
+      "mean": ": 참고 견디다. 삼가다",
+      "mark": 0
+    },
+    {
+      "eng": "calculate",
+      "ph": "[kǽlkjulèit]",
+      "mean": ": 계산하다",
+      "mark": 0
+    },
+    {
+      "eng": "blame",
+      "ph": "[bleim]",
+      "mean": ": 비난하다. 책망하다",
+      "mark": 0
+    },
+    {
+      "eng": "plow",
+      "ph": "[plau]",
+      "mean": ": 갈다 / 쟁기",
+      "mark": 0
+    },
+    {
+      "eng": "grasp",
+      "ph": "[ɡræsp]",
+      "mean": ": 파악(하다), 이해(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "stumble",
+      "ph": "[stʌ́mbl]",
+      "mean": ": 비틀거리다 / 실수, 잘못",
+      "mark": 0
+    },
+    {
+      "eng": "require",
+      "ph": "[rikwáiər]",
+      "mean": ": 필요로 하다",
+      "mark": 0
+    },
+    {
+      "eng": "cancel",
+      "ph": "[kǽnsəl]",
+      "mean": ": 취소하다",
+      "mark": 0
+    },
+    {
+      "eng": "deceive",
+      "ph": "[disíːv]",
+      "mean": ": 속이다",
+      "mark": 0
+    },
+    {
+      "eng": "combine",
+      "ph": "[kəmbáin]",
+      "mean": ": 결합하다",
+      "mark": 0
+    },
+    {
+      "eng": "relate",
+      "ph": "[riléit]",
+      "mean": ": 말하다. 관련시키다",
+      "mark": 0
+    },
+    {
+      "eng": "arrest",
+      "ph": "[ərést]",
+      "mean": ": 체포(하다), 저지(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "embody",
+      "ph": "[imbɑ́di]",
+      "mean": ": 구체화하다",
+      "mark": 0
+    },
+    {
+      "eng": "select",
+      "ph": "[silékt]",
+      "mean": ": 고르다 / 선발한",
+      "mark": 0
+    },
+    {
+      "eng": "persist",
+      "ph": "[pərsíst]",
+      "mean": ": 고집하다",
+      "mark": 0
+    },
+    {
+      "eng": "tremble",
+      "ph": "[trémbl]",
+      "mean": ": 떨다. 떨리다",
+      "mark": 0
+    },
+    {
+      "eng": "isolate",
+      "ph": "[áisəlèit]",
+      "mean": ": 격리시키다. 고립시키다",
+      "mark": 0
+    },
+    {
+      "eng": "desert",
+      "ph": "[dézərt]",
+      "mean": ": 버리다. 도망하다 / 사막",
+      "mark": 0
+    },
+    {
+      "eng": "establish",
+      "ph": "[istǽbliʃ]",
+      "mean": ": 설립하다. 확립하다",
+      "mark": 0
+    },
+    {
+      "eng": "vary",
+      "ph": "[véəri]",
+      "mean": ": 변화하다. 변경하다",
+      "mark": 0
+    },
+    {
+      "eng": "investigate",
+      "ph": "[invéstəɡèit]",
+      "mean": ": 조사하다. 연구하다",
+      "mark": 0
+    },
+    {
+      "eng": "vanish",
+      "ph": "[vǽniʃ]",
+      "mean": ": 사라지다",
+      "mark": 0
+    },
+    {
+      "eng": "lament",
+      "ph": "[ləmént]",
+      "mean": ": 한탄하다. 슬퍼하다",
+      "mark": 0
+    },
+    {
+      "eng": "stretch",
+      "ph": "[stretʃ]",
+      "mean": ": 잡아 늘이다. 퍼지다",
+      "mark": 0
+    },
+    {
+      "eng": "starve",
+      "ph": "[stɑːrv]",
+      "mean": ": 굶어 죽다. 굶주리다",
+      "mark": 0
+    },
+    {
+      "eng": "generate",
+      "ph": "[dʒénəréit]",
+      "mean": ": 낳다. 발생하다",
+      "mark": 0
+    },
+    {
+      "eng": "reform",
+      "ph": "[rifɔ́ːrm]",
+      "mean": ": 개혁하다. 개정하다",
+      "mark": 0
+    },
+    {
+      "eng": "possess",
+      "ph": "[pəzés]",
+      "mean": ": 소유하다",
+      "mark": 0
+    },
+    {
+      "eng": "devote",
+      "ph": "[divóut]",
+      "mean": ": 바치다. 헌신하다",
+      "mark": 0
+    },
+    {
+      "eng": "tend",
+      "ph": "[tend]",
+      "mean": ": ~의 경향이 있다. 하기 쉽다",
+      "mark": 0
+    },
+    {
+      "eng": "pursue",
+      "ph": "[pərsúː]",
+      "mean": ": 추구하다. 종사하다",
+      "mark": 0
+    },
+    {
+      "eng": "attach",
+      "ph": "[ətǽtʃ]",
+      "mean": ": 붙이다. 애착을 갖게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "perish",
+      "ph": "[périʃ]",
+      "mean": ": 멸망하다. 죽다",
+      "mark": 0
+    },
+    {
+      "eng": "dispose",
+      "ph": "[dispóuz]",
+      "mean": ": 처리하다",
+      "mark": 0
+    },
+    {
+      "eng": "quit",
+      "ph": "[kwit]",
+      "mean": ": 떠나다. 그만 두다",
+      "mark": 0
+    },
+    {
+      "eng": "secure",
+      "ph": "[sikjúər]",
+      "mean": ": 획득하다. 보증하다",
+      "mark": 0
+    },
+    {
+      "eng": "reveal",
+      "ph": "[rivíːl]",
+      "mean": ": 나타내다. 누설하다",
+      "mark": 0
+    },
+    {
+      "eng": "persuade",
+      "ph": "[pərswéid]",
+      "mean": ": 설득하다",
+      "mark": 0
+    },
+    {
+      "eng": "gaze",
+      "ph": "[ɡeiz]",
+      "mean": ": 응시하다",
+      "mark": 0
+    },
+    {
+      "eng": "restore",
+      "ph": "[ristɔ́ːr]",
+      "mean": ": 회복시키다",
+      "mark": 0
+    },
+    {
+      "eng": "heal",
+      "ph": "[hiːl]",
+      "mean": ": 고치다. 상처를 낫게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "acquire",
+      "ph": "[əkwáiər]",
+      "mean": ": 얻다",
+      "mark": 0
+    },
+    {
+      "eng": "halt",
+      "ph": "[hɔːlt]",
+      "mean": ": 서다 / 정지",
+      "mark": 0
+    },
+    {
+      "eng": "maintain",
+      "ph": "[meintéin]",
+      "mean": ": 유지하다. 주장하다",
+      "mark": 0
+    },
+    {
+      "eng": "mourn",
+      "ph": "[mɔːrn]",
+      "mean": ": 슬퍼하다. 상복을 입다",
+      "mark": 0
+    },
+    {
+      "eng": "suspect",
+      "ph": "[səspékt]",
+      "mean": ": 의심하다",
+      "mark": 0
+    },
+    {
+      "eng": "grumble",
+      "ph": "[ɡrʌ́mbl]",
+      "mean": ": 불평하다",
+      "mark": 0
+    },
+    {
+      "eng": "entertain",
+      "ph": "[èntərtéin]",
+      "mean": ": 즐겁게 하다. 마음에 품다",
+      "mark": 0
+    },
+    {
+      "eng": "utilize",
+      "ph": "[júːtəlìz]",
+      "mean": ": 이용하다",
+      "mark": 0
+    },
+    {
+      "eng": "convert",
+      "ph": "[kənvə́ːrt]",
+      "mean": ": 바꾸다(=change)",
+      "mark": 0
+    },
+    {
+      "eng": "despise",
+      "ph": "[dispáiz]",
+      "mean": ": 경멸하다",
+      "mark": 0
+    },
+    {
+      "eng": "commence",
+      "ph": "[kəméns]",
+      "mean": ": 시작하다",
+      "mark": 0
+    },
+    {
+      "eng": "consume",
+      "ph": "[kənsúːm]",
+      "mean": ": 소비하다. 다 써버리다",
+      "mark": 0
+    },
+    {
+      "eng": "assimilate",
+      "ph": "[əsíməlèit]",
+      "mean": ": 동화하다",
+      "mark": 0
+    },
+    {
+      "eng": "impose",
+      "ph": "[impóuz]",
+      "mean": ": 부과하다. 강요하다",
+      "mark": 0
+    },
+    {
+      "eng": "encounter",
+      "ph": "[inkáuntər]",
+      "mean": ": (우연히) 만나다. 마주치다",
+      "mark": 0
+    },
+    {
+      "eng": "release",
+      "ph": "[rilíːs]",
+      "mean": ": 해방하다. 면제하다",
+      "mark": 0
+    },
+    {
+      "eng": "specialize",
+      "ph": "[spéʃəlàiz]",
+      "mean": ": 전공하다. 전문화하다",
+      "mark": 0
+    },
+    {
+      "eng": "respond",
+      "ph": "[rispɑ́nd]",
+      "mean": ": 응답하다",
+      "mark": 0
+    },
+    {
+      "eng": "soar",
+      "ph": "[sɔːr]",
+      "mean": ": 치솟다. 날아 올라가다",
+      "mark": 0
+    },
+    {
+      "eng": "comprehend",
+      "ph": "[kɑ̀mprihénd]",
+      "mean": ": 이해하다. 포함하다",
+      "mark": 0
+    },
+    {
+      "eng": "detect",
+      "ph": "[ditékt]",
+      "mean": ": 발견하다. 간파하다",
+      "mark": 0
+    },
+    {
+      "eng": "qualify",
+      "ph": "[kwɑ́ləfài]",
+      "mean": ": 자격을 주다. 제한하다",
+      "mark": 0
+    },
+    {
+      "eng": "decorate",
+      "ph": "[dékərèit]",
+      "mean": ": 장식하다",
+      "mark": 0
+    },
+    {
+      "eng": "accelerate",
+      "ph": "[æksélərèit]",
+      "mean": ": 속도를 더하다. 촉진하다",
+      "mark": 0
+    },
+    {
+      "eng": "betray",
+      "ph": "[bitréi]",
+      "mean": ": 배반하다. 누설하다",
+      "mark": 0
+    },
+    {
+      "eng": "dominate",
+      "ph": "[dɑ́mənèit]",
+      "mean": ": 통치하다. 지배하다",
+      "mark": 0
+    },
+    {
+      "eng": "preserve",
+      "ph": "[prizə́ːrv]",
+      "mean": ": 유지하다. 보존하다",
+      "mark": 0
+    },
+    {
+      "eng": "entreat",
+      "ph": "[intríːt]",
+      "mean": ": 간청하다",
+      "mark": 0
+    },
+    {
+      "eng": "lack",
+      "ph": "[læk]",
+      "mean": ": ~이 없다. 부족하다",
+      "mark": 0
+    },
+    {
+      "eng": "interrupt",
+      "ph": "[ìntərʌ́pt]",
+      "mean": ": 방해하다. 중단하다",
+      "mark": 0
+    },
+    {
+      "eng": "surpass",
+      "ph": "[sərpǽs]",
+      "mean": ": ~보다 뛰어나다. 우월하다",
+      "mark": 0
+    },
+    {
+      "eng": "render",
+      "ph": "[réndər]",
+      "mean": ": ~이 되게 하다. 주다",
+      "mark": 0
+    },
+    {
+      "eng": "export",
+      "ph": "[ekspɔ́ːrt]",
+      "mean": ": 수출 / 수출하다",
+      "mark": 0
+    },
+    {
+      "eng": "fulfil(l)",
+      "ph": "[fulfíl]",
+      "mean": ": 이행하다. 실행하다",
+      "mark": 0
+    },
+    {
+      "eng": "inspect",
+      "ph": "[inspékt]",
+      "mean": ": 검사하다. 시찰하다",
+      "mark": 0
+    },
+    {
+      "eng": "indulge",
+      "ph": "[indʌ́ldʒ]",
+      "mean": ": 탐닉하다. 제멋대로 하게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "prevail",
+      "ph": "[privéil]",
+      "mean": ": 유행하다. 우세하다",
+      "mark": 0
+    },
+    {
+      "eng": "adjust",
+      "ph": "[ədʒʌ́st]",
+      "mean": ": 적응시키다. 조정하다",
+      "mark": 0
+    },
+    {
+      "eng": "estimate",
+      "ph": "[éstəmèit]",
+      "mean": ": 어림잡다. 평가하다",
+      "mark": 0
+    },
+    {
+      "eng": "compensate",
+      "ph": "[kɑ́mpənsèit]",
+      "mean": ": 배상하다. 갚다",
+      "mark": 0
+    },
+    {
+      "eng": "restrain",
+      "ph": "[ristréin]",
+      "mean": ": 억제하다. 제한하다",
+      "mark": 0
+    },
+    {
+      "eng": "appreciate",
+      "ph": "[əpríːʃièit]",
+      "mean": ": 감사하다. 감상하다",
+      "mark": 0
+    },
+    {
+      "eng": "insist",
+      "ph": "[insíst]",
+      "mean": ": 주장하다. 고집하다",
+      "mark": 0
+    },
+    {
+      "eng": "acknowledge",
+      "ph": "[æknɑ́lidʒ]",
+      "mean": ": 인정하다",
+      "mark": 0
+    },
+    {
+      "eng": "distinguish",
+      "ph": "[distíŋɡwiʃ]",
+      "mean": ": 구별하다",
+      "mark": 0
+    },
+    {
+      "eng": "involve",
+      "ph": "[invɑ́lv]",
+      "mean": ": 포함하다. 수반하다",
+      "mark": 0
+    },
+    {
+      "eng": "intrude",
+      "ph": "[intrúːd]",
+      "mean": ": 침입하다",
+      "mark": 0
+    },
+    {
+      "eng": "torment",
+      "ph": "[tɔ́ːrment]",
+      "mean": ": 고문하다. 괴롭히다 / 고문",
+      "mark": 0
+    },
+    {
+      "eng": "exhaust",
+      "ph": "[iɡzɔ́ːst]",
+      "mean": ": 다 써버리다. 지치게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "endure",
+      "ph": "[indjúər]",
+      "mean": ": 견디다",
+      "mark": 0
+    },
+    {
+      "eng": "hesitate",
+      "ph": "[hézətèit]",
+      "mean": ": 주저하다",
+      "mark": 0
+    },
+    {
+      "eng": "substitute",
+      "ph": "[sʌ́bstətjùːt]",
+      "mean": ": 대리하다. 대용하다",
+      "mark": 0
+    },
+    {
+      "eng": "prohibit",
+      "ph": "[prouhíbit]",
+      "mean": ": 금하다(=ban)",
+      "mark": 0
+    },
+    {
+      "eng": "forbid",
+      "ph": "[fərbíd]",
+      "mean": ": 금하다",
+      "mark": 0
+    },
+    {
+      "eng": "display",
+      "ph": "[displéi]",
+      "mean": ": 보이다. 진열하다 / 진열",
+      "mark": 0
+    },
+    {
+      "eng": "concentrate",
+      "ph": "[kɑ́nsəntrèit]",
+      "mean": ": 집중하다",
+      "mark": 0
+    },
+    {
+      "eng": "yearn",
+      "ph": "[jəːrn]",
+      "mean": ": 그리워하다(=long)",
+      "mark": 0
+    },
+    {
+      "eng": "forsake",
+      "ph": "[fərséik]",
+      "mean": ": 버리다",
+      "mark": 0
+    },
+    {
+      "eng": "endeavor",
+      "ph": "[indévər]",
+      "mean": ": 노력(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "soothe",
+      "ph": "[suːð]",
+      "mean": ": 위로하다. 진정시키다",
+      "mark": 0
+    },
+    {
+      "eng": "congratulate",
+      "ph": "[kənɡrǽtʃulèit]",
+      "mean": ": 축하하다",
+      "mark": 0
+    },
+    {
+      "eng": "confuse",
+      "ph": "[kənfjúːz]",
+      "mean": ": 혼란시키다. 당황하게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "improve",
+      "ph": "[imprúːv]",
+      "mean": ": 개선하다. 진보하다",
+      "mark": 0
+    },
+    {
+      "eng": "diffuse",
+      "ph": "[difjúːz]",
+      "mean": ": 퍼지게 하다. 보급하다",
+      "mark": 0
+    },
+    {
+      "eng": "alter",
+      "ph": "[ɔ́ːltər]",
+      "mean": ": 바꾸다",
+      "mark": 0
+    },
+    {
+      "eng": "speculate",
+      "ph": "[spékjulèit]",
+      "mean": ": 사색하다. 투기하다",
+      "mark": 0
+    },
+    {
+      "eng": "recover",
+      "ph": "[rikʌ́vər]",
+      "mean": ": 회복하다",
+      "mark": 0
+    },
+    {
+      "eng": "urge",
+      "ph": "[əːrdʒ]",
+      "mean": ": 몰아내다. 격려하다. 촉구하다",
+      "mark": 0
+    },
+    {
+      "eng": "command",
+      "ph": "[kəmǽnd]",
+      "mean": ": 명령하다. 지휘하다",
+      "mark": 0
+    },
+    {
+      "eng": "warn",
+      "ph": "[wɔːrn]",
+      "mean": ": 경고하다",
+      "mark": 0
+    },
+    {
+      "eng": "transport",
+      "ph": "[trænspɔ́ːrt]",
+      "mean": ": 수송하다 / 수송",
+      "mark": 0
+    },
+    {
+      "eng": "ignore",
+      "ph": "[iɡnɔ́ːr]",
+      "mean": ": 무시하다(=disregard)",
+      "mark": 0
+    },
+    {
+      "eng": "conceal",
+      "ph": "[kənsíːl]",
+      "mean": ": 감추다(=hide)",
+      "mark": 0
+    },
+    {
+      "eng": "utter",
+      "ph": "[ʌ́tər]",
+      "mean": ": 말하다 / 완전한",
+      "mark": 0
+    },
+    {
+      "eng": "flatter",
+      "ph": "[flǽtər]",
+      "mean": ": 아첨하다",
+      "mark": 0
+    },
+    {
+      "eng": "absorb",
+      "ph": "[æbsɔ́ːrb]",
+      "mean": ": 흡수하다. 열중하다",
+      "mark": 0
+    },
+    {
+      "eng": "yield",
+      "ph": "[jiːld]",
+      "mean": ": 생산하다 / 굴복하다 / 생산",
+      "mark": 0
+    },
+    {
+      "eng": "meditate",
+      "ph": "[médətèit]",
+      "mean": ": 숙고하다. 묵상하다",
+      "mark": 0
+    },
+    {
+      "eng": "perform",
+      "ph": "[pərfɔ́ːrm]",
+      "mean": ": 수행하다. 연기하다",
+      "mark": 0
+    },
+    {
+      "eng": "embarrass",
+      "ph": "[imbǽrəs]",
+      "mean": ": 난처하게 하다. 방해하다",
+      "mark": 0
+    },
+    {
+      "eng": "reproach",
+      "ph": "[ripróutʃ]",
+      "mean": ": 비난(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "bewilder",
+      "ph": "[biwíldər]",
+      "mean": ": 당황하게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "overcome",
+      "ph": "[òuvərkʌ́m]",
+      "mean": ": 이겨내다. 압도하다",
+      "mark": 0
+    },
+    {
+      "eng": "assert",
+      "ph": "[əsə́ːrt]",
+      "mean": ": 주장하다. 단언하다",
+      "mark": 0
+    },
+    {
+      "eng": "recognize",
+      "ph": "[rékəɡnàiz]",
+      "mean": ": 인정하다",
+      "mark": 0
+    },
+    {
+      "eng": "admit",
+      "ph": "[ædmít]",
+      "mean": ": 들어오게 하다. 인정하다",
+      "mark": 0
+    },
+    {
+      "eng": "persecute",
+      "ph": "[pə́ːrsikjùːt]",
+      "mean": ": 박해하다",
+      "mark": 0
+    },
+    {
+      "eng": "launch",
+      "ph": "[lɔːntʃ]",
+      "mean": ": 진수하다. 발사하다",
+      "mark": 0
+    },
+    {
+      "eng": "pretend",
+      "ph": "[priténd]",
+      "mean": ": ~인 체하다. 가장하다",
+      "mark": 0
+    },
+    {
+      "eng": "circulate",
+      "ph": "[sə́ːrkjulèit]",
+      "mean": ": 돌다. 유통하다",
+      "mark": 0
+    },
+    {
+      "eng": "contemplate",
+      "ph": "[kɑ́ntəmplèit]",
+      "mean": ": 깊이 생각하다. 응시하다",
+      "mark": 0
+    },
+    {
+      "eng": "cope",
+      "ph": "[koup]",
+      "mean": ": 맞서다. 대처하다",
+      "mark": 0
+    },
+    {
+      "eng": "adapt",
+      "ph": "[ədǽpt]",
+      "mean": ": 적응시키다. 개작하다",
+      "mark": 0
+    },
+    {
+      "eng": "alarm",
+      "ph": "[əlɑ́ːrm]",
+      "mean": ": 놀라게 하다 / 놀람, 경보",
+      "mark": 0
+    },
+    {
+      "eng": "adopt",
+      "ph": "[ədɑ́pt]",
+      "mean": ": 채용하다. 양자로 삼다",
+      "mark": 0
+    },
+    {
+      "eng": "submit",
+      "ph": "[səbmít]",
+      "mean": ": 복종시키다. 제출하다",
+      "mark": 0
+    },
+    {
+      "eng": "convince",
+      "ph": "[kənvíns]",
+      "mean": ": 확신시키다",
+      "mark": 0
+    },
+    {
+      "eng": "repent",
+      "ph": "[ripént]",
+      "mean": ": 후회하다",
+      "mark": 0
+    },
+    {
+      "eng": "predict",
+      "ph": "[pridíkt]",
+      "mean": ": 예언하다",
+      "mark": 0
+    },
+    {
+      "eng": "avoid",
+      "ph": "[əvɔ́id]",
+      "mean": ": 피하다",
+      "mark": 0
+    },
+    {
+      "eng": "boast",
+      "ph": "[boust]",
+      "mean": ": 자랑하다 / 자랑",
+      "mark": 0
+    },
+    {
+      "eng": "participate",
+      "ph": "[pɑːrtísəpèit]",
+      "mean": ": 참가하다",
+      "mark": 0
+    },
+    {
+      "eng": "abolish",
+      "ph": "[əbɑ́liʃ]",
+      "mean": ": 폐지하다",
+      "mark": 0
+    },
+    {
+      "eng": "attribute",
+      "ph": "[ətríbjuːt]",
+      "mean": ": ~탓이라고 하다 / 속성, 특질",
+      "mark": 0
+    },
+    {
+      "eng": "survey",
+      "ph": "[sərvéi]",
+      "mean": ": 측량하다. 조사하다",
+      "mark": 0
+    },
+    {
+      "eng": "invest",
+      "ph": "[invést]",
+      "mean": ": 투자하다. 부여하다",
+      "mark": 0
+    },
+    {
+      "eng": "seek",
+      "ph": "[siːk]",
+      "mean": ": 찾다. 구하다",
+      "mark": 0
+    },
+    {
+      "eng": "communicate",
+      "ph": "[kəmjúːnəkèit]",
+      "mean": ": 전달하다. 통신하다",
+      "mark": 0
+    },
+    {
+      "eng": "perplex",
+      "ph": "[pərpléks]",
+      "mean": ": 당황하게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "broadcast",
+      "ph": "[brɔ́ːdkæ̀st]",
+      "mean": ": 방송하다",
+      "mark": 0
+    },
+    {
+      "eng": "reject",
+      "ph": "[ridʒékt]",
+      "mean": ": 거절하다",
+      "mark": 0
+    },
+    {
+      "eng": "vex",
+      "ph": "[veks]",
+      "mean": ": 초조하게 하다. 괴롭히다",
+      "mark": 0
+    },
+    {
+      "eng": "overlook",
+      "ph": "[òuvərlúk]",
+      "mean": ": 내려다 보다. 못보다",
+      "mark": 0
+    },
+    {
+      "eng": "reinforce",
+      "ph": "[rìːinfɔ́ːrs]",
+      "mean": ": 보강하다",
+      "mark": 0
+    },
+    {
+      "eng": "accuse",
+      "ph": "[əkjúːz]",
+      "mean": ": 고발하다. 비난하다",
+      "mark": 0
+    },
+    {
+      "eng": "restrict",
+      "ph": "[ristríkt]",
+      "mean": ": 제한하다",
+      "mark": 0
+    },
+    {
+      "eng": "attain",
+      "ph": "[ətéin]",
+      "mean": ": 달성하다",
+      "mark": 0
+    },
+    {
+      "eng": "cherish",
+      "ph": "[tʃériʃ]",
+      "mean": ": 소중히 하다. 마음에 품다",
+      "mark": 0
+    },
+    {
+      "eng": "suspend",
+      "ph": "[səspénd]",
+      "mean": ": 중지하다. 매달다",
+      "mark": 0
+    },
+    {
+      "eng": "inherit",
+      "ph": "[inhérit]",
+      "mean": ": 상속하다. 유전하다",
+      "mark": 0
+    },
+    {
+      "eng": "bestow",
+      "ph": "[bistóu]",
+      "mean": ": 주다",
+      "mark": 0
+    },
+    {
+      "eng": "undertake",
+      "ph": "[ʌ̀ndərtéik]",
+      "mean": ": 떠맡다. 착수하다.",
+      "mark": 0
+    },
+    {
+      "eng": "include",
+      "ph": "[inklúːd]",
+      "mean": ": 포함하다",
+      "mark": 0
+    },
+    {
+      "eng": "exclude",
+      "ph": "[iksklúːd]",
+      "mean": ": 제외하다. 배척하다",
+      "mark": 0
+    },
+    {
+      "eng": "justify",
+      "ph": "[dʒʌ́stəfài]",
+      "mean": ": 정당화하다. 변명하다",
+      "mark": 0
+    },
+    {
+      "eng": "annoy",
+      "ph": "[ənɔ́i]",
+      "mean": ": 괴롭히다. 성가시게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "esteem",
+      "ph": "[istíːm]",
+      "mean": ": 존중하다. 간주하다",
+      "mark": 0
+    },
+    {
+      "eng": "cure",
+      "ph": "[kjuər]",
+      "mean": ": 치료하다. 고치다",
+      "mark": 0
+    },
+    {
+      "eng": "resign",
+      "ph": "[rizáin]",
+      "mean": ": 사직하다. 단념하다",
+      "mark": 0
+    },
+    {
+      "eng": "accurate",
+      "ph": "[ǽkjurət]",
+      "mean": ": 정확한",
+      "mark": 0
+    },
+    {
+      "eng": "rational",
+      "ph": "[rǽʃənəl]",
+      "mean": ": 합리적인, 이성적인",
+      "mark": 0
+    },
+    {
+      "eng": "literate",
+      "ph": "[lítərət]",
+      "mean": ": 글을 읽고 쓸 줄 아는",
+      "mark": 0
+    },
+    {
+      "eng": "conservative",
+      "ph": "[kənsə́ːrvətiv]",
+      "mean": ": 보수적인",
+      "mark": 0
+    },
+    {
+      "eng": "radical",
+      "ph": "[rǽdikəl]",
+      "mean": ": 근본적인, 급진적인",
+      "mark": 0
+    },
+    {
+      "eng": "pure",
+      "ph": "[pjuər]",
+      "mean": ": 순수한",
+      "mark": 0
+    },
+    {
+      "eng": "queer",
+      "ph": "[kwiər]",
+      "mean": ": 별난, 기묘한",
+      "mark": 0
+    },
+    {
+      "eng": "sane",
+      "ph": "[sein]",
+      "mean": ": 제 정신의, 온전한",
+      "mark": 0
+    },
+    {
+      "eng": "genuine",
+      "ph": "[dʒénjuin]",
+      "mean": ": 진짜의, 순수한",
+      "mark": 0
+    },
+    {
+      "eng": "vague",
+      "ph": "[veiɡ]",
+      "mean": ": 막연한",
+      "mark": 0
+    },
+    {
+      "eng": "entire",
+      "ph": "[entáiər]",
+      "mean": ": 완전한, 전체의",
+      "mark": 0
+    },
+    {
+      "eng": "absurd",
+      "ph": "[əbsə́ːrd]",
+      "mean": ": 터무니없는, 불합리한",
+      "mark": 0
+    },
+    {
+      "eng": "lonely",
+      "ph": "[lóunli]",
+      "mean": ": 고독한, 쓸쓸한",
+      "mark": 0
+    },
+    {
+      "eng": "savage",
+      "ph": "[sǽvidʒ]",
+      "mean": ": 야만스러운, 잔인한",
+      "mark": 0
+    },
+    {
+      "eng": "nuclear",
+      "ph": "[njúːkliər]",
+      "mean": ": 핵의",
+      "mark": 0
+    },
+    {
+      "eng": "obscure",
+      "ph": "[əbskjúər]",
+      "mean": ": 무명의, 애매한, 희미한",
+      "mark": 0
+    },
+    {
+      "eng": "intricate",
+      "ph": "[íntrikət]",
+      "mean": ": 뒤얽힌, 복잡한",
+      "mark": 0
+    },
+    {
+      "eng": "mortal",
+      "ph": "[mɔ́ːrtl]",
+      "mean": ": 죽을 운명의",
+      "mark": 0
+    },
+    {
+      "eng": "vivid",
+      "ph": "[vívid]",
+      "mean": ": 생생한, 발랄한",
+      "mark": 0
+    },
+    {
+      "eng": "arrogant",
+      "ph": "[ǽrəɡənt]",
+      "mean": ": 오만한",
+      "mark": 0
+    },
+    {
+      "eng": "exotic",
+      "ph": "[iɡzɑ́tik]",
+      "mean": ": 외국의, 이국풍의",
+      "mark": 0
+    },
+    {
+      "eng": "extreme",
+      "ph": "[ikstríːm]",
+      "mean": ": 극단의",
+      "mark": 0
+    },
+    {
+      "eng": "imperative",
+      "ph": "[impérətiv]",
+      "mean": ": 명령적인, 긴급한",
+      "mark": 0
+    },
+    {
+      "eng": "mature",
+      "ph": "[mətjúər]",
+      "mean": ": 성숙한",
+      "mark": 0
+    },
+    {
+      "eng": "tight",
+      "ph": "[tait]",
+      "mean": ": 단단한, 팽팽한",
+      "mark": 0
+    },
+    {
+      "eng": "adequate",
+      "ph": "[ǽdikwət]",
+      "mean": ": 적당한, 충분한",
+      "mark": 0
+    },
+    {
+      "eng": "dissolute",
+      "ph": "[dísəlùːt]",
+      "mean": ": 방탕한, 타락한",
+      "mark": 0
+    },
+    {
+      "eng": "mutual",
+      "ph": "[mjúːtʃuəl]",
+      "mean": ": 서로의",
+      "mark": 0
+    },
+    {
+      "eng": "splendid",
+      "ph": "[spléndid]",
+      "mean": ": 화려한, 훌륭한",
+      "mark": 0
+    },
+    {
+      "eng": "timid",
+      "ph": "[tímid]",
+      "mean": ": 겁많은",
+      "mark": 0
+    },
+    {
+      "eng": "durable",
+      "ph": "[djúərəbl]",
+      "mean": ": 오래 견디는, 튼튼한",
+      "mark": 0
+    },
+    {
+      "eng": "conspicuous",
+      "ph": "[kənspíkjuəs]",
+      "mean": ": 눈에 띄는",
+      "mark": 0
+    },
+    {
+      "eng": "brisk",
+      "ph": "[brisk]",
+      "mean": ": 활발한",
+      "mark": 0
+    },
+    {
+      "eng": "primitive",
+      "ph": "[prímətiv]",
+      "mean": ": 원시의",
+      "mark": 0
+    },
+    {
+      "eng": "superficial",
+      "ph": "[sùːpərfíʃəl]",
+      "mean": ": 피상적인, 천박한",
+      "mark": 0
+    },
+    {
+      "eng": "brilliant",
+      "ph": "[bríljənt]",
+      "mean": ": 빛나는, 훌륭한",
+      "mark": 0
+    },
+    {
+      "eng": "conscious",
+      "ph": "[kɑ́nʃəs]",
+      "mean": ": 의식적인, 알고 있는",
+      "mark": 0
+    },
+    {
+      "eng": "abstract",
+      "ph": "[ǽbstrækt]",
+      "mean": ": 추상적인",
+      "mark": 0
+    },
+    {
+      "eng": "concrete",
+      "ph": "[kɑ́nkriːt]",
+      "mean": ": 구체적인",
+      "mark": 0
+    },
+    {
+      "eng": "profound",
+      "ph": "[prəfáund]",
+      "mean": ": 깊이가 있는, 심오한",
+      "mark": 0
+    },
+    {
+      "eng": "supreme",
+      "ph": "[supríːm]",
+      "mean": ": 최고의",
+      "mark": 0
+    },
+    {
+      "eng": "trivial",
+      "ph": "[tríviəl]",
+      "mean": ": 시시한, 하찮은",
+      "mark": 0
+    },
+    {
+      "eng": "apparent",
+      "ph": "[əpǽrənt]",
+      "mean": ": 명백한, 외관상의",
+      "mark": 0
+    },
+    {
+      "eng": "thorough",
+      "ph": "[θə́ːrou]",
+      "mean": ": 철저한",
+      "mark": 0
+    },
+    {
+      "eng": "athletic",
+      "ph": "[æθlétik]",
+      "mean": ": 운동경기의",
+      "mark": 0
+    },
+    {
+      "eng": "absolute",
+      "ph": "[ǽbsəlùːt]",
+      "mean": ": 절대적인",
+      "mark": 0
+    },
+    {
+      "eng": "meager",
+      "ph": "[míːɡər]",
+      "mean": ": 여원, 빈약한",
+      "mark": 0
+    },
+    {
+      "eng": "ultimate",
+      "ph": "[ʌ́ltəmət]",
+      "mean": ": 최후의, 궁극적인",
+      "mark": 0
+    },
+    {
+      "eng": "initial",
+      "ph": "[iníʃəl]",
+      "mean": ": 처음의 / 머리문자",
+      "mark": 0
+    },
+    {
+      "eng": "solemn",
+      "ph": "[sɑ́ləm]",
+      "mean": ": 엄숙한",
+      "mark": 0
+    },
+    {
+      "eng": "notorious",
+      "ph": "[noutɔ́ːriəs]",
+      "mean": ": 소문난, 악명이 높은",
+      "mark": 0
+    },
+    {
+      "eng": "sublime",
+      "ph": "[səbláim]",
+      "mean": ": 숭고한, 위대한",
+      "mark": 0
+    },
+    {
+      "eng": "immemorial",
+      "ph": "[ìməmɔ́ːriəl]",
+      "mean": ": 태고의",
+      "mark": 0
+    },
+    {
+      "eng": "constructive",
+      "ph": "[kənstrʌ́ktiv]",
+      "mean": ": 건설적인",
+      "mark": 0
+    },
+    {
+      "eng": "destructive",
+      "ph": "[distrʌ́ktiv]",
+      "mean": ": 파괴적인",
+      "mark": 0
+    },
+    {
+      "eng": "temporary",
+      "ph": "[témpərèri]",
+      "mean": ": 임시의, 한 때의",
+      "mark": 0
+    },
+    {
+      "eng": "contemporary",
+      "ph": "[kəntémpərèri]",
+      "mean": ": 현대의(사람), 동시대의",
+      "mark": 0
+    },
+    {
+      "eng": "aloof",
+      "ph": "[əlúːf]",
+      "mean": ": 따로 떨어져서",
+      "mark": 0
+    },
+    {
+      "eng": "indispensable",
+      "ph": "[ìndispénsəbl]",
+      "mean": ": 없어서는 안 되는, 필수의",
+      "mark": 0
+    },
+    {
+      "eng": "juvenile",
+      "ph": "[dʒúːvənil]",
+      "mean": ": 소년(소녀)의, 나이 어린",
+      "mark": 0
+    },
+    {
+      "eng": "abnormal",
+      "ph": "[æbnɔ́ːrməl]",
+      "mean": ": 비정상적인",
+      "mark": 0
+    },
+    {
+      "eng": "external",
+      "ph": "[ikstə́ːrnəl]",
+      "mean": ": 외부의",
+      "mark": 0
+    },
+    {
+      "eng": "rare",
+      "ph": "[reər]",
+      "mean": ": 드문, 진귀한",
+      "mark": 0
+    },
+    {
+      "eng": "main",
+      "ph": "[mein]",
+      "mean": ": 주요한",
+      "mark": 0
+    },
+    {
+      "eng": "complex",
+      "ph": "[kɑmpléks]",
+      "mean": ": 복잡한",
+      "mark": 0
+    },
+    {
+      "eng": "bold",
+      "ph": "[bould]",
+      "mean": ": 대담한, (선이)굵은",
+      "mark": 0
+    },
+    {
+      "eng": "crude",
+      "ph": "[kruːd]",
+      "mean": ": 천연 그대로의, 거친",
+      "mark": 0
+    },
+    {
+      "eng": "polite",
+      "ph": "[pəˈlaɪt]",
+      "mean": ": 예의바른, 공손한",
+      "mark": 0
+    },
+    {
+      "eng": "current",
+      "ph": "[ˈkɜːrənt]",
+      "mean": ": 유행의, 현재의",
+      "mark": 0
+    },
+    {
+      "eng": "severe",
+      "ph": "[sɪˈvɪr]",
+      "mean": ": 엄격한, 격렬한",
+      "mark": 0
+    },
+    {
+      "eng": "remote",
+      "ph": "[rɪˈmoʊt]",
+      "mean": ": 먼, 먼 곳의",
+      "mark": 0
+    },
+    {
+      "eng": "deliberate",
+      "ph": "[dɪˈlɪbərət]",
+      "mean": ": 신중한",
+      "mark": 0
+    },
+    {
+      "eng": "separate",
+      "ph": "[ˈsepəreɪt]",
+      "mean": ": 분리된, 떼어놓다, 분리하다",
+      "mark": 0
+    },
+    {
+      "eng": "physical",
+      "ph": "[ˈfɪzɪkl]",
+      "mean": ": 물리적인, 물질의, 육체의",
+      "mark": 0
+    },
+    {
+      "eng": "eternal",
+      "ph": "[ɪˈtɜːrnl]",
+      "mean": ": 영원한",
+      "mark": 0
+    },
+    {
+      "eng": "unique",
+      "ph": "[juˈniːk]",
+      "mean": ": 유일한, 독특한",
+      "mark": 0
+    },
+    {
+      "eng": "transparent",
+      "ph": "[trænsˈpærənt]",
+      "mean": ": 투명한",
+      "mark": 0
+    },
+    {
+      "eng": "swift",
+      "ph": "[swɪft]",
+      "mean": ": 신속한",
+      "mark": 0
+    },
+    {
+      "eng": "surplus",
+      "ph": "[ˈsɜːrpləs]",
+      "mean": ": 과잉의, 과잉",
+      "mark": 0
+    },
+    {
+      "eng": "obstinate",
+      "ph": "[ˈɑːbstɪnət]",
+      "mean": ": 완고한, 고집센",
+      "mark": 0
+    },
+    {
+      "eng": "stubborn",
+      "ph": "[ˈstʌbərn]",
+      "mean": ": 완고한, 고집센",
+      "mark": 0
+    },
+    {
+      "eng": "dense",
+      "ph": "[dens]",
+      "mean": ": 짙은, 빽빽한",
+      "mark": 0
+    },
+    {
+      "eng": "familiar",
+      "ph": "[fəˈmɪliər]",
+      "mean": ": 친한, 잘 알고 있는",
+      "mark": 0
+    },
+    {
+      "eng": "shrewd",
+      "ph": "[ʃruːd]",
+      "mean": ": 영리한, 빈틈없는",
+      "mark": 0
+    },
+    {
+      "eng": "remarkable",
+      "ph": "[rɪˈmɑːrkəbl]",
+      "mean": ": 현저한, 두드러진",
+      "mark": 0
+    },
+    {
+      "eng": "punctual",
+      "ph": "[ˈpʌŋktʃuəl]",
+      "mean": ": 시간을 지키는",
+      "mark": 0
+    },
+    {
+      "eng": "terrible",
+      "ph": "[ˈterəbl]",
+      "mean": ": 무시무시한, 지독한",
+      "mark": 0
+    },
+    {
+      "eng": "rude",
+      "ph": "[ruːd]",
+      "mean": ": 무례한",
+      "mark": 0
+    },
+    {
+      "eng": "earnest",
+      "ph": "[ˈɜːrnɪst]",
+      "mean": ": 열심인, 진지한",
+      "mark": 0
+    },
+    {
+      "eng": "typical",
+      "ph": "[ˈtɪpɪkl]",
+      "mean": ": 전형적인, ~을 대표하는",
+      "mark": 0
+    },
+    {
+      "eng": "sole",
+      "ph": "[soʊl]",
+      "mean": ": 유일한",
+      "mark": 0
+    },
+    {
+      "eng": "fundamental",
+      "ph": "[ˌfʌndəˈmentl]",
+      "mean": ": 근본적인",
+      "mark": 0
+    },
+    {
+      "eng": "intense",
+      "ph": "[ɪnˈtens]",
+      "mean": ": 강렬한",
+      "mark": 0
+    },
+    {
+      "eng": "essential",
+      "ph": "[ɪˈsenʃl]",
+      "mean": ": 본질적인, 필수의",
+      "mark": 0
+    },
+    {
+      "eng": "distinct",
+      "ph": "[dɪˈstɪŋkt]",
+      "mean": ": 명백한, 명확한",
+      "mark": 0
+    },
+    {
+      "eng": "particular",
+      "ph": "[pərˈtɪkjələr]",
+      "mean": ": 특수한, 까다로운",
+      "mark": 0
+    },
+    {
+      "eng": "subtle",
+      "ph": "[ˈsʌtl]",
+      "mean": ": 미묘한",
+      "mark": 0
+    },
+    {
+      "eng": "ordinary",
+      "ph": "[ˈɔːrdneri]",
+      "mean": ": 보통의",
+      "mark": 0
+    },
+    {
+      "eng": "vulgar",
+      "ph": "[ˈvʌlɡər]",
+      "mean": ": 천한, 상스러운",
+      "mark": 0
+    },
+    {
+      "eng": "preferable",
+      "ph": "[ˈprefrəbl]",
+      "mean": ": 더 마음에 드는, 더 바람직한",
+      "mark": 0
+    },
+    {
+      "eng": "strict",
+      "ph": "[strɪkt]",
+      "mean": ": 엄격한, 엄밀한",
+      "mark": 0
+    },
+    {
+      "eng": "naked",
+      "ph": "[ˈneɪkɪd]",
+      "mean": ": 나체의, 벌거벗은",
+      "mark": 0
+    },
+    {
+      "eng": "feminine",
+      "ph": "[ˈfemənɪn]",
+      "mean": ": 여성의",
+      "mark": 0
+    },
+    {
+      "eng": "deficient",
+      "ph": "[dɪˈfɪʃnt]",
+      "mean": ": 부족한",
+      "mark": 0
+    },
+    {
+      "eng": "tender",
+      "ph": "[ˈtendər]",
+      "mean": ": 부드러운, 상냥한",
+      "mark": 0
+    },
+    {
+      "eng": "incurable",
+      "ph": "[ɪnˈkjʊrəbl]",
+      "mean": ": 고칠 수 없는, 불치의",
+      "mark": 0
+    },
+    {
+      "eng": "infinite",
+      "ph": "[ˈɪnfɪnət]",
+      "mean": ": 무한의",
+      "mark": 0
+    },
+    {
+      "eng": "irresistible",
+      "ph": "[ˌɪrɪˈzɪstəbl]",
+      "mean": ": 저항할 수 없는, 억제할 수 없는",
+      "mark": 0
+    },
+    {
+      "eng": "barren",
+      "ph": "[ˈbærən]",
+      "mean": ": 불모의, 메마른",
+      "mark": 0
+    },
+    {
+      "eng": "annual",
+      "ph": "[ˈænjuəl]",
+      "mean": ": 해마다의",
+      "mark": 0
+    },
+    {
+      "eng": "precise",
+      "ph": "[prɪˈsaɪs]",
+      "mean": ": 정확한",
+      "mark": 0
+    },
+    {
+      "eng": "native",
+      "ph": "[ˈneɪtɪv]",
+      "mean": ": 타고난, 태어난",
+      "mark": 0
+    },
+    {
+      "eng": "constant",
+      "ph": "[ˈkɑːnstənt]",
+      "mean": ": 불변의, 끊임없는",
+      "mark": 0
+    },
+    {
+      "eng": "concise",
+      "ph": "[kənˈsaɪs]",
+      "mean": ": 간결한",
+      "mark": 0
+    },
+    {
+      "eng": "moral",
+      "ph": "[ˈmɔːrəl]",
+      "mean": ": 도덕적인, 정신적인",
+      "mark": 0
+    },
+    {
+      "eng": "delicate",
+      "ph": "[ˈdelɪkət]",
+      "mean": ": 미묘한, 민감한, 허약한",
+      "mark": 0
+    },
+    {
+      "eng": "ambiguous",
+      "ph": "[æmˈbɪɡjuəs]",
+      "mean": ": 애매한",
+      "mark": 0
+    },
+    {
+      "eng": "neutral",
+      "ph": "[ˈnuːtrəl]",
+      "mean": ": 중립의",
+      "mark": 0
+    },
+    {
+      "eng": "sacred",
+      "ph": "[ˈseɪkrɪd]",
+      "mean": ": 신성한",
+      "mark": 0
+    },
+    {
+      "eng": "resolute",
+      "ph": "[ˈrezəluːt]",
+      "mean": ": 결심이 굳은, 단호한",
+      "mark": 0
+    },
+    {
+      "eng": "instructive",
+      "ph": "[ɪnˈstrʌktɪv]",
+      "mean": ": 교훈적인, 유익한",
+      "mark": 0
+    },
+    {
+      "eng": "unanimous",
+      "ph": "[juˈnænɪməs]",
+      "mean": ": 만장일치의",
+      "mark": 0
+    },
+    {
+      "eng": "decent",
+      "ph": "[ˈdiːsnt]",
+      "mean": ": 고상한, 상당한",
+      "mark": 0
+    },
+    {
+      "eng": "legal",
+      "ph": "[ˈliːɡl]",
+      "mean": ": 법률상의, 합법적인",
+      "mark": 0
+    },
+    {
+      "eng": "ancient",
+      "ph": "[ˈeɪnʃənt]",
+      "mean": ": 고대의",
+      "mark": 0
+    },
+    {
+      "eng": "precious",
+      "ph": "[ˈpreʃəs]",
+      "mean": ": 귀중한",
+      "mark": 0
+    },
+    {
+      "eng": "stern",
+      "ph": "[stɜːrn]",
+      "mean": ": 엄한, 엄격한",
+      "mark": 0
+    },
+    {
+      "eng": "education",
+      "ph": "[ˌedʒuˈkeɪʃn]",
+      "mean": ": 교육",
+      "mark": 0
+    },
+    {
+      "eng": "prey",
+      "ph": "[preɪ]",
+      "mean": ": 먹이, 희생",
+      "mark": 0
+    },
+    {
+      "eng": "tumult",
+      "ph": "[ˈtuːmʌlt]",
+      "mean": ": 소동",
+      "mark": 0
+    },
+    {
+      "eng": "surrender",
+      "ph": "[səˈrendər]",
+      "mean": ": 항복, 항복하다",
+      "mark": 0
+    },
+    {
+      "eng": "reputation",
+      "ph": "[ˌrepjuˈteɪʃn]",
+      "mean": ": 명성, 평판",
+      "mark": 0
+    },
+    {
+      "eng": "landscape",
+      "ph": "[ˈlændskeɪp]",
+      "mean": ": 풍경, 경치",
+      "mark": 0
+    },
+    {
+      "eng": "posterity",
+      "ph": "[pɑːˈsterəti]",
+      "mean": ": 자손, 후세 사람들",
+      "mark": 0
+    },
+    {
+      "eng": "offspring",
+      "ph": "[ˈɔːfsprɪŋ]",
+      "mean": ": 자손, 소산",
+      "mark": 0
+    },
+    {
+      "eng": "growth",
+      "ph": "[ɡroʊθ]",
+      "mean": ": 성장, 발전",
+      "mark": 0
+    },
+    {
+      "eng": "orbit",
+      "ph": "[ˈɔːrbɪt]",
+      "mean": ": (천체의)궤도",
+      "mark": 0
+    },
+    {
+      "eng": "channel",
+      "ph": "[ˈtʃænl]",
+      "mean": ": 해협, 경로",
+      "mark": 0
+    },
+    {
+      "eng": "ancestor",
+      "ph": "[ˈænsestər]",
+      "mean": ": 선조",
+      "mark": 0
+    },
+    {
+      "eng": "justice",
+      "ph": "[ˈdʒʌstɪs]",
+      "mean": ": 정의, 공정",
+      "mark": 0
+    },
+    {
+      "eng": "theme",
+      "ph": "[θiːm]",
+      "mean": ": 주제, 제목",
+      "mark": 0
+    },
+    {
+      "eng": "routine",
+      "ph": "[ruːˈtiːn]",
+      "mean": ": 일상적인 일, 틀에 박힌",
+      "mark": 0
+    },
+    {
+      "eng": "protest",
+      "ph": "[ˈproʊtest]",
+      "mean": ": 항의, 주장, 항의하다",
+      "mark": 0
+    },
+    {
+      "eng": "tendency",
+      "ph": "[ˈtendənsi]",
+      "mean": ": 경향",
+      "mark": 0
+    },
+    {
+      "eng": "prophecy",
+      "ph": "[ˈprɑːfəsi]",
+      "mean": ": 예언",
+      "mark": 0
+    },
+    {
+      "eng": "career",
+      "ph": "[kəˈrɪr]",
+      "mean": ": 경력, 생애",
+      "mark": 0
+    },
+    {
+      "eng": "advertisement",
+      "ph": "[ˌædvərˈtaɪzmənt]",
+      "mean": ": 광고",
+      "mark": 0
+    },
+    {
+      "eng": "role",
+      "ph": "[roʊl]",
+      "mean": ": 역할",
+      "mark": 0
+    },
+    {
+      "eng": "origin",
+      "ph": "[ˈɔːrɪdʒɪn]",
+      "mean": ": 기원, 태생",
+      "mark": 0
+    },
+    {
+      "eng": "process",
+      "ph": "[ˈprɑːses]",
+      "mean": ": 경과, 과정",
+      "mark": 0
+    },
+    {
+      "eng": "agriculture",
+      "ph": "[ˈæɡrɪkʌltʃər]",
+      "mean": ": 농업",
+      "mark": 0
+    },
+    {
+      "eng": "skyscraper",
+      "ph": "[ˈskaɪskreɪpər]",
+      "mean": ": 고층 건물",
+      "mark": 0
+    },
+    {
+      "eng": "nuisance",
+      "ph": "[ˈnuːsns]",
+      "mean": ": 방해물, 성가신 것",
+      "mark": 0
+    },
+    {
+      "eng": "vote",
+      "ph": "[voʊt]",
+      "mean": ": 투표(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "spur",
+      "ph": "[spɜːr]",
+      "mean": ": 박차(를 가하다), 자극(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "average",
+      "ph": "[ˈævərɪdʒ]",
+      "mean": ": 평균(의)",
+      "mark": 0
+    },
+    {
+      "eng": "category",
+      "ph": "[ˈkætəɡɔːri]",
+      "mean": ": 범주",
+      "mark": 0
+    },
+    {
+      "eng": "doom",
+      "ph": "[duːm]",
+      "mean": ": 운명, 파멸, 운명짓다",
+      "mark": 0
+    },
+    {
+      "eng": "utility",
+      "ph": "[juːˈtɪləti]",
+      "mean": ": 유익, 효용",
+      "mark": 0
+    },
+    {
+      "eng": "slavery",
+      "ph": "[ˈsleɪvəri]",
+      "mean": ": 노예제도",
+      "mark": 0
+    },
+    {
+      "eng": "antipathy",
+      "ph": "[ænˈtɪpəθi]",
+      "mean": ": 반감",
+      "mark": 0
+    },
+    {
+      "eng": "caution",
+      "ph": "[ˈkɔːʃn]",
+      "mean": ": 조심, 경고",
+      "mark": 0
+    },
+    {
+      "eng": "reaction",
+      "ph": "[riˈækʃn]",
+      "mean": ": 반동, 반응",
+      "mark": 0
+    },
+    {
+      "eng": "atmosphere",
+      "ph": "[ˈætməsfɪr]",
+      "mean": ": 분위기, 대기",
+      "mark": 0
+    },
+    {
+      "eng": "satellite",
+      "ph": "[ˈsætəlaɪt]",
+      "mean": ": 위성, 위성의",
+      "mark": 0
+    },
+    {
+      "eng": "sage",
+      "ph": "[seɪdʒ]",
+      "mean": ": 현인, 성인",
+      "mark": 0
+    },
+    {
+      "eng": "excess",
+      "ph": "[ɪkˈses]",
+      "mean": ": 초과, 과잉",
+      "mark": 0
+    },
+    {
+      "eng": "architecture",
+      "ph": "[ˈɑːrkɪtektʃər]",
+      "mean": ": 건축(술)",
+      "mark": 0
+    },
+    {
+      "eng": "prose",
+      "ph": "[proʊz]",
+      "mean": ": 산문",
+      "mark": 0
+    },
+    {
+      "eng": "temperature",
+      "ph": "[ˈtemprətʃər]",
+      "mean": ": 온도",
+      "mark": 0
+    },
+    {
+      "eng": "purchase",
+      "ph": "[ˈpɜːrtʃəs]",
+      "mean": ": 구입(물), 획득, 구입하다",
+      "mark": 0
+    },
+    {
+      "eng": "oracle",
+      "ph": "[ˈɔːrəkl]",
+      "mean": ": 신탁(神託)",
+      "mark": 0
+    },
+    {
+      "eng": "heir",
+      "ph": "[er]",
+      "mean": ": 상속인, 후계자",
+      "mark": 0
+    },
+    {
+      "eng": "applause",
+      "ph": "[əˈplɔːz]",
+      "mean": ": 박수 갈채, 칭찬",
+      "mark": 0
+    },
+    {
+      "eng": "anarchy",
+      "ph": "[ˈænərki]",
+      "mean": ": 무정부 상태",
+      "mark": 0
+    },
+    {
+      "eng": "scrutiny",
+      "ph": "[ˈskruːtəni]",
+      "mean": ": 면밀한 조사, 응시",
+      "mark": 0
+    },
+    {
+      "eng": "sculpture",
+      "ph": "[ˈskʌlptʃər]",
+      "mean": ": 조각",
+      "mark": 0
+    },
+    {
+      "eng": "notion",
+      "ph": "[ˈnoʊʃn]",
+      "mean": ": 생각, 개념",
+      "mark": 0
+    },
+    {
+      "eng": "diplomacy",
+      "ph": "[dɪˈploʊməsi]",
+      "mean": ": 외교(술)",
+      "mark": 0
+    },
+    {
+      "eng": "decade",
+      "ph": "[ˈdekeɪd]",
+      "mean": ": 10년",
+      "mark": 0
+    },
+    {
+      "eng": "witness",
+      "ph": "[ˈwɪtnəs]",
+      "mean": ": 증거, 증인, 목격하다",
+      "mark": 0
+    },
+    {
+      "eng": "thermometer",
+      "ph": "[θərˈmɑːmɪtər]",
+      "mean": ": 온도계",
+      "mark": 0
+    },
+    {
+      "eng": "usage",
+      "ph": "[ˈjuːsɪdʒ]",
+      "mean": ": 용법, 어법, 습관",
+      "mark": 0
+    },
+    {
+      "eng": "institution",
+      "ph": "[ˌɪnstɪˈtuːʃn]",
+      "mean": ": 제도, 협회",
+      "mark": 0
+    },
+    {
+      "eng": "exertion",
+      "ph": "[ɪɡˈzɜːrʃn]",
+      "mean": ": 노력",
+      "mark": 0
+    },
+    {
+      "eng": "feature",
+      "ph": "[ˈfiːtʃər]",
+      "mean": ": 특징, 용모",
+      "mark": 0
+    },
+    {
+      "eng": "disguise",
+      "ph": "[dɪsˈɡaɪz]",
+      "mean": ": 변장(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "congress",
+      "ph": "[ˈkɑːŋɡrəs]",
+      "mean": ": 회의",
+      "mark": 0
+    },
+    {
+      "eng": "germ",
+      "ph": "[dʒɜːrm]",
+      "mean": ": 세균",
+      "mark": 0
+    },
+    {
+      "eng": "algebra",
+      "ph": "[ˈældʒɪbrə]",
+      "mean": ": 대수(학)",
+      "mark": 0
+    },
+    {
+      "eng": "geometry",
+      "ph": "[dʒiˈɑːmətri]",
+      "mean": ": 기하학",
+      "mark": 0
+    },
+    {
+      "eng": "sojourn",
+      "ph": "[ˈsoʊdʒɜːrn]",
+      "mean": ": 체류, 묵다, 체류하다",
+      "mark": 0
+    },
+    {
+      "eng": "expedition",
+      "ph": "[ˌekspəˈdɪʃn]",
+      "mean": ": 탐험(대)",
+      "mark": 0
+    },
+    {
+      "eng": "definition",
+      "ph": "[ˌdefɪˈnɪʃn]",
+      "mean": ": 정의",
+      "mark": 0
+    },
+    {
+      "eng": "issue",
+      "ph": "[ˈɪʃuː]",
+      "mean": ": 문제, 발행하다",
+      "mark": 0
+    },
+    {
+      "eng": "conflict",
+      "ph": "[ˈkɑːnflɪkt]",
+      "mean": ": 투쟁, 싸우다",
+      "mark": 0
+    },
+    {
+      "eng": "disaster",
+      "ph": "[dɪˈzæstər]",
+      "mean": ": 재해, 불행",
+      "mark": 0
+    },
+    {
+      "eng": "focus",
+      "ph": "[ˈfoʊkəs]",
+      "mean": ": 초점, 집중하다",
+      "mark": 0
+    },
+    {
+      "eng": "budget",
+      "ph": "[ˈbʌdʒɪt]",
+      "mean": ": 예산(안)",
+      "mark": 0
+    },
+    {
+      "eng": "intercourse",
+      "ph": "[ˈɪntərkɔːrs]",
+      "mean": ": 교제",
+      "mark": 0
+    },
+    {
+      "eng": "ceremony",
+      "ph": "[ˈserəmoʊni]",
+      "mean": ": 의식, 의례",
+      "mark": 0
+    },
+    {
+      "eng": "regret",
+      "ph": "[rɪˈɡret]",
+      "mean": ": 후회(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "enterprise",
+      "ph": "[ˈentərpraɪz]",
+      "mean": ": 기업, 진취적 기상",
+      "mark": 0
+    },
+    {
+      "eng": "ravage",
+      "ph": "[ˈrævɪdʒ]",
+      "mean": ": 황폐, 황폐해지다",
+      "mark": 0
+    },
+    {
+      "eng": "tragedy",
+      "ph": "[ˈtrædʒədi]",
+      "mean": ": 비극",
+      "mark": 0
+    },
+    {
+      "eng": "miser",
+      "ph": "[ˈmaɪzər]",
+      "mean": ": 구두쇠",
+      "mark": 0
+    },
+    {
+      "eng": "muscle",
+      "ph": "[ˈmʌsl]",
+      "mean": ": 근육",
+      "mark": 0
+    },
+    {
+      "eng": "unemployment",
+      "ph": "[ˌʌnɪmˈplɔɪmənt]",
+      "mean": ": 실업",
+      "mark": 0
+    },
+    {
+      "eng": "arithmetic",
+      "ph": "[əˈrɪθmətɪk]",
+      "mean": ": 산수, 셈",
+      "mark": 0
+    },
+    {
+      "eng": "skill",
+      "ph": "[skɪl]",
+      "mean": ": 숙련",
+      "mark": 0
+    },
+    {
+      "eng": "instrument",
+      "ph": "[ˈɪnstrəmənt]",
+      "mean": ": 기구, 수단",
+      "mark": 0
+    },
+    {
+      "eng": "equator",
+      "ph": "[ɪˈkweɪtər]",
+      "mean": ": 적도",
+      "mark": 0
+    },
+    {
+      "eng": "structure",
+      "ph": "[ˈstrʌktʃər]",
+      "mean": ": 구조, 건조물",
+      "mark": 0
+    },
+    {
+      "eng": "mode",
+      "ph": "[moʊd]",
+      "mean": ": 방법, 양식",
+      "mark": 0
+    },
+    {
+      "eng": "aristocracy",
+      "ph": "[ˌærɪˈstɑːkrəsi]",
+      "mean": ": 귀족 정치(사회)",
+      "mark": 0
+    },
+    {
+      "eng": "wage",
+      "ph": "[weɪdʒ]",
+      "mean": ": 임금",
+      "mark": 0
+    },
+    {
+      "eng": "zeal",
+      "ph": "[ziːl]",
+      "mean": ": 열심",
+      "mark": 0
+    },
+    {
+      "eng": "trial",
+      "ph": "[ˈtraɪəl]",
+      "mean": ": 시도, 시련, 재판",
+      "mark": 0
+    },
+    {
+      "eng": "burden",
+      "ph": "[ˈbɜːrdn]",
+      "mean": ": 무거운 짐, 부담, 짐을 지우다",
+      "mark": 0
+    },
+    {
+      "eng": "tribe",
+      "ph": "[traɪb]",
+      "mean": ": 종족",
+      "mark": 0
+    },
+    {
+      "eng": "realm",
+      "ph": "[relm]",
+      "mean": ": 영지, 왕국",
+      "mark": 0
+    },
+    {
+      "eng": "fright",
+      "ph": "[fraɪt]",
+      "mean": ": 놀람, 공포",
+      "mark": 0
+    },
+    {
+      "eng": "demand",
+      "ph": "[dɪˈmænd]",
+      "mean": ": 요구, 수요, 요구하다",
+      "mark": 0
+    },
+    {
+      "eng": "supply",
+      "ph": "[səˈplaɪ]",
+      "mean": ": 공급, 공급하다",
+      "mark": 0
+    },
+    {
+      "eng": "intelligence",
+      "ph": "[ɪnˈtelɪdʒəns]",
+      "mean": ": 지능, 지성, 정보",
+      "mark": 0
+    },
+    {
+      "eng": "frame",
+      "ph": "[freɪm]",
+      "mean": ": 구조, 골격, 틀, 형성하다",
+      "mark": 0
+    },
+    {
+      "eng": "hobby",
+      "ph": "[ˈhɑːbi]",
+      "mean": ": 취미",
+      "mark": 0
+    },
+    {
+      "eng": "source",
+      "ph": "[sɔːrs]",
+      "mean": ": 원천, 출처",
+      "mark": 0
+    },
+    {
+      "eng": "twilight",
+      "ph": "[ˈtwaɪlaɪt]",
+      "mean": ": 황혼, 희미한 빛",
+      "mark": 0
+    },
+    {
+      "eng": "fever",
+      "ph": "[ˈfiːvər]",
+      "mean": ": 열(熱)",
+      "mark": 0
+    },
+    {
+      "eng": "relief",
+      "ph": "[rɪˈliːf]",
+      "mean": ": 구제, 안심, 제거",
+      "mark": 0
+    },
+    {
+      "eng": "refuge",
+      "ph": "[ˈrefjuːdʒ]",
+      "mean": ": 피난(처)",
+      "mark": 0
+    },
+    {
+      "eng": "experiment",
+      "ph": "[ɪkˈsperɪmənt]",
+      "mean": ": 실험(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "expense",
+      "ph": "[ɪkˈspens]",
+      "mean": ": 비용, 희생",
+      "mark": 0
+    },
+    {
+      "eng": "reliance",
+      "ph": "[rɪˈlaɪəns]",
+      "mean": ": 신뢰",
+      "mark": 0
+    },
+    {
+      "eng": "grief",
+      "ph": "[ɡriːf]",
+      "mean": ": 슬픔",
+      "mark": 0
+    },
+    {
+      "eng": "effect",
+      "ph": "[ɪˈfekt]",
+      "mean": ": 결과, 효과, 취지, 이루다",
+      "mark": 0
+    },
+    {
+      "eng": "scope",
+      "ph": "[skoʊp]",
+      "mean": ": 범위, 시야",
+      "mark": 0
+    },
+    {
+      "eng": "habit",
+      "ph": "[ˈhæbɪt]",
+      "mean": ": 습관",
+      "mark": 0
+    },
+    {
+      "eng": "defence",
+      "ph": "[dɪˈfens]",
+      "mean": ": 방어, 변호",
+      "mark": 0
+    },
+    {
+      "eng": "aviation",
+      "ph": "[ˌeɪviˈeɪʃn]",
+      "mean": ": 비행(술), 항공(술)",
+      "mark": 0
+    },
+    {
+      "eng": "navigation",
+      "ph": "[ˌnævɪˈɡeɪʃn]",
+      "mean": ": 항해(술), 항공(술)",
+      "mark": 0
+    },
+    {
+      "eng": "resource",
+      "ph": "[ˈriːsɔːrs]",
+      "mean": ": (pl.)자원, 지략",
+      "mark": 0
+    },
+    {
+      "eng": "cruelty",
+      "ph": "[ˈkruːəlti]",
+      "mean": ": 잔인",
+      "mark": 0
+    },
+    {
+      "eng": "negligence",
+      "ph": "[ˈneɡlɪdʒəns]",
+      "mean": ": 태만",
+      "mark": 0
+    },
+    {
+      "eng": "bliss",
+      "ph": "[blɪs]",
+      "mean": ": 더 없는 행복, 환희",
+      "mark": 0
+    },
+    {
+      "eng": "delay",
+      "ph": "[dɪˈleɪ]",
+      "mean": ": 연기, 지체, 연기하다",
+      "mark": 0
+    },
+    {
+      "eng": "contact",
+      "ph": "[ˈkɑːntækt]",
+      "mean": ": 접촉, 접촉하다, 연락하다",
+      "mark": 0
+    },
+    {
+      "eng": "poison",
+      "ph": "[ˈpɔɪzn]",
+      "mean": ": 독(약)",
+      "mark": 0
+    },
+    {
+      "eng": "awe",
+      "ph": "[ɔː]",
+      "mean": ": 두려움",
+      "mark": 0
+    },
+    {
+      "eng": "nutrition",
+      "ph": "[nuˈtrɪʃn]",
+      "mean": ": 영양(물)",
+      "mark": 0
+    },
+    {
+      "eng": "obligation",
+      "ph": "[ˌɑːblɪˈɡeɪʃn]",
+      "mean": ": 의무, 은혜",
+      "mark": 0
+    },
+    {
+      "eng": "reward",
+      "ph": "[rɪˈwɔːrd]",
+      "mean": ": 보답, 상, 보답하다, 상을 주다",
+      "mark": 0
+    },
+    {
+      "eng": "peer",
+      "ph": "[pɪr]",
+      "mean": ": 귀족, 동료, 응시하다",
+      "mark": 0
+    },
+    {
+      "eng": "controversy",
+      "ph": "[ˈkɑːntrəvɜːrsi]",
+      "mean": ": 논쟁",
+      "mark": 0
+    },
+    {
+      "eng": "material",
+      "ph": "[məˈtɪriəl]",
+      "mean": ": 물질, 재료, 소질, 물질적인",
+      "mark": 0
+    },
+    {
+      "eng": "nationality",
+      "ph": "[ˌnæʃəˈnæləti]",
+      "mean": ": 국적, 국민성",
+      "mark": 0
+    },
+    {
+      "eng": "majority",
+      "ph": "[məˈdʒɔːrəti]",
+      "mean": ": 대다수, 전공하다",
+      "mark": 0
+    },
+    {
+      "eng": "personality",
+      "ph": "[ˌpɜːrsəˈnæləti]",
+      "mean": ": 개성, 명사",
+      "mark": 0
+    },
+    {
+      "eng": "region",
+      "ph": "[ˈriːdʒən]",
+      "mean": ": 지방, 지역",
+      "mark": 0
+    },
+    {
+      "eng": "clue",
+      "ph": "[kluː]",
+      "mean": ": 단서, 실마리",
+      "mark": 0
+    },
+    {
+      "eng": "parliament",
+      "ph": "[ˈpɑːrləmənt]",
+      "mean": ": 의회",
+      "mark": 0
+    },
+    {
+      "eng": "government",
+      "ph": "[ˈɡʌvərnmənt]",
+      "mean": ": 정치, 정부",
+      "mark": 0
+    },
+    {
+      "eng": "oath",
+      "ph": "[oʊθ]",
+      "mean": ": 맹세, 서약",
+      "mark": 0
+    },
+    {
+      "eng": "revenue",
+      "ph": "[ˈrevənuː]",
+      "mean": ": 세입",
+      "mark": 0
+    },
+    {
+      "eng": "explanation",
+      "ph": "[ˌekspləˈneɪʃn]",
+      "mean": ": 설명",
+      "mark": 0
+    },
+    {
+      "eng": "minister",
+      "ph": "[ˈmɪnɪstər]",
+      "mean": ": 장관, 목사",
+      "mark": 0
+    },
+    {
+      "eng": "obstacle",
+      "ph": "[ˈɑːbstəkl]",
+      "mean": ": 장애(물)",
+      "mark": 0
+    },
+    {
+      "eng": "majesty",
+      "ph": "[ˈmædʒəsti]",
+      "mean": ": 존엄",
+      "mark": 0
+    },
+    {
+      "eng": "globe",
+      "ph": "[ɡloʊb]",
+      "mean": ": 지구",
+      "mark": 0
+    },
+    {
+      "eng": "pressure",
+      "ph": "[ˈpreʃər]",
+      "mean": ": 압력, 압박",
+      "mark": 0
+    },
+    {
+      "eng": "standpoint",
+      "ph": "[ˈstændpɔɪnt]",
+      "mean": ": 입장, 견지",
+      "mark": 0
+    },
+    {
+      "eng": "monument",
+      "ph": "[ˈmɑːnjumənt]",
+      "mean": ": 기념비, 기념물",
+      "mark": 0
+    },
+    {
+      "eng": "opponent",
+      "ph": "[əˈpoʊnənt]",
+      "mean": ": 적(敵), 적수",
+      "mark": 0
+    },
+    {
+      "eng": "fiction",
+      "ph": "[ˈfɪkʃn]",
+      "mean": ": 허구, 소설, 꾸며낸 이야기",
+      "mark": 0
+    },
+    {
+      "eng": "detail",
+      "ph": "[ˈdiːteɪl]",
+      "mean": ": 상세, 상세히 말하다",
+      "mark": 0
+    },
+    {
+      "eng": "solution",
+      "ph": "[səˈluːʃn]",
+      "mean": ": 해결, 용해",
+      "mark": 0
+    },
+    {
+      "eng": "maximum",
+      "ph": "[ˈmæksɪməm]",
+      "mean": ": 최대한(의)",
+      "mark": 0
+    },
+    {
+      "eng": "communism",
+      "ph": "[ˈkɑːmjunɪzəm]",
+      "mean": ": 공산주의",
+      "mark": 0
+    },
+    {
+      "eng": "tide",
+      "ph": "[taɪd]",
+      "mean": ": 조수, 풍조, 극복하다",
+      "mark": 0
+    },
+    {
+      "eng": "honesty",
+      "ph": "[ˈɑːnəsti]",
+      "mean": ": 정직",
+      "mark": 0
+    },
+    {
+      "eng": "brute",
+      "ph": "[bruːt]",
+      "mean": ": 짐승",
+      "mark": 0
+    },
+    {
+      "eng": "beast",
+      "ph": "[biːst]",
+      "mean": ": 짐승, 짐승 같은 인간",
+      "mark": 0
+    },
+    {
+      "eng": "inspiration",
+      "ph": "[ˌɪnspəˈreɪʃn]",
+      "mean": ": 영감(靈感), 고취",
+      "mark": 0
+    },
+    {
+      "eng": "harm",
+      "ph": "[hɑːrm]",
+      "mean": ": 해(害), 해치다",
+      "mark": 0
+    },
+    {
+      "eng": "taste",
+      "ph": "[teɪst]",
+      "mean": ": 맛, 취미, 기호, 맛보다",
+      "mark": 0
+    },
+    {
+      "eng": "independence",
+      "ph": "[ˌɪndɪˈpendəns]",
+      "mean": ": 독립(심)",
+      "mark": 0
+    },
+    {
+      "eng": "engagement",
+      "ph": "[ɪnˈɡeɪdʒmənt]",
+      "mean": ": 약속, 약혼, 교전",
+      "mark": 0
+    },
+    {
+      "eng": "rank",
+      "ph": "[ræŋk]",
+      "mean": ": 열, 지위, 계급",
+      "mark": 0
+    },
+    {
+      "eng": "glacier",
+      "ph": "[ˈɡleɪʃər]",
+      "mean": ": 빙하",
+      "mark": 0
+    },
+    {
+      "eng": "prairie",
+      "ph": "[ˈpreri]",
+      "mean": ": 대초원",
+      "mark": 0
+    },
+    {
+      "eng": "cradle",
+      "ph": "[ˈkreɪdl]",
+      "mean": ": 요람, 발상지",
+      "mark": 0
+    },
+    {
+      "eng": "incident",
+      "ph": "[ˈɪnsɪdənt]",
+      "mean": ": 사건",
+      "mark": 0
+    },
+    {
+      "eng": "disillusion",
+      "ph": "[ˌdɪsɪˈluːʒn]",
+      "mean": ": 환멸, 환멸을 느끼게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "election",
+      "ph": "[ɪˈlekʃn]",
+      "mean": ": 선거",
+      "mark": 0
+    },
+    {
+      "eng": "gesture",
+      "ph": "[ˈdʒestʃər]",
+      "mean": ": 몸짓",
+      "mark": 0
+    },
+    {
+      "eng": "warfare",
+      "ph": "[ˈwɔːrfer]",
+      "mean": ": 전쟁",
+      "mark": 0
+    },
+    {
+      "eng": "adventure",
+      "ph": "[ədˈventʃər]",
+      "mean": ": 모험",
+      "mark": 0
+    },
+    {
+      "eng": "resort",
+      "ph": "[rɪˈzɔːrt]",
+      "mean": ": 놀이터, 수단, 호소하다",
+      "mark": 0
+    },
+    {
+      "eng": "situation",
+      "ph": "[ˌsɪtʃuˈeɪʃn]",
+      "mean": ": 위치, 사태",
+      "mark": 0
+    },
+    {
+      "eng": "emigrant",
+      "ph": "[ˈemɪɡrənt]",
+      "mean": ": (타국으로의)이주자, 이주하는",
+      "mark": 0
+    },
+    {
+      "eng": "historian",
+      "ph": "[hɪˈstɔːriən]",
+      "mean": ": 역사가",
+      "mark": 0
+    },
+    {
+      "eng": "creature",
+      "ph": "[ˈkriːtʃər]",
+      "mean": ": 창조물, 생물",
+      "mark": 0
+    },
+    {
+      "eng": "victim",
+      "ph": "[ˈvɪktɪm]",
+      "mean": ": 희생(자)",
+      "mark": 0
+    },
+    {
+      "eng": "delight",
+      "ph": "[dɪˈlaɪt]",
+      "mean": ": 즐거움, 즐겁게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "decay",
+      "ph": "[dɪˈkeɪ]",
+      "mean": ": 부패(하다), 쇠퇴(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "admiral",
+      "ph": "[ˈædmərəl]",
+      "mean": ": 해군대장, 제독",
+      "mark": 0
+    },
+    {
+      "eng": "colony",
+      "ph": "[ˈkɑːləni]",
+      "mean": ": 식민지, 거류지",
+      "mark": 0
+    },
+    {
+      "eng": "philosophy",
+      "ph": "[fəˈlɑːsəfi]",
+      "mean": ": 철학",
+      "mark": 0
+    },
+    {
+      "eng": "treasure",
+      "ph": "[ˈtreʒər]",
+      "mean": ": 보물, 소중히 하다",
+      "mark": 0
+    },
+    {
+      "eng": "admiration",
+      "ph": "[ˌædməˈreɪʃn]",
+      "mean": ": 감탄, 칭찬",
+      "mark": 0
+    },
+    {
+      "eng": "flesh",
+      "ph": "[fleʃ]",
+      "mean": ": 살, 육체",
+      "mark": 0
+    },
+    {
+      "eng": "conduct",
+      "ph": "[ˈkɑːndʌkt]",
+      "mean": ": 행위, 지도, 행동하다",
+      "mark": 0
+    },
+    {
+      "eng": "aspect",
+      "ph": "[ˈæspekt]",
+      "mean": ": 양상, 국면, 면",
+      "mark": 0
+    },
+    {
+      "eng": "anniversary",
+      "ph": "[ˌænɪˈvɜːrsəri]",
+      "mean": ": 기념일",
+      "mark": 0
+    },
+    {
+      "eng": "laboratory",
+      "ph": "[ˈlæbrətɔːri]",
+      "mean": ": 실험실, 연구소",
+      "mark": 0
+    },
+    {
+      "eng": "cell",
+      "ph": "[sel]",
+      "mean": ": 세포",
+      "mark": 0
+    },
+    {
+      "eng": "area",
+      "ph": "[ˈeriə]",
+      "mean": ": 지역, 면적",
+      "mark": 0
+    },
+    {
+      "eng": "symbol",
+      "ph": "[ˈsɪmbl]",
+      "mean": ": 상징, 부호",
+      "mark": 0
+    },
+    {
+      "eng": "assent",
+      "ph": "[əˈsent]",
+      "mean": ": 동의(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "manuscript",
+      "ph": "[ˈmænjuskrɪpt]",
+      "mean": ": 원고(原稿)",
+      "mark": 0
+    },
+    {
+      "eng": "mechanism",
+      "ph": "[ˈmekənɪzəm]",
+      "mean": ": 기계(장치), 기구",
+      "mark": 0
+    },
+    {
+      "eng": "scent",
+      "ph": "[sent]",
+      "mean": ": 향기, 냄새맡다",
+      "mark": 0
+    },
+    {
+      "eng": "donation",
+      "ph": "[doʊˈneɪʃn]",
+      "mean": ": 기부(금), 기증",
+      "mark": 0
+    },
+    {
+      "eng": "miracle",
+      "ph": "[ˈmɪrəkl]",
+      "mean": ": 기적",
+      "mark": 0
+    },
+    {
+      "eng": "continent",
+      "ph": "[ˈkɑːntɪnənt]",
+      "mean": ": 대륙",
+      "mark": 0
+    },
+    {
+      "eng": "horror",
+      "ph": "[ˈhɔːrər]",
+      "mean": ": 공포",
+      "mark": 0
+    },
+    {
+      "eng": "essay",
+      "ph": "[ˈeseɪ]",
+      "mean": ": 수필",
+      "mark": 0
+    },
+    {
+      "eng": "armament",
+      "ph": "[ˈɑːrməmənt]",
+      "mean": ": 군비",
+      "mark": 0
+    },
+    {
+      "eng": "fable",
+      "ph": "[ˈfeɪbl]",
+      "mean": ": 우화",
+      "mark": 0
+    },
+    {
+      "eng": "maxim",
+      "ph": "[ˈmæksɪm]",
+      "mean": ": 격언",
+      "mark": 0
+    },
+    {
+      "eng": "perspective",
+      "ph": "[pərˈspektɪv]",
+      "mean": ": 가망, 전망",
+      "mark": 0
+    },
+    {
+      "eng": "income",
+      "ph": "[ˈɪnkʌm]",
+      "mean": ": 수입",
+      "mark": 0
+    },
+    {
+      "eng": "fortune",
+      "ph": "[ˈfɔːrtʃən]",
+      "mean": ": 운, 재산",
+      "mark": 0
+    },
+    {
+      "eng": "aid",
+      "ph": "[eɪd]",
+      "mean": ": 도움, 도와주다",
+      "mark": 0
+    },
+    {
+      "eng": "fuel",
+      "ph": "[ˈfjuːəl]",
+      "mean": ": 연료, 연료를 공급하다",
+      "mark": 0
+    },
+    {
+      "eng": "sigh",
+      "ph": "[saɪ]",
+      "mean": ": 한숨(쉬다)",
+      "mark": 0
+    },
+    {
+      "eng": "furniture",
+      "ph": "[ˈfɜːrnɪtʃər]",
+      "mean": ": 가구",
+      "mark": 0
+    },
+    {
+      "eng": "shelter",
+      "ph": "[ˈʃeltər]",
+      "mean": ": 피난(처), 피난하다",
+      "mark": 0
+    },
+    {
+      "eng": "view",
+      "ph": "[vjuː]",
+      "mean": ": 경치, 의견, 목적, 보다",
+      "mark": 0
+    },
+    {
+      "eng": "navy",
+      "ph": "[ˈneɪvi]",
+      "mean": ": 해군",
+      "mark": 0
+    },
+    {
+      "eng": "inability",
+      "ph": "[ˌɪnəˈbɪləti]",
+      "mean": ": 무능, 무력",
+      "mark": 0
+    },
+    {
+      "eng": "territory",
+      "ph": "[ˈterətɔːri]",
+      "mean": ": 영토",
+      "mark": 0
+    },
+    {
+      "eng": "imitation",
+      "ph": "[ˌɪmɪˈteɪʃn]",
+      "mean": ": 모방",
+      "mark": 0
+    },
+    {
+      "eng": "alternative",
+      "ph": "[ɔːlˈtɜːrnətɪv]",
+      "mean": ": 양자택일(의)",
+      "mark": 0
+    },
+    {
+      "eng": "foliage",
+      "ph": "[ˈfoʊliɪdʒ]",
+      "mean": ": (무성한) 나뭇잎",
+      "mark": 0
+    },
+    {
+      "eng": "preface",
+      "ph": "[ˈprefəs]",
+      "mean": ": 머리말",
+      "mark": 0
+    },
+    {
+      "eng": "review",
+      "ph": "[rɪˈvjuː]",
+      "mean": ": 복습, 재검토, 평론, 복습하다",
+      "mark": 0
+    },
+    {
+      "eng": "mischief",
+      "ph": "[ˈmɪstʃɪf]",
+      "mean": ": 장난, 손해",
+      "mark": 0
+    },
+    {
+      "eng": "departure",
+      "ph": "[dɪˈpɑːrtʃər]",
+      "mean": ": 출발",
+      "mark": 0
+    },
+    {
+      "eng": "surface",
+      "ph": "[ˈsɜːrfɪs]",
+      "mean": ": 표면, 표면의",
+      "mark": 0
+    },
+    {
+      "eng": "funeral",
+      "ph": "[ˈfjuːnərəl]",
+      "mean": ": 장례식",
+      "mark": 0
+    },
+    {
+      "eng": "ignorance",
+      "ph": "[ˈɪɡnərəns]",
+      "mean": ": 무지",
+      "mark": 0
+    },
+    {
+      "eng": "popularity",
+      "ph": "[ˌpɑːpjuˈlærəti]",
+      "mean": ": 인기, 유행",
+      "mark": 0
+    },
+    {
+      "eng": "pace",
+      "ph": "[peɪs]",
+      "mean": ": 걸음",
+      "mark": 0
+    },
+    {
+      "eng": "merchandise",
+      "ph": "[ˈmɜːrtʃəndaɪz]",
+      "mean": ": 상품",
+      "mark": 0
+    },
+    {
+      "eng": "space",
+      "ph": "[speɪs]",
+      "mean": ": 공간, 우주",
+      "mark": 0
+    },
+    {
+      "eng": "predecessor",
+      "ph": "[ˈpredəsesər]",
+      "mean": ": 전임자, 선배, 선조",
+      "mark": 0
+    },
+    {
+      "eng": "soil",
+      "ph": "[sɔɪl]",
+      "mean": ": 흙, 땅",
+      "mark": 0
+    },
+    {
+      "eng": "hospitality",
+      "ph": "[ˌhɑːspɪˈtæləti]",
+      "mean": ": 환대",
+      "mark": 0
+    },
+    {
+      "eng": "trait",
+      "ph": "[treɪt]",
+      "mean": ": 특색",
+      "mark": 0
+    },
+    {
+      "eng": "traitor",
+      "ph": "[ˈtreɪtər]",
+      "mean": ": 배반자, 반역자",
+      "mark": 0
+    },
+    {
+      "eng": "puzzle",
+      "ph": "[ˈpʌzl]",
+      "mean": ": 수수께끼, 당황하게 하다",
+      "mark": 0
+    },
+    {
+      "eng": "riddle",
+      "ph": "[ˈrɪdl]",
+      "mean": ": 수수께끼",
+      "mark": 0
+    },
+    {
+      "eng": "solace",
+      "ph": "[ˈsɑːləs]",
+      "mean": ": 위안, 위로(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "vision",
+      "ph": "[ˈvɪʒn]",
+      "mean": ": 시력, 통찰력, 환상",
+      "mark": 0
+    },
+    {
+      "eng": "treachery",
+      "ph": "[ˈtretʃəri]",
+      "mean": ": 배신, 반역",
+      "mark": 0
+    },
+    {
+      "eng": "pasture",
+      "ph": "[ˈpæstʃər]",
+      "mean": ": 목장, 목초지",
+      "mark": 0
+    },
+    {
+      "eng": "renown",
+      "ph": "[rɪˈnaʊn]",
+      "mean": ": 명성",
+      "mark": 0
+    },
+    {
+      "eng": "vessel",
+      "ph": "[ˈvesl]",
+      "mean": ": (큰)배, 그릇",
+      "mark": 0
+    },
+    {
+      "eng": "specimen",
+      "ph": "[ˈspesɪmən]",
+      "mean": ": 표본, 실례",
+      "mark": 0
+    },
+    {
+      "eng": "trace",
+      "ph": "[treɪs]",
+      "mean": ": 자취, 자국, (자국을) 밟아가다",
+      "mark": 0
+    },
+    {
+      "eng": "slumber",
+      "ph": "[ˈslʌmbər]",
+      "mean": ": 잠, 잠자다",
+      "mark": 0
+    },
+    {
+      "eng": "harvest",
+      "ph": "[ˈhɑːrvɪst]",
+      "mean": ": 수확(기), 거두어들이다",
+      "mark": 0
+    },
+    {
+      "eng": "tact",
+      "ph": "[tækt]",
+      "mean": ": 재치, 요령",
+      "mark": 0
+    },
+    {
+      "eng": "element",
+      "ph": "[ˈelɪmənt]",
+      "mean": ": 요소, 원소",
+      "mark": 0
+    },
+    {
+      "eng": "pang",
+      "ph": "[pæŋ]",
+      "mean": ": 심한 고통, 양심의 가책",
+      "mark": 0
+    },
+    {
+      "eng": "flaw",
+      "ph": "[flɔː]",
+      "mean": ": 결점, 흠",
+      "mark": 0
+    },
+    {
+      "eng": "riot",
+      "ph": "[ˈraɪət]",
+      "mean": ": 폭동(을 일으키다)",
+      "mark": 0
+    },
+    {
+      "eng": "folk",
+      "ph": "[foʊk]",
+      "mean": ": 사람들, 가족",
+      "mark": 0
+    },
+    {
+      "eng": "temperance",
+      "ph": "[ˈtempərəns]",
+      "mean": ": 절제, 금주",
+      "mark": 0
+    },
+    {
+      "eng": "garbage",
+      "ph": "[ˈɡɑːrbɪdʒ]",
+      "mean": ": 쓰레기, 찌꺼기",
+      "mark": 0
+    },
+    {
+      "eng": "mob",
+      "ph": "[mɑːb]",
+      "mean": ": 군중, 폭도",
+      "mark": 0
+    },
+    {
+      "eng": "adult",
+      "ph": "[əˈdʌlt]",
+      "mean": ": 성인, 성인의",
+      "mark": 0
+    },
+    {
+      "eng": "temperament",
+      "ph": "[ˈtemprəmənt]",
+      "mean": ": 기질",
+      "mark": 0
+    },
+    {
+      "eng": "expansion",
+      "ph": "[ɪkˈspænʃn]",
+      "mean": ": 확장",
+      "mark": 0
+    },
+    {
+      "eng": "output",
+      "ph": "[ˈaʊtpʊt]",
+      "mean": ": 생산량",
+      "mark": 0
+    },
+    {
+      "eng": "glance",
+      "ph": "[ɡlæns]",
+      "mean": ": 힐끗 봄, 힐끗 보다",
+      "mark": 0
+    },
+    {
+      "eng": "vein",
+      "ph": "[veɪn]",
+      "mean": ": 혈관, 광맥",
+      "mark": 0
+    },
+    {
+      "eng": "conclusion",
+      "ph": "[kənˈkluːʒn]",
+      "mean": ": 결말, 결론",
+      "mark": 0
+    },
+    {
+      "eng": "revolt",
+      "ph": "[rɪˈvoʊlt]",
+      "mean": ": 반역, 혐오, 반역하다",
+      "mark": 0
+    },
+    {
+      "eng": "pessimist",
+      "ph": "[ˈpesɪmɪst]",
+      "mean": ": 비관론자",
+      "mark": 0
+    },
+    {
+      "eng": "reverie",
+      "ph": "[ˈrevəri]",
+      "mean": ": 환상(幻想)",
+      "mark": 0
+    },
+    {
+      "eng": "mixture",
+      "ph": "[ˈmɪkstʃər]",
+      "mean": ": 혼합(물)",
+      "mark": 0
+    },
+    {
+      "eng": "outcome",
+      "ph": "[ˈaʊtkʌm]",
+      "mean": ": 결과, 성과",
+      "mark": 0
+    },
+    {
+      "eng": "expert",
+      "ph": "[ˈekspɜːrt]",
+      "mean": ": 전문가, 익숙한 사람",
+      "mark": 0
+    },
+    {
+      "eng": "project",
+      "ph": "[ˈprɑːdʒekt]",
+      "mean": ": 계획, 계획하다",
+      "mark": 0
+    },
+    {
+      "eng": "consequence",
+      "ph": "[ˈkɑːnsəkwens]",
+      "mean": ": 결과, 중요성",
+      "mark": 0
+    },
+    {
+      "eng": "rapture",
+      "ph": "[ˈræptʃər]",
+      "mean": ": 환희, 큰 기쁨",
+      "mark": 0
+    },
+    {
+      "eng": "pioneer",
+      "ph": "[ˌpaɪəˈnɪr]",
+      "mean": ": 개척자, 선구자",
+      "mark": 0
+    },
+    {
+      "eng": "revenge",
+      "ph": "[rɪˈvendʒ]",
+      "mean": ": 복수, 원한",
+      "mark": 0
+    },
+    {
+      "eng": "amount",
+      "ph": "[əˈmaʊnt]",
+      "mean": ": 총계, 총계 ~이 되다",
+      "mark": 0
+    },
+    {
+      "eng": "repose",
+      "ph": "[rɪˈpoʊz]",
+      "mean": ": 휴식, 쉬다",
+      "mark": 0
+    },
+    {
+      "eng": "author",
+      "ph": "[ˈɔːθər]",
+      "mean": ": 저자, 창시자",
+      "mark": 0
+    },
+    {
+      "eng": "audience",
+      "ph": "[ˈɔːdiəns]",
+      "mean": ": 청중",
+      "mark": 0
+    },
+    {
+      "eng": "throne",
+      "ph": "[θroʊn]",
+      "mean": ": 왕위, 왕좌",
+      "mark": 0
+    },
+    {
+      "eng": "outlook",
+      "ph": "[ˈaʊtlʊk]",
+      "mean": ": 전망, 조망, 예측",
+      "mark": 0
+    },
+    {
+      "eng": "expression",
+      "ph": "[ɪkˈspreʃn]",
+      "mean": ": 표현, 표정",
+      "mark": 0
+    },
+    {
+      "eng": "benefactor",
+      "ph": "[ˈbenɪfæktər]",
+      "mean": ": 은인, 후원자",
+      "mark": 0
+    },
+    {
+      "eng": "suburb",
+      "ph": "[ˈsʌbɜːrb]",
+      "mean": ": 교외, 변두리",
+      "mark": 0
+    },
+    {
+      "eng": "apology",
+      "ph": "[əˈpɑːlədʒi]",
+      "mean": ": 사과, 변명",
+      "mark": 0
+    },
+    {
+      "eng": "proposal",
+      "ph": "[prəˈpoʊzl]",
+      "mean": ": 제의, 신청",
+      "mark": 0
+    },
+    {
+      "eng": "phase",
+      "ph": "[feɪz]",
+      "mean": ": 국면, 양상",
+      "mark": 0
+    },
+    {
+      "eng": "male",
+      "ph": "[meɪl]",
+      "mean": ": 남자, 수컷, 남자의",
+      "mark": 0
+    },
+    {
+      "eng": "relish",
+      "ph": "[ˈrelɪʃ]",
+      "mean": ": 맛, 흥미, 맛보다",
+      "mark": 0
+    },
+    {
+      "eng": "motive",
+      "ph": "[ˈmoʊtɪv]",
+      "mean": ": 동기, 동기가 되다",
+      "mark": 0
+    },
+    {
+      "eng": "summary",
+      "ph": "[ˈsʌməri]",
+      "mean": ": 요약, 요약한",
+      "mark": 0
+    },
+    {
+      "eng": "plot",
+      "ph": "[plɑːt]",
+      "mean": ": 음모, 계획, 줄거리",
+      "mark": 0
+    },
+    {
+      "eng": "relic",
+      "ph": "[ˈrelɪk]",
+      "mean": ": 유물",
+      "mark": 0
+    },
+    {
+      "eng": "bronze",
+      "ph": "[brɑːnz]",
+      "mean": ": 청동",
+      "mark": 0
+    },
+    {
+      "eng": "status",
+      "ph": "[ˈsteɪtəs]",
+      "mean": ": 지위, 현상",
+      "mark": 0
+    },
+    {
+      "eng": "mystery",
+      "ph": "[ˈmɪstəri]",
+      "mean": ": 신비, 불가사의",
+      "mark": 0
+    },
+    {
+      "eng": "treason",
+      "ph": "[ˈtriːzn]",
+      "mean": ": 반역(죄)",
+      "mark": 0
+    },
+    {
+      "eng": "trifle",
+      "ph": "[ˈtraɪfl]",
+      "mean": ": 사소한 일, 조금",
+      "mark": 0
+    },
+    {
+      "eng": "trend",
+      "ph": "[trend]",
+      "mean": ": 경향, 추세",
+      "mark": 0
+    },
+    {
+      "eng": "spectacle",
+      "ph": "[ˈspektəkl]",
+      "mean": ": 광경, (pl)안경",
+      "mark": 0
+    },
+    {
+      "eng": "statue",
+      "ph": "[ˈstætʃuː]",
+      "mean": ": 조각상",
+      "mark": 0
+    },
+    {
+      "eng": "cliff",
+      "ph": "[klɪf]",
+      "mean": ": 절벽, 낭떠러지",
+      "mark": 0
+    },
+    {
+      "eng": "trap",
+      "ph": "[træp]",
+      "mean": ": 덫, 함정",
+      "mark": 0
+    },
+    {
+      "eng": "sermon",
+      "ph": "[ˈsɜːrmən]",
+      "mean": ": 설교",
+      "mark": 0
+    },
+    {
+      "eng": "imagination",
+      "ph": "[ɪˌmædʒɪˈneɪʃn]",
+      "mean": ": 상상(력)",
+      "mark": 0
+    },
+    {
+      "eng": "omen",
+      "ph": "[ˈoʊmən]",
+      "mean": ": 전조, 조짐",
+      "mark": 0
+    },
+    {
+      "eng": "diameter",
+      "ph": "[daɪˈæmɪtər]",
+      "mean": ": 지름, 직경",
+      "mark": 0
+    },
+    {
+      "eng": "effort",
+      "ph": "[ˈefərt]",
+      "mean": ": 노력",
+      "mark": 0
+    },
+    {
+      "eng": "adversity",
+      "ph": "[ədˈvɜːrsəti]",
+      "mean": ": 역경",
+      "mark": 0
+    },
+    {
+      "eng": "snare",
+      "ph": "[sner]",
+      "mean": ": 덫, 유혹, 유혹하다",
+      "mark": 0
+    },
+    {
+      "eng": "satisfaction",
+      "ph": "[ˌsætɪsˈfækʃn]",
+      "mean": ": 만족",
+      "mark": 0
+    },
+    {
+      "eng": "estate",
+      "ph": "[ɪˈsteɪt]",
+      "mean": ": 재산, 지위",
+      "mark": 0
+    },
+    {
+      "eng": "orator",
+      "ph": "[ˈɔːrətər]",
+      "mean": ": 웅변가",
+      "mark": 0
+    },
+    {
+      "eng": "plea",
+      "ph": "[pliː]",
+      "mean": ": 구실, 탄원",
+      "mark": 0
+    },
+    {
+      "eng": "meadow",
+      "ph": "[ˈmedoʊ]",
+      "mean": ": 목초지",
+      "mark": 0
+    },
+    {
+      "eng": "shortage",
+      "ph": "[ˈʃɔːrtɪdʒ]",
+      "mean": ": 부족, 결핍",
+      "mark": 0
+    },
+    {
+      "eng": "activity",
+      "ph": "[ækˈtɪvəti]",
+      "mean": ": 활동",
+      "mark": 0
+    },
+    {
+      "eng": "stage",
+      "ph": "[steɪdʒ]",
+      "mean": ": 무대, 시기, 단계",
+      "mark": 0
+    },
+    {
+      "eng": "decree",
+      "ph": "[dɪˈkriː]",
+      "mean": ": 명령, 포고, 명령하다",
+      "mark": 0
+    },
+    {
+      "eng": "myth",
+      "ph": "[mɪθ]",
+      "mean": ": 신화",
+      "mark": 0
+    },
+    {
+      "eng": "hazard",
+      "ph": "[ˈhæzərd]",
+      "mean": ": 위험, 우연",
+      "mark": 0
+    },
+    {
+      "eng": "pattern",
+      "ph": "[ˈpætərn]",
+      "mean": ": 모범, 모형",
+      "mark": 0
+    },
+    {
+      "eng": "fluid",
+      "ph": "[ˈfluːɪd]",
+      "mean": ": 액체, 유동성의",
+      "mark": 0
+    },
+    {
+      "eng": "union",
+      "ph": "[ˈjuːniən]",
+      "mean": ": 결합, 일치",
+      "mark": 0
+    },
+    {
+      "eng": "disciple",
+      "ph": "[dɪˈsaɪpl]",
+      "mean": ": 제자, 문하생",
+      "mark": 0
+    },
+    {
+      "eng": "playwright",
+      "ph": "[ˈpleɪraɪt]",
+      "mean": ": 극작가",
+      "mark": 0
+    },
+    {
+      "eng": "truce",
+      "ph": "[truːs]",
+      "mean": ": 휴전",
+      "mark": 0
+    },
+    {
+      "eng": "cave",
+      "ph": "[keɪv]",
+      "mean": ": 동굴",
+      "mark": 0
+    },
+    {
+      "eng": "feat",
+      "ph": "[fiːt]",
+      "mean": ": 공적, 위업, 업적",
+      "mark": 0
+    },
+    {
+      "eng": "forest",
+      "ph": "[ˈfɔːrɪst]",
+      "mean": ": 숲",
+      "mark": 0
+    },
+    {
+      "eng": "friction",
+      "ph": "[ˈfrɪkʃn]",
+      "mean": ": 마찰, 압력",
+      "mark": 0
+    },
+    {
+      "eng": "digestion",
+      "ph": "[daɪˈdʒestʃən]",
+      "mean": ": 소화, 숙고",
+      "mark": 0
+    },
+    {
+      "eng": "verse",
+      "ph": "[vɜːrs]",
+      "mean": ": 운문, 시",
+      "mark": 0
+    },
+    {
+      "eng": "counsel",
+      "ph": "[ˈkaʊnsl]",
+      "mean": ": 의논, 충고",
+      "mark": 0
+    },
+    {
+      "eng": "token",
+      "ph": "[ˈtoʊkən]",
+      "mean": ": 표시, 증거",
+      "mark": 0
+    },
+    {
+      "eng": "value",
+      "ph": "[ˈvæljuː]",
+      "mean": ": 가치, 존중하다",
+      "mark": 0
+    },
+    {
+      "eng": "flavor",
+      "ph": "[ˈfleɪvər]",
+      "mean": ": 맛, 향기",
+      "mark": 0
+    },
+    {
+      "eng": "transition",
+      "ph": "[trænˈzɪʃn]",
+      "mean": ": 변천, 과도기",
+      "mark": 0
+    },
+    {
+      "eng": "pause",
+      "ph": "[pɔːz]",
+      "mean": ": 멈춤, 중지",
+      "mark": 0
+    },
+    {
+      "eng": "heathen",
+      "ph": "[ˈhiːðn]",
+      "mean": ": 이교도, 이방인",
+      "mark": 0
+    },
+    {
+      "eng": "worth",
+      "ph": "[wɜːrθ]",
+      "mean": ": 가치, 가치가 있는",
+      "mark": 0
+    },
+    {
+      "eng": "heretic",
+      "ph": "[ˈherətɪk]",
+      "mean": ": 이단자, 이교도",
+      "mark": 0
+    },
+    {
+      "eng": "fund",
+      "ph": "[fʌnd]",
+      "mean": ": 자금",
+      "mark": 0
+    },
+    {
+      "eng": "bait",
+      "ph": "[beɪt]",
+      "mean": ": 미끼, 유혹",
+      "mark": 0
+    },
+    {
+      "eng": "range",
+      "ph": "[reɪndʒ]",
+      "mean": ": 범위, 산맥",
+      "mark": 0
+    },
+    {
+      "eng": "orientation",
+      "ph": "[ˌɔːriənˈteɪʃn]",
+      "mean": ": 방향 결정, 집무예비교육",
+      "mark": 0
+    },
+    {
+      "eng": "elegance",
+      "ph": "[ˈelɪɡəns]",
+      "mean": ": 우아함",
+      "mark": 0
+    },
+    {
+      "eng": "masterpiece",
+      "ph": "[ˈmæstərpiːs]",
+      "mean": ": 걸작",
+      "mark": 0
+    },
+    {
+      "eng": "stature",
+      "ph": "[ˈstætʃər]",
+      "mean": ": 키, 신장",
+      "mark": 0
+    },
+    {
+      "eng": "retort",
+      "ph": "[rɪˈtɔːrt]",
+      "mean": ": 말대꾸(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "metropolis",
+      "ph": "[məˈtrɑːpələs]",
+      "mean": ": 수도, 중심지",
+      "mark": 0
+    },
+    {
+      "eng": "layer",
+      "ph": "[ˈleɪər]",
+      "mean": ": 층(層)",
+      "mark": 0
+    },
+    {
+      "eng": "volume",
+      "ph": "[ˈvɑːljuːm]",
+      "mean": ": 책, 권, 다량",
+      "mark": 0
+    },
+    {
+      "eng": "testimony",
+      "ph": "[ˈtestɪmoʊni]",
+      "mean": ": 증거, 증명",
+      "mark": 0
+    },
+    {
+      "eng": "haven",
+      "ph": "[ˈheɪvn]",
+      "mean": ": 항구, 피난처",
+      "mark": 0
+    },
+    {
+      "eng": "research",
+      "ph": "[ˈriːsɜːrtʃ]",
+      "mean": ": 연구(하다), 조사(하다)",
+      "mark": 0
+    },
+    {
+      "eng": "spot",
+      "ph": "[spɑːt]",
+      "mean": ": 장소, 지점",
+      "mark": 0
+    },
+    {
+      "eng": "seed",
+      "ph": "[siːd]",
+      "mean": ": 씨, 종자",
+      "mark": 0
+    },
+    {
+      "eng": "drudgery",
+      "ph": "[ˈdrʌdʒəri]",
+      "mean": ": 고된 일, 고역(苦役)",
+      "mark": 0
+    },
+    {
+      "eng": "reverence",
+      "ph": "[ˈrevərəns]",
+      "mean": ": 존경, 존경하다",
+      "mark": 0
+    },
+    {
+      "eng": "summit",
+      "ph": "[ˈsʌmɪt]",
+      "mean": ": 정상(頂上)",
+      "mark": 0
+    },
+    {
+      "eng": "crust",
+      "ph": "[krʌst]",
+      "mean": ": (빵)껍질",
+      "mark": 0
+    },
+    {
+      "eng": "boss",
+      "ph": "[bɔːs]",
+      "mean": ": 우두머리, 사장",
+      "mark": 0
+    },
+    {
+      "eng": "agony",
+      "ph": "[ˈæɡəni]",
+      "mean": ": 고민, 고뇌",
+      "mark": 0
+    },
+    {
+      "eng": "wisdom",
+      "ph": "[ˈwɪzdəm]",
+      "mean": ": 지혜",
+      "mark": 0
+    },
+    {
+      "eng": "propriety",
+      "ph": "[prəˈpraɪəti]",
+      "mean": ": 예의 바름, 적당",
+      "mark": 0
+    },
+    {
+      "eng": "physics",
+      "ph": "[ˈfɪzɪks]",
+      "mean": ": 물리학",
+      "mark": 0
+    },
+    {
+      "eng": "timber",
+      "ph": "[ˈtɪmbər]",
+      "mean": ": 재목, 목재",
+      "mark": 0
+    },
+    {
+      "eng": "planet",
+      "ph": "[ˈplænɪt]",
+      "mean": ": 행성, 유성",
+      "mark": 0
+    },
+    {
+      "eng": "design",
+      "ph": "[dɪˈzaɪn]",
+      "mean": ": 디자인, 계획",
+      "mark": 0
+    },
+    {
+      "eng": "lung",
+      "ph": "[lʌŋ]",
+      "mean": ": 폐, 허파",
+      "mark": 0
+    },
+    {
+      "eng": "leisure",
+      "ph": "[ˈliːʒər]",
+      "mean": ": 틈, 여가",
+      "mark": 0
+    },
+    {
+      "eng": "organization",
+      "ph": "[ˌɔːrɡənəˈzeɪʃn]",
+      "mean": ": 조직, 단체",
+      "mark": 0
+    },
+    {
+      "eng": "republic",
+      "ph": "[rɪˈpʌblɪk]",
+      "mean": ": 공화국, 공화정체",
+      "mark": 0
+    },
+    {
+      "eng": "prosecution",
+      "ph": "[ˌprɑːsɪˈkjuːʃn]",
+      "mean": ": 수행",
+      "mark": 0
+    },
+    {
+      "eng": "torture",
+      "ph": "[ˈtɔːrtʃər]",
+      "mean": ": 고문, 고뇌",
+      "mark": 0
+    },
+    {
+      "eng": "cottage",
+      "ph": "[ˈkɑːtɪdʒ]",
+      "mean": ": 오두막집, 시골집",
+      "mark": 0
+    },
+    {
+      "eng": "castle",
+      "ph": "[ˈkæsl]",
+      "mean": ": 성(城)",
+      "mark": 0
+    },
+    {
+      "eng": "conference",
+      "ph": "[ˈkɑːnfərəns]",
+      "mean": ": 회의",
+      "mark": 0
+    },
+    {
+      "eng": "tomb",
+      "ph": "[tuːm]",
+      "mean": ": 무덤, 묘",
+      "mark": 0
+    },
+    {
+      "eng": "fault",
+      "ph": "[fɔːlt]",
+      "mean": ": 결점, 잘못",
+      "mark": 0
+    },
+    {
+      "eng": "magic",
+      "ph": "[ˈmædʒɪk]",
+      "mean": ": 마술(의)",
+      "mark": 0
+    },
+    {
+      "eng": "aim",
+      "ph": "[eɪm]",
+      "mean": ": 목적, 목표, 겨누다",
+      "mark": 0
+    },
+    {
+      "eng": "sword",
+      "ph": "[sɔːrd]",
+      "mean": ": 검(劍), 무력",
+      "mark": 0
+    },
+    {
+      "eng": "risk",
+      "ph": "[rɪsk]",
+      "mean": ": 위험, 위험을 무릅쓰다",
+      "mark": 0
+    },
+    {
+      "eng": "tool",
+      "ph": "[tuːl]",
+      "mean": ": 도구, 연장",
+      "mark": 0
+    },
+    {
+      "eng": "weapon",
+      "ph": "[ˈwepən]",
+      "mean": ": 무기",
+      "mark": 0
+    },
+    {
+      "eng": "vehicle",
+      "ph": "[ˈviːəkl]",
+      "mean": ": 탈 것, 차량, 매개물",
+      "mark": 0
+    },
+    {
+      "eng": "peculiarity",
+      "ph": "[pɪˌkjuːliˈærəti]",
+      "mean": ": 특색, 버릇",
+      "mark": 0
+    },
+    {
+      "eng": "contest",
+      "ph": "[ˈkɑːntest]",
+      "mean": ": 투쟁, 경쟁, 겨루다",
+      "mark": 0
+    },
+    {
+      "eng": "favor",
+      "ph": "[ˈfeɪvər]",
+      "mean": ": 호의, 찬성, 호의를 보이다",
+      "mark": 0
+    },
+    {
+      "eng": "mankind",
+      "ph": "[mænˈkaɪnd]",
+      "mean": ": 인류, 인간",
+      "mark": 0
+    },
+    {
+      "eng": "draft",
+      "ph": "[dræft]",
+      "mean": ": 설계도, 초안",
+      "mark": 0
+    },
+    {
+      "eng": "bomb",
+      "ph": "[bɑːm]",
+      "mean": ": 폭탄, 폭격하다",
+      "mark": 0
+    },
+    {
+      "eng": "nerve",
+      "ph": "[nɜːrv]",
+      "mean": ": 신경",
+      "mark": 0
+    },
+    {
+      "eng": "chemistry",
+      "ph": "[ˈkemɪstri]",
+      "mean": ": 화학",
+      "mark": 0
+    },
+    {
+      "eng": "addition",
+      "ph": "[əˈdɪʃn]",
+      "mean": ": 부가",
+      "mark": 0
+    },
+    {
+      "eng": "measure",
+      "ph": "[ˈmeʒər]",
+      "mean": ": 수단, 치수, 측정하다",
+      "mark": 0
+    },
+    {
+      "eng": "vogue",
+      "ph": "[voʊɡ]",
+      "mean": ": 유행",
+      "mark": 0
+    },
+    {
+      "eng": "reserve",
+      "ph": "[rɪˈzɜːrv]",
+      "mean": ": 예비, 사양, 겸양, 예약하다",
+      "mark": 0
+    },
+    {
+      "eng": "occasion",
+      "ph": "[əˈkeɪʒn]",
+      "mean": ": 경우, 기회",
+      "mark": 0
+    },
+    {
+      "eng": "dictator",
+      "ph": "[ˈdɪkteɪtər]",
+      "mean": ": 독재자",
+      "mark": 0
+    },
+    {
+      "eng": "curiosity",
+      "ph": "[ˌkjʊriˈɑːsəti]",
+      "mean": ": 호기심",
+      "mark": 0
+    },
+    {
+      "eng": "disorder",
+      "ph": "[dɪsˈɔːrdər]",
+      "mean": ": 무질서, 혼란",
+      "mark": 0
+    },
+    {
+      "eng": "cast",
+      "ph": "[kæst]",
+      "mean": ": 형(型), 주조, 배역",
+      "mark": 0
+    },
+    {
+      "eng": "cancer",
+      "ph": "[ˈkænsər]",
+      "mean": ": 암(癌)",
+      "mark": 0
+    },
+    {
+      "eng": "well-being",
+      "ph": "[ˈwel biːɪŋ]",
+      "mean": ": 복지, 행복",
+      "mark": 0
+    },
+    {
+      "eng": "chamber",
+      "ph": "[ˈtʃeɪmbər]",
+      "mean": ": 방",
+      "mark": 0
+    },
+    {
+      "eng": "devil",
+      "ph": "[ˈdevl]",
+      "mean": ": 악마",
+      "mark": 0
+    },
+    {
+      "eng": "barbarian",
+      "ph": "[bɑːrˈberiən]",
+      "mean": ": 야만인, 야만의",
+      "mark": 0
+    },
+    {
+      "eng": "stuff",
+      "ph": "[stʌf]",
+      "mean": ": 재료, 물건, 채워 넣다",
+      "mark": 0
+    },
+    {
+      "eng": "scheme",
+      "ph": "[skiːm]",
+      "mean": ": 계획",
+      "mark": 0
+    },
+    {
+      "eng": "legislation",
+      "ph": "[ˌledʒɪsˈleɪʃn]",
+      "mean": ": 입법, 법제",
+      "mark": 0
+    },
+    {
+      "eng": "symmetry",
+      "ph": "[ˈsɪmətri]",
+      "mean": ": 균형, 조화",
+      "mark": 0
+    },
+    {
+      "eng": "pomp",
+      "ph": "[pɑːmp]",
+      "mean": ": 화려",
+      "mark": 0
+    },
+    {
+      "eng": "antiquity",
+      "ph": "[ænˈtɪkwəti]",
+      "mean": ": 고대(인)",
+      "mark": 0
+    },
+    {
+      "eng": "malice",
+      "ph": "[ˈmælɪs]",
+      "mean": ": 악의, 원한",
+      "mark": 0
+    },
+    {
+      "eng": "multitude",
+      "ph": "[ˈmʌltɪtuːd]",
+      "mean": ": 다수",
+      "mark": 0
+    },
+    {
+      "eng": "bent",
+      "ph": "[bent]",
+      "mean": ": 경향, 구부러진, 열중한",
+      "mark": 0
+    },
+    {
+      "eng": "creed",
+      "ph": "[kriːd]",
+      "mean": ": 신조, 주의",
+      "mark": 0
+    },
+    {
+      "eng": "procedure",
+      "ph": "[prəˈsiːdʒər]",
+      "mean": ": 수속, 진행",
+      "mark": 0
+    },
+    {
+      "eng": "standard",
+      "ph": "[ˈstændərd]",
+      "mean": ": 표준(의), 모범(적인)",
+      "mark": 0
+    },
+    {
+      "eng": "boredom",
+      "ph": "[ˈbɔːrdəm]",
+      "mean": ": 지루함",
+      "mark": 0
+    },
+    {
+      "eng": "device",
+      "ph": "[dɪˈvaɪs]",
+      "mean": ": 고안, 장치",
+      "mark": 0
+    },
+    {
+      "eng": "greed",
+      "ph": "[ɡriːd]",
+      "mean": ": 탐욕",
+      "mark": 0
+    },
+    {
+      "eng": "contagion",
+      "ph": "[kənˈteɪdʒən]",
+      "mean": ": 전염(병)",
+      "mark": 0
+    },
+    {
+      "eng": "satire",
+      "ph": "[ˈsætaɪər]",
+      "mean": ": 풍자",
+      "mark": 0
+    },
+    {
+      "eng": "hypothesis",
+      "ph": "[haɪˈpɑːθəsɪs]",
+      "mean": ": 가설",
+      "mark": 0
+    },
+    {
+      "eng": "proposition",
+      "ph": "[ˌprɑːpəˈzɪʃn]",
+      "mean": ": 명제, 제의",
+      "mark": 0
+    },
+    {
+      "eng": "perfume",
+      "ph": "[ˈpɜːrfjuːm]",
+      "mean": ": 향수, 향기",
+      "mark": 0
+    },
+    {
+      "eng": "miniature",
+      "ph": "[ˈmɪnitʃər]",
+      "mean": ": 축소 모형, 축소 지도",
+      "mark": 0
+    },
+    {
+      "eng": "bond",
+      "ph": "[bɑːnd]",
+      "mean": ": 속박",
+      "mark": 0
+    },
+    {
+      "eng": "providence",
+      "ph": "[ˈprɑːvɪdəns]",
+      "mean": ": 섭리, 신의 뜻",
+      "mark": 0
+    },
+    {
+      "eng": "compassion",
+      "ph": "[kəmˈpæʃn]",
+      "mean": ": 동정",
+      "mark": 0
+    },
+    {
+      "eng": "domain",
+      "ph": "[doʊˈmeɪn]",
+      "mean": ": 영토",
+      "mark": 0
+    },
+    {
+      "eng": "caricature",
+      "ph": "[ˈkærɪkətʃʊr]",
+      "mean": ": (풍자적) 만화",
+      "mark": 0
+    },
+    {
+      "eng": "anguish",
+      "ph": "[ˈæŋɡwɪʃ]",
+      "mean": ": 고민, 고뇌",
+      "mark": 0
+    },
+    {
+      "eng": "facility",
+      "ph": "[fəˈsɪləti]",
+      "mean": ": 손쉬움, (pl.)설비",
+      "mark": 0
+    },
+    {
+      "eng": "hygiene",
+      "ph": "[ˈhaɪdʒiːn]",
+      "mean": ": 위생",
+      "mark": 0
+    },
+    {
+      "eng": "conspiracy",
+      "ph": "[kənˈspɪrəsi]",
+      "mean": ": 음모, 공모",
+      "mark": 0
+    },
+    {
+      "eng": "accordance",
+      "ph": "[əˈkɔːrdns]",
+      "mean": ": 일치, 조화",
+      "mark": 0
+    }
+  ]
+};
 
-    // 로컬 저장소보다 GitHub 데이터를 우선하도록 로직 수정
-    let db = JSON.parse(localStorage.getItem('fcl_voca_v10')) || raw_db;
-    let currentBook = Object.keys(db)[0] || "FCL_고교필수단어";
+    let db;
+    let isGlobalHide = false; 
+
+    const savedVersion = localStorage.getItem('vocaVersion');
+    if (savedVersion !== currentVersion) {
+        db = defaultData;
+        localStorage.setItem('vocaDataPagination', JSON.stringify(db));
+        localStorage.setItem('vocaVersion', currentVersion);
+    } else {
+        db = JSON.parse(localStorage.getItem('vocaDataPagination')) || defaultData;
+    }
+
+    let currentKey = Object.keys(db)[0] || "단어장";
     let currentPage = 1;
-    let showMeanings = true;
-    const ITEMS_PER_PAGE = 50;
+    const itemsPerPage = 50;
 
-    function init() {
-        updateBookList();
-        renderAll();
+    function start() { updateSelectors(); render(); }
+
+    // 통합 보임/숨김 기능
+    function toggleGlobalVisibility() {
+        isGlobalHide = !isGlobalHide;
+        const btn = document.getElementById('mainToggleBtn');
+        btn.innerText = isGlobalHide ? "뜻 보이기" : "뜻 숨기기";
+        btn.style.background = isGlobalHide ? "#607D8B" : "#FF9800";
+        render();
     }
 
-    function renderAll() {
-        renderPagination();
-        renderWords();
+    function toggleSingleMean(element) {
+        element.classList.toggle('hidden');
     }
 
-    function renderPagination() {
-        const nav = document.getElementById('pageNav');
-        const totalPages = Math.ceil(db[currentBook].length / ITEMS_PER_PAGE) || 1;
-        let html = '';
-        for(let i=1; i<=totalPages; i++) {
-            html += `<div class="page-item ${i===currentPage?'active':''}" onclick="setPage(${i})">${i}</div>`;
-        }
-        nav.innerHTML = html;
-    }
-
-    function renderWords() {
-        const list = document.getElementById('wordList');
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        let sourceData = search ? db[currentBook] : db[currentBook].slice(start, start + ITEMS_PER_PAGE);
+    function render() {
+        const listArea = document.getElementById('wordListArea');
+        const pageArea = document.getElementById('pageArea');
+        const list = db[currentKey] || [];
+        const totalPages = Math.ceil(list.length / itemsPerPage) || 1;
         
-        list.innerHTML = sourceData.map((w, i) => {
-            if(search && !w.eng.toLowerCase().includes(search) && !w.mean.includes(search)) return '';
-            return `
-                <div class="word-item">
-                    <div class="status-dot status-${w.status}" onclick="toggleStatus(${search ? db[currentBook].indexOf(w) : start + i})"></div>
-                    <div class="word-info" onclick="speak('${w.eng}')">
-                        <div class="word-eng">${w.eng}</div>
-                        <div class="word-phon">${w.phon || ''}</div>
-                    </div>
-                    <div class="word-mean ${showMeanings?'':'hidden'}" onclick="this.classList.toggle('hidden')">${w.mean}</div>
+        pageArea.innerHTML = '';
+        for(let i=1; i<=totalPages; i++) {
+            pageArea.innerHTML += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+        }
+
+        const startIdx = (currentPage - 1) * itemsPerPage;
+        const currentItems = list.slice(startIdx, startIdx + itemsPerPage);
+        
+        listArea.innerHTML = currentItems.map((item, i) => {
+            const realIdx = startIdx + i;
+            const hideClass = isGlobalHide ? 'hidden' : '';
+            return `<div class="word-card">
+                <div class="check-btn ${item.mark==1?'blue':(item.mark==2?'red':'')}" onclick="cycleMark(${realIdx})"></div>
+                <div class="word-info">
+                    <span class="word-eng" onclick="speak('${item.eng}')">${item.eng}</span>
+                    <div style="font-size:0.75em; color:gray;">${item.ph}</div>
                 </div>
-            `;
+                <div class="word-mean ${hideClass}" onclick="toggleSingleMean(this)">${item.mean}</div>
+            </div>`;
         }).join('');
+        localStorage.setItem('vocaDataPagination', JSON.stringify(db));
     }
 
-    function toggleAdminMode() {
-        const isAdmin = document.getElementById('adminToggle').checked;
-        document.getElementById('adminPanel').style.display = isAdmin ? 'flex' : 'none';
+    function downloadSelf() {
+        const newVersion = new Date().getTime().toString();
+        let currentHTML = document.documentElement.outerHTML;
+        const versionTag = 'const currentVersion = "';
+        const vStart = currentHTML.indexOf(versionTag) + versionTag.length;
+        const vEnd = currentHTML.indexOf('";', vStart);
+        currentHTML = currentHTML.substring(0, vStart) + newVersion + currentHTML.substring(vEnd);
+        const dataTag = "const defaultData = ";
+        const dStart = currentHTML.indexOf(dataTag) + dataTag.length;
+        const dEnd = currentHTML.indexOf("};", dStart) + 1;
+        const newHTML = currentHTML.substring(0, dStart) + JSON.stringify(db, null, 2) + currentHTML.substring(dEnd);
+        const blob = new Blob([newHTML], { type: "text/html" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "index.html";
+        a.click();
     }
-
-    function toggleStatus(idx) {
-        db[currentBook][idx].status = (db[currentBook][idx].status + 1) % 3;
-        saveLocal();
-        renderWords();
+    function goPage(p) { currentPage = p; render(); window.scrollTo(0,0); }
+    function speak(txt) { window.speechSynthesis.cancel(); const s = new SpeechSynthesisUtterance(txt); s.lang = 'en-US'; window.speechSynthesis.speak(s); }
+    function cycleMark(idx) { db[currentKey][idx].mark = (db[currentKey][idx].mark + 1) % 3; render(); }
+    function toggleAdminMode() { document.getElementById('adminMenu').style.display = document.getElementById('adminToggle').checked ? 'flex' : 'none'; }
+    function switchBook() { currentKey = document.getElementById('bookSelector').value; currentPage = 1; updateSelectors(); render(); }
+    function openFullEdit() { 
+        const raw = db[currentKey].map(i => `${i.eng} ${i.ph} ${i.mean}`).join('\n');
+        document.getElementById('fullEditor').value = raw;
+        document.getElementById('editModal').style.display = 'block'; 
     }
-
-    function saveLocal() { localStorage.setItem('fcl_voca_v10', JSON.stringify(db)); }
-    function resetLocal() { if(confirm("기기 데이터를 초기화하고 서버 데이터를 불러올까요?")) { localStorage.removeItem('fcl_voca_v10'); location.reload(); } }
-
-    function openEditor() {
-        document.getElementById('editorModal').style.display = 'block';
-        document.getElementById('editorArea').value = db[currentBook].map(w => `${w.eng} ${w.phon} ${w.mean}`).join('\n');
+    function closeFullEdit() { document.getElementById('editModal').style.display = 'none'; }
+    function saveFullEdit() {
+        const lines = document.getElementById('fullEditor').value.split('\n');
+        const newList = [];
+        lines.forEach(line => {
+            if(line.trim()) {
+                const parts = line.match(/^(.*?)\s*(\[.*?\])\s*(.*)$/);
+                if(parts) newList.push({eng: parts[1].trim(), ph: parts[2].trim(), mean: parts[3].trim(), mark: 0});
+                else {
+                    const sp = line.split(' ');
+                    newList.push({eng: sp[0]||'', ph: sp[1]||'', mean: sp.slice(2).join(' ')||'', mark: 0});
+                }
+            }
+        });
+        db[currentKey] = newList;
+        render(); closeFullEdit();
     }
-
-    function copyToClip() {
-        const area = document.getElementById('editorArea');
-        area.select();
-        document.execCommand('copy');
-        alert("복사되었습니다. GitHub의 raw_db 부분에 붙여넣으세요.");
+    function addBook() { const n = prompt("단어장 이름:"); if(n) { db[n] = []; currentKey = n; updateSelectors(); render(); } }
+    function deleteBook() { if(confirm("삭제하시겠습니까?")) { delete db[currentKey]; currentKey = Object.keys(db)[0] || "단어장"; if(!db[currentKey]) db[currentKey]=[]; updateSelectors(); render(); } }
+    function searchWord() {
+        const q = document.getElementById('searchInput').value.toLowerCase().trim();
+        const list = db[currentKey];
+        const f = list.findIndex(i => i.eng.toLowerCase().includes(q) || i.mean.includes(q));
+        if(f !== -1) { currentPage = Math.ceil((f + 1) / itemsPerPage); render(); }
     }
-
-    function switchBook() { currentBook = document.getElementById('bookSelect').value; currentPage = 1; renderAll(); }
-    function updateBookList() {
-        const sel = document.getElementById('bookSelect');
-        sel.innerHTML = Object.keys(db).map(k => `<option value="${k}" ${k===currentBook?'selected':''}>${k}</option>`).join('');
-        document.getElementById('displayBookName').innerText = currentBook;
+    function updateSelectors() {
+        const sel = document.getElementById('bookSelector');
+        sel.innerHTML = Object.keys(db).map(k => `<option value="${k}" ${k===currentKey?'selected':''}>${k}</option>`).join('');
+        document.getElementById('bookTitle').innerText = currentKey;
     }
-
-    function toggleMeanings() { showMeanings = !showMeanings; renderWords(); }
-    function setPage(p) { currentPage = p; renderAll(); }
-    function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
-    
-    function speak(txt) {
-        const u = new SpeechSynthesisUtterance(txt);
-        u.lang = 'en-US';
-        u.rate = document.getElementById('speedRange').value;
-        speechSynthesis.speak(u);
-    }
-
-    // 관리자 세부 기능들
-    function pageAdd() { db[currentBook].push(...Array.from({length:50}, ()=>({eng:"New", phon:"[]", mean:"뜻", status:0}))); saveLocal(); renderAll(); }
-    function vocaAdd() { const n = prompt("이름:"); if(n){db[n]=[]; currentBook=n; saveLocal(); updateBookList(); renderAll();} }
-    function vocaRename() { const n = prompt("새 이름:", currentBook); if(n){db[n]=db[currentBook]; delete db[currentBook]; currentBook=n; saveLocal(); updateBookList(); renderAll();} }
-    function vocaDelete() { if(confirm("삭제?")){delete db[currentBook]; currentBook=Object.keys(db)[0]; saveLocal(); init();} }
-
-    init();
+    start();
 </script>
-</body>
-</html>
+
+
+</body></html>
