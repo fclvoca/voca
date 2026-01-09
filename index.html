@@ -3,57 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>FCL 스마트 단어장</title>
+    <title>FCL 단어장</title>
     <style>
-        :root { --primary: #1a1a5e; --bg: #f0f2f5; }
-        body { font-family: sans-serif; background-color: var(--bg); margin: 0; padding: 0; }
-        .header { background: var(--primary); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; }
+        :root { --p-dark: #1a1a5e; --bg: #f0f2f5; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        
+        /* 상단 헤더 */
+        .header { background: var(--p-dark); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; }
         .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .search-row { display: flex; gap: 8px; margin-bottom: 10px; }
         #searchInput { flex-grow: 1; padding: 10px; border-radius: 6px; border: none; font-size: 16px; }
-        .admin-bar { display: flex; flex-wrap: wrap; gap: 5px; background: #303f9f; padding: 8px; border-radius: 8px; }
-        .admin-bar button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
-        .pagination { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: #e8eaf6; white-space: nowrap; }
-        .p-item { min-width: 40px; height: 40px; background: white; border: 1px solid #3f51b5; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .p-item.active { background: var(--primary); color: white; }
-        .word-list { padding: 10px; }
-        .word-item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        /* 관리자 버튼 바 */
+        .admin-bar { display: flex; flex-wrap: wrap; gap: 5px; background: #303f9f; padding: 10px; border-radius: 8px; }
+        .admin-bar button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+
+        /* 페이지 번호 */
+        .pages { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: #e8eaf6; white-space: nowrap; }
+        .p-btn { min-width: 40px; height: 40px; background: white; border: 1px solid #3f51b5; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .p-btn.active { background: var(--p-dark); color: white; }
+
+        /* 단어 리스트 디자인 (발음기호 위치 고정) */
+        .list { padding: 10px; }
+        .item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; margin-right: 15px; cursor: pointer; }
-        .status-1 { background: #2196f3; border-color: #2196f3; }
-        .status-2 { background: #f44336; border-color: #f44336; }
+        .status-1 { background: #2196f3; border-color: #2196f3; } /* 암기 */
+        .status-2 { background: #f44336; border-color: #f44336; } /* 미암기 */
+        
         .info { flex-grow: 1; display: flex; flex-direction: column; cursor: pointer; }
         .eng { font-size: 20px; font-weight: bold; color: #1a1a5e; }
-        .phon { font-size: 14px; color: #757575; margin-top: 3px; }
+        .phon { font-size: 14px; color: #757575; margin-top: 2px; } /* 단어 바로 아래 고정 */
+        
         .mean { font-size: 18px; width: 45%; text-align: right; color: #333; font-weight: 500; }
+        .hidden { opacity: 0; }
+
+        /* 편집 모달 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: white; width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border-radius: 12px; }
-        textarea { width: 100%; height: 400px; }
+        .modal-content { background: white; width: 95%; max-width: 600px; margin: 20px auto; padding: 20px; border-radius: 12px; }
+        textarea { width: 100%; height: 450px; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="top-row">
-        <div id="bookTitle" style="font-size: 18px; font-weight: bold;">FCL 단어장</div>
+        <div id="bookTitle" style="font-size: 20px; font-weight: bold;">FCL 단어장</div>
         <select id="bookSelect" onchange="changeBook()"></select>
     </div>
     <div class="search-row">
         <input type="text" id="searchInput" placeholder="단어 검색..." oninput="render()">
-        <button id="toggleBtn" style="background:#ffa000; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold;" onclick="toggleMean()">뜻 숨기기</button>
+        <button onclick="toggleMean()" style="background:#ffa000; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold;">뜻 숨기기/보이기</button>
     </div>
     <div class="admin-bar">
         <button onclick="openEditor()" style="background:#4caf50">전체 데이터 편집</button>
         <button onclick="addPage()" style="background:#26a69a">페이지 추가</button>
         <button onclick="addBook()" style="background:#5c6bc0">단어장 추가</button>
-        <button onclick="resetEverything()" style="background:#ef5350; font-weight:bold;">데이터 강제 초기화</button>
+        <button onclick="syncNow()" style="background:#ef5350; font-weight:bold;">★ 모바일 강제 업데이트 ★</button>
     </div>
 </div>
 
-<div class="pagination" id="pageNav"></div>
-<div id="wordList" class="word-list"></div>
+<div class="pages" id="pageNav"></div>
+<div id="wordList" class="list"></div>
 
 <div id="editModal" class="modal">
     <div class="modal-content">
@@ -68,37 +78,31 @@
 
 <script>
     /* =========================================================
-       선생님! GitHub에서 수정하실 때 여기 [raw_data]만 고치시면 됩니다.
+       선생님! 이 아래 [vocaData] 안에 단어를 넣으시면 끝입니다.
        ========================================================= */
-    const raw_data = {
+    const vocaData = {
         "FCL_고교필수단어": [
             {eng: "tradition", phon: "[trəˈdɪʃən]", mean: "전통, 전설", status: 0},
             {eng: "education", phon: "[ˌedʒuˈkeɪʃn]", mean: "교육", status: 0}
         ]
     };
 
-    // 로컬 저장소보다 GitHub에 직접 쓴 raw_data를 항상 우선하도록 설정
-    let db = raw_data; 
+    // 로컬 저장소 캐시 문제를 해결하기 위해 고유 키값 사용
+    const DB_KEY = 'fcl_voca_final_sync_v2';
+    let db = JSON.parse(localStorage.getItem(DB_KEY)) || vocaData;
     let currentBook = Object.keys(db)[0];
     let currentPage = 1;
     let showMean = true;
 
     function init() {
-        // 혹시라도 로컬에 저장된 학습 상태가 있다면 불러오기 (단어 목록은 GitHub 기준)
-        const savedStatus = JSON.parse(localStorage.getItem('fcl_status'));
-        if(savedStatus && savedStatus[currentBook]) {
-            db[currentBook].forEach((w, i) => {
-                if(savedStatus[currentBook][i] !== undefined) w.status = savedStatus[currentBook][i];
-            });
-        }
         updateBookList();
         render();
     }
 
-    function resetEverything() {
-        if(confirm("모바일의 모든 설정을 초기화하고 GitHub 데이터를 새로 가져올까요?")) {
-            localStorage.clear();
-            location.reload(true); // 강제 새로고침
+    function syncNow() {
+        if(confirm("모바일의 옛날 데이터를 지우고 GitHub에 있는 단어들로 바꿀까요?")) {
+            localStorage.removeItem(DB_KEY);
+            location.reload();
         }
     }
 
@@ -111,7 +115,7 @@
         
         nav.innerHTML = "";
         for(let i=1; i<=total; i++) {
-            nav.innerHTML += `<div class="p-item ${i===currentPage?'active':''}" onclick="setPage(${i})">${i}</div>`;
+            nav.innerHTML += `<div class="p-btn ${i===currentPage?'active':''}" onclick="setPage(${i})">${i}</div>`;
         }
 
         const start = (currentPage - 1) * 50;
@@ -120,7 +124,7 @@
         list.innerHTML = target.map((item, i) => {
             if(search && !item.eng.toLowerCase().includes(search) && !item.mean.includes(search)) return '';
             return `
-                <div class="word-item">
+                <div class="item">
                     <div class="dot status-${item.status}" onclick="toggleStatus(${start + i})"></div>
                     <div class="info" onclick="speak('${item.eng}')">
                         <div class="eng">${item.eng}</div>
@@ -135,10 +139,7 @@
 
     function toggleStatus(idx) {
         db[currentBook][idx].status = (db[currentBook][idx].status + 1) % 3;
-        const statusMap = {};
-        statusMap[currentBook] = db[currentBook].map(w => w.status);
-        localStorage.setItem('fcl_status', JSON.stringify(statusMap));
-        render();
+        save(); render();
     }
 
     function openEditor() {
@@ -150,15 +151,12 @@
         const txt = document.getElementById('editText');
         txt.select();
         document.execCommand('copy');
-        alert("복사되었습니다. GitHub의 raw_data 부분에 붙여넣으세요.");
+        alert("복사되었습니다. GitHub의 vocaData 부분에 붙여넣고 Commit하세요.");
     }
 
+    function save() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
     function setPage(p) { currentPage = p; render(); }
-    function toggleMean() { 
-        showMean = !showMean; 
-        document.getElementById('toggleBtn').innerText = showMean ? "뜻 숨기기" : "뜻 보이기";
-        render(); 
-    }
+    function toggleMean() { showMean = !showMean; render(); }
     function changeBook() { currentBook = document.getElementById('bookSelect').value; currentPage = 1; render(); }
     function updateBookList() {
         const sel = document.getElementById('bookSelect');
@@ -166,8 +164,8 @@
     }
     function closeEditor() { document.getElementById('editModal').style.display = 'none'; }
     function speak(t) { const s = new SpeechSynthesisUtterance(t); s.lang = 'en-US'; s.rate = 0.8; speechSynthesis.speak(s); }
-    function addPage() { for(let i=0; i<50; i++) db[currentBook].push({eng:"New", phon:"[]", mean:"뜻", status:0}); render(); }
-    function addBook() { const n = prompt("이름:"); if(n){db[n]=[]; currentBook=n; updateBookList(); render();} }
+    function addPage() { for(let i=0; i<50; i++) db[currentBook].push({eng:"New", phon:"[]", mean:"뜻", status:0}); save(); render(); }
+    function addBook() { const n = prompt("이름:"); if(n){db[n]=[]; currentBook=n; save(); init();} }
 
     init();
 </script>
