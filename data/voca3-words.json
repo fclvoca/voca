@@ -1,0 +1,12 @@
+{
+  "appName": "FCL_Voca3",
+  "version": "3.0.0",
+  "vocabularies": [{
+    "id": "FCL_Voca3_Default",
+    "name": "기본 단어장",
+    "pages": [{
+      "pageNumber": 1,
+      "words": []
+    }]
+  }]
+}
