@@ -3,225 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스마트 단어장</title>
+    <title>FCL 고교필수단어</title>
     <style>
         :root {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --primary: #007bff;
-            --danger: #dc3545;
-            --text-main: #333;
+            --primary-dark: #1a1a5e;
+            --bg-light: #f0f2f5;
+            --btn-blue: #5c6bc0;
+            --btn-orange: #ff7043;
+            --btn-green: #26a69a;
+            --btn-purple: #ab47bc;
+            --btn-red: #ef5350;
+            --btn-black: #212121;
         }
 
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); margin: 0; padding: 10px; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-light); margin: 0; padding: 0; }
+
+        /* Header Layout */
+        .header-main { background-color: var(--primary-dark); color: white; padding: 15px; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .title { font-size: 20px; font-weight: bold; }
         
-        /* Header & Navigation */
-        .header { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; position: sticky; top: 0; z-index: 100; }
-        .nav-top { display: flex; width: 100%; justify-content: space-between; align-items: center; }
-        select, input, button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
-        .search-area { display: flex; flex-grow: 1; gap: 5px; }
-        .search-area input { flex-grow: 1; }
-        
-        /* Buttons */
-        .btn-toggle { background: #6c757d; color: white; cursor: pointer; }
-        .btn-admin { background: #343a40; color: white; }
-        
+        .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
+        #searchInput { flex-grow: 1; padding: 12px; border-radius: 8px; border: none; font-size: 16px; }
+        .btn-toggle-main { background-color: #ffa000; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+
+        /* Admin Button Group */
+        .admin-group { display: flex; flex-wrap: wrap; gap: 5px; background: #303f9f; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .admin-group button { border: none; color: white; padding: 8px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: 500; }
+        .btn-voca-add { background-color: var(--btn-blue); }
+        .btn-name-edit { background-color: var(--btn-orange); }
+        .btn-page-add { background-color: var(--btn-green); }
+        .btn-page-edit { background-color: var(--btn-purple); }
+        .btn-data-edit { background-color: #4caf50; }
+        .btn-save { background-color: #e91e63; }
+        .btn-del { background-color: var(--btn-red); }
+        .btn-reset { background-color: var(--btn-black); }
+
+        /* Pagination */
+        .pagination { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: #e8eaf6; white-space: nowrap; border-bottom: 1px solid #ccc; }
+        .page-item { min-width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #3f51b5; border-radius: 5px; color: #3f51b5; cursor: pointer; font-weight: bold; }
+        .page-item.active { background: #1a237e; color: white; }
+
         /* Word List */
-        .word-list { display: flex; flex-direction: column; gap: 10px; }
-        .word-item { display: flex; align-items: center; background: var(--card-bg); padding: 12px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        .status-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; margin-right: 12px; cursor: pointer; flex-shrink: 0; }
-        .status-blue { background: #007bff; border-color: #007bff; }
-        .status-red { background: #dc3545; border-color: #dc3545; }
-        
-        .word-content { flex-grow: 1; cursor: pointer; }
-        .word-eng { font-weight: bold; font-size: 18px; color: var(--primary); }
-        .word-phonetic { font-size: 13px; color: #777; margin-top: 2px; }
-        
-        .word-meaning { flex-basis: 40%; text-align: right; font-size: 16px; color: var(--text-main); cursor: pointer; min-height: 24px; transition: opacity 0.2s; }
+        .word-list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .word-item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .status-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; margin-right: 15px; flex-shrink: 0; }
+        .status-1 { background: #2196f3; border-color: #2196f3; }
+        .status-2 { background: #f44336; border-color: #f44336; }
+        .word-info { flex-grow: 1; cursor: pointer; }
+        .word-eng { font-size: 18px; font-weight: bold; color: #1a237e; }
+        .word-phon { font-size: 13px; color: #777; }
+        .word-mean { font-size: 16px; width: 40%; text-align: right; color: #333; transition: 0.2s; }
         .hidden { opacity: 0; }
 
-        /* Admin Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
-        .modal-content { background: white; width: 90%; max-width: 500px; margin: 50px auto; padding: 20px; border-radius: 15px; max-height: 80vh; overflow-y: auto; }
-        textarea { width: 100%; height: 200px; margin: 10px 0; border-radius: 8px; padding: 10px; box-sizing: border-box; }
-        
-        /* Settings Bar */
-        .settings-bar { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #555; margin-bottom: 10px; }
-        input[type="range"] { vertical-align: middle; }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .modal-content { background: white; width: 90%; max-width: 500px; margin: 40px auto; padding: 20px; border-radius: 12px; }
+        textarea { width: 100%; height: 300px; margin: 10px 0; font-family: monospace; padding: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="nav-top">
-        <select id="bookSelect" onchange="changeBook()"></select>
-        <button class="btn-admin" onclick="openAdmin()">관리자</button>
+<div class="header-main">
+    <div class="top-row">
+        <div class="title" id="displayBookName">FCL_고교필수단어</div>
+        <select id="bookSelect" onchange="switchBook()"></select>
     </div>
-    <div class="search-area">
+    <div class="search-row">
         <input type="text" id="searchInput" placeholder="단어 검색..." oninput="renderWords()">
-        <button class="btn-toggle" onclick="toggleAllMeanings()">뜻 보임/숨김</button>
+        <button class="btn-toggle-main" onclick="toggleAll()">뜻 숨기기</button>
     </div>
-    <div class="settings-bar">
-        발음 속도: <input type="range" id="speechRate" min="0.5" max="1.5" step="0.1" value="1.0">
+    <div class="admin-group">
+        <button class="btn-voca-add" onclick="vocaAdd()">단어장추가</button>
+        <button class="btn-name-edit" onclick="vocaRename()">이름수정</button>
+        <button class="btn-page-add" onclick="pageAdd()">새 페이지 추가(50개)</button>
+        <button class="btn-page-edit" onclick="openEditor('page')">현재 페이지 편집</button>
+        <button class="btn-data-edit" onclick="openEditor('all')">전체 데이터 편집</button>
+        <button class="btn-save" onclick="exportToFile()">파일저장</button>
+        <button class="btn-del" onclick="vocaDelete()">삭제</button>
+        <button class="btn-reset" onclick="dataReset()">데이터 초기화</button>
     </div>
 </div>
 
-<div id="wordList" class="word-list"></div>
+<div class="pagination" id="pageNav"></div>
+<div class="word-list" id="wordList"></div>
 
-<div id="adminModal" class="modal">
+<div id="editorModal" class="modal">
     <div class="modal-content">
-        <h3>단어장 관리자</h3>
-        <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-            <input type="text" id="newBookName" placeholder="새 단어장 이름">
-            <button onclick="addBook()">추가</button>
-            <button style="background: var(--danger); color: white;" onclick="deleteBook()">삭제</button>
-        </div>
-        <hr>
-        <h4>일괄 등록/수정</h4>
-        <p style="font-size: 12px; color: #666;">형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
-        <textarea id="bulkInput" placeholder="tradition [trəˈdɪʃən] 전통, 전설"></textarea>
-        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <button onclick="closeAdmin()">취소</button>
-            <button class="btn-admin" onclick="saveBulkData()">저장하기</button>
+        <h3 id="modalTitle">데이터 편집</h3>
+        <p style="font-size:12px; color:#666;">형식: 단어 [발음] 뜻 (한 줄에 하나씩)</p>
+        <textarea id="editorArea"></textarea>
+        <div style="display:flex; justify-content: flex-end; gap:10px;">
+            <button onclick="closeEditor()">취소</button>
+            <button class="btn-voca-add" onclick="saveEditor()">적용하기</button>
         </div>
     </div>
 </div>
 
 <script>
-    let vocabulary = JSON.parse(localStorage.getItem('fcl_voca')) || {
-        "기본 단어장": [
-            {eng: "tradition", phonetic: "[trəˈdɪʃən]", mean: "전통, 전설", status: 0}
-        ]
+    let db = JSON.parse(localStorage.getItem('fcl_voca_v2')) || {
+        "FCL_고교필수단어": Array.from({length: 100}, (_, i) => ({eng: `Word ${i+1}`, phon: "[발음]", mean: `뜻 ${i+1}`, status: 0}))
     };
     
-    let currentBook = Object.keys(vocabulary)[0];
+    let currentBook = Object.keys(db)[0];
+    let currentPage = 1;
     let showMeanings = true;
+    let editTarget = 'page'; 
+    const ITEMS_PER_PAGE = 50;
 
-    // 초기 실행
     function init() {
-        updateBookSelect();
+        updateBookList();
+        renderAll();
+    }
+
+    function updateBookList() {
+        const sel = document.getElementById('bookSelect');
+        sel.innerHTML = Object.keys(db).map(k => `<option value="${k}" ${k===currentBook?'selected':''}>${k}</option>`).join('');
+        document.getElementById('displayBookName').innerText = currentBook;
+    }
+
+    function renderAll() {
+        renderPagination();
         renderWords();
     }
 
-    function updateBookSelect() {
-        const select = document.getElementById('bookSelect');
-        select.innerHTML = Object.keys(vocabulary).map(name => 
-            `<option value="${name}" ${name === currentBook ? 'selected' : ''}>${name}</option>`
-        ).join('');
-    }
-
-    function changeBook() {
-        currentBook = document.getElementById('bookSelect').value;
-        renderWords();
+    function renderPagination() {
+        const nav = document.getElementById('pageNav');
+        const totalItems = db[currentBook].length;
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+        
+        let html = '';
+        for(let i=1; i<=totalPages; i++) {
+            html += `<div class="page-item ${i===currentPage?'active':''}" onclick="setPage(${i})">${i}</div>`;
+        }
+        nav.innerHTML = html;
     }
 
     function renderWords() {
         const list = document.getElementById('wordList');
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const words = vocabulary[currentBook];
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const search = document.getElementById('searchInput').value.toLowerCase();
         
-        list.innerHTML = words
-            .filter(w => w.eng.toLowerCase().includes(searchTerm) || w.mean.includes(searchTerm))
-            .map((w, index) => `
-            <div class="word-item">
-                <div class="status-btn ${w.status === 1 ? 'status-blue' : w.status === 2 ? 'status-red' : ''}" 
-                     onclick="toggleStatus(${index})"></div>
-                <div class="word-content" onclick="speak('${w.eng}')">
-                    <div class="word-eng">${w.eng}</div>
-                    <div class="word-phonetic">${w.phonetic}</div>
+        const filtered = db[currentBook].slice(start, start + ITEMS_PER_PAGE);
+        
+        list.innerHTML = filtered.map((w, i) => {
+            const realIdx = start + i;
+            if(search && !w.eng.toLowerCase().includes(search) && !w.mean.includes(search)) return '';
+            return `
+                <div class="word-item">
+                    <div class="status-dot status-${w.status}" onclick="toggleStatus(${realIdx})"></div>
+                    <div class="word-info" onclick="speak('${w.eng}')">
+                        <div class="word-eng">${w.eng}</div>
+                        <div class="word-phon">${w.phon}</div>
+                    </div>
+                    <div class="word-mean ${showMeanings?'':'hidden'}" onclick="this.classList.toggle('hidden')">${w.mean}</div>
                 </div>
-                <div class="word-meaning ${showMeanings ? '' : 'hidden'}" onclick="toggleSingleMeaning(this)">
-                    ${w.mean}
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
-    // 상태 변경 (파랑 -> 빨강 -> 기본)
-    function toggleStatus(index) {
-        vocabulary[currentBook][index].status = (vocabulary[currentBook][index].status + 1) % 3;
-        saveData();
-        renderWords();
-    }
-
-    // 뜻 전체 보임/숨김
-    function toggleAllMeanings() {
-        showMeanings = !showMeanings;
-        renderWords();
-    }
-
-    // 개별 뜻 보기
-    function toggleSingleMeaning(el) {
-        el.classList.toggle('hidden');
-    }
-
-    // TTS 발음 기능
-    function speak(text) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = document.getElementById('speechRate').value;
-        window.speechSynthesis.speak(utterance);
-    }
-
-    // 관리자 모드 로직
-    function openAdmin() {
-        document.getElementById('adminModal').style.display = 'block';
-        const words = vocabulary[currentBook];
-        document.getElementById('bulkInput').value = words.map(w => `${w.eng} ${w.phonetic} ${w.mean}`).join('\n');
-    }
-
-    function closeAdmin() {
-        document.getElementById('adminModal').style.display = 'none';
-    }
-
-    function saveBulkData() {
-        const input = document.getElementById('bulkInput').value.trim();
-        const lines = input.split('\n');
-        const newWords = lines.map(line => {
-            const match = line.match(/^(.+?)\s+(\[.+?\])\s+(.+)$/);
-            if(match) {
-                return { eng: match[1].trim(), phonetic: match[2].trim(), mean: match[3].trim(), status: 0 };
-            }
-            return null;
-        }).filter(w => w !== null);
-
-        vocabulary[currentBook] = newWords;
-        saveData();
-        renderWords();
-        closeAdmin();
-    }
-
-    function addBook() {
-        const name = document.getElementById('newBookName').value.trim();
-        if(name && !vocabulary[name]) {
-            vocabulary[name] = [];
+    /* 관리자 기능 */
+    function vocaAdd() {
+        const name = prompt("새 단어장 이름을 입력하세요:");
+        if(name && !db[name]) {
+            db[name] = [];
             currentBook = name;
-            saveData();
-            updateBookSelect();
-            renderWords();
-            document.getElementById('newBookName').value = '';
+            saveDB();
+            updateBookList();
+            renderAll();
         }
     }
 
-    function deleteBook() {
-        if(Object.keys(vocabulary).length <= 1) return alert("최소 하나의 단어장은 있어야 합니다.");
-        if(confirm(`${currentBook}을(를) 삭제하시겠습니까?`)) {
-            delete vocabulary[currentBook];
-            currentBook = Object.keys(vocabulary)[0];
-            saveData();
-            updateBookSelect();
-            renderWords();
+    function vocaRename() {
+        const newName = prompt("단어장 이름을 수정합니다:", currentBook);
+        if(newName && newName !== currentBook) {
+            db[newName] = db[currentBook];
+            delete db[currentBook];
+            currentBook = newName;
+            saveDB();
+            updateBookList();
         }
     }
 
-    function saveData() {
-        localStorage.setItem('fcl_voca', JSON.stringify(vocabulary));
+    function pageAdd() {
+        const emptyBatch = Array.from({length: 50}, () => ({eng: "NewWord", phon: "[...]", mean: "뜻", status: 0}));
+        db[currentBook] = [...db[currentBook], ...emptyBatch];
+        saveDB();
+        renderAll();
+        alert("50개의 단어 공간이 추가되었습니다.");
+    }
+
+    function openEditor(type) {
+        editTarget = type;
+        document.getElementById('editorModal').style.display = 'block';
+        let dataToEdit = (type === 'page') 
+            ? db[currentBook].slice((currentPage-1)*ITEMS_PER_PAGE, currentPage*ITEMS_PER_PAGE)
+            : db[currentBook];
+        
+        document.getElementById('editorArea').value = dataToEdit.map(w => `${w.eng} ${w.phon} ${w.mean}`).join('\n');
+    }
+
+    function saveEditor() {
+        const lines = document.getElementById('editorArea').value.split('\n');
+        const parsed = lines.map(l => {
+            const m = l.match(/^(.+?)\s+(\[.+?\])\s+(.+)$/);
+            return m ? {eng: m[1].trim(), phon: m[2].trim(), mean: m[3].trim(), status: 0} : null;
+        }).filter(v => v);
+
+        if(editTarget === 'page') {
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            db[currentBook].splice(start, ITEMS_PER_PAGE, ...parsed);
+        } else {
+            db[currentBook] = parsed;
+        }
+        
+        saveDB();
+        closeEditor();
+        renderAll();
+    }
+
+    function exportToFile() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "voca_backup.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    function vocaDelete() {
+        if(confirm("현재 단어장을 정말 삭제할까요?")) {
+            delete db[currentBook];
+            currentBook = Object.keys(db)[0] || vocaAdd();
+            saveDB();
+            init();
+        }
+    }
+
+    function dataReset() {
+        if(confirm("모든 데이터가 초기화됩니다. 계속하시겠습니까?")) {
+            localStorage.removeItem('fcl_voca_v2');
+            location.reload();
+        }
+    }
+
+    /* 유틸리티 */
+    function setPage(p) { currentPage = p; renderWords(); renderPagination(); }
+    function toggleStatus(idx) { db[currentBook][idx].status = (db[currentBook][idx].status + 1) % 3; saveDB(); renderWords(); }
+    function toggleAll() { 
+        showMeanings = !showMeanings; 
+        document.querySelector('.btn-toggle-main').innerText = showMeanings ? "뜻 숨기기" : "뜻 보이기";
+        renderWords(); 
+    }
+    function switchBook() { currentBook = document.getElementById('bookSelect').value; currentPage = 1; renderAll(); }
+    function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
+    function saveDB() { localStorage.setItem('fcl_voca_v2', JSON.stringify(db)); }
+    function speak(txt) {
+        const u = new SpeechSynthesisUtterance(txt);
+        u.lang = 'en-US';
+        u.rate = 0.8; // 선생님 요청대로 조금 천천히 명확하게
+        speechSynthesis.speak(u);
     }
 
     init();
 </script>
-
 </body>
 </html>
