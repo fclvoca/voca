@@ -9,7 +9,6 @@
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        /* 헤더 고정 */
         .sticky-header {
             position: sticky; top: 0; z-index: 1000;
             background-color: var(--fcl-navy); padding: 12px 20px;
@@ -21,30 +20,22 @@
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         
         .tool-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-        .tool-line { display: flex; align-items: center; gap: 12px; width: 100%; }
-        .search-input { flex: 1; height: 36px; padding: 0 12px; border-radius: 6px; border: none; font-size: 14px; outline: none; }
-        .voice-select { flex: 1.2; height: 36px; border-radius: 6px; border: none; font-size: 13px; background: white; outline: none; padding: 0 8px; font-weight: 700; color: #1A237E; }
+        .tool-line { display: flex; align-items: center; gap: 8px; width: 100%; }
+        .search-input { flex: 1; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; }
+        .voice-select { flex: 1; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; font-weight: 700; color: #1A237E; }
         
-        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; }
-        .font-btn { background: white; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
+        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
+        .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
         
-        /* Speed 슬라이더 길이 3배 연장 */
-        .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; margin-left: auto; }
-        .speed-slider { 
-            width: 180px; /* 기존 60px에서 3배인 180px로 변경 */
-            max-width: 40vw; /* 모바일 대응 */
-            accent-color: var(--fcl-orange); 
-            cursor: pointer; 
-        }
+        .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; }
+        .speed-slider { width: 60px; accent-color: var(--fcl-orange); cursor: pointer; }
 
-        /* 페이지네이션 */
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
         .p-btn { min-width: 45px; height: 45px; border: 1px solid #E2E8F0; background: white; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; }
         .p-btn.active { background-color: var(--fcl-navy); color: white; }
         .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 22px; }
 
-        /* 리스트 */
         .word-list { padding: 10px 8px; }
         .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
@@ -62,7 +53,7 @@
         #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: fixed; top: 50px; left: 10px; right: 10px; z-index: 3000; }
     </style>
 </head>
-<body>
+<body onclick="unlockAudio()">
 
 <div class="container">
     <div class="sticky-header">
@@ -77,15 +68,12 @@
             <div class="tool-line">
                 <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
                 <select id="voiceSelect" class="voice-select" onchange="saveVoiceSetting()">
-                    <option value="google_server">🌐 최우선: 구글 원어민 음성</option>
+                    <option value="high_quality">✨ 초고화질 원어민 음성</option>
                 </select>
             </div>
-            <div class="tool-line">
+            <div class="tool-line" style="justify-content: space-between;">
                 <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
-                <div class="speed-control">
-                    <span>Speed</span>
-                    <input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.0" step="0.1" value="0.8">
-                </div>
+                <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.0" step="0.1" value="0.8"></div>
             </div>
         </div>
     </div>
@@ -120,19 +108,26 @@
     let currentModalWord = "";
     let synth = window.speechSynthesis;
     let voices = [];
+    let audioUnlocked = false;
+
+    // 모바일 오디오 잠금 해제 (최초 클릭 시)
+    function unlockAudio() {
+        if (!audioUnlocked) {
+            const silent = new Audio();
+            silent.play().catch(() => {});
+            audioUnlocked = true;
+        }
+    }
 
     function loadVoices() {
         voices = synth.getVoices();
         const vSelect = document.getElementById('voiceSelect');
-        const savedVal = localStorage.getItem('fcl_voca_voice') || "google_server";
-        
-        vSelect.innerHTML = '<option value="google_server">🌐 최우선: 구글 원어민 음성</option>';
-        
+        const savedVal = localStorage.getItem('fcl_voca_voice') || "high_quality";
+        vSelect.innerHTML = '<option value="high_quality">✨ 초고화질 원어민 음성</option>';
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
         enVoices.forEach((voice, i) => {
             const opt = document.createElement('option');
-            opt.value = i;
-            opt.innerText = "기기: " + voice.name;
+            opt.value = i; opt.innerText = "기기: " + voice.name;
             vSelect.appendChild(opt);
         });
         vSelect.value = savedVal;
@@ -214,30 +209,45 @@
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
 
-    let currentAudio = null;
+    // [최종 발음 엔진 - 서버 음성 강제 실행 방식]
     function play(t) {
         const rate = document.getElementById('rateRange').value;
         const selectedVal = document.getElementById('voiceSelect').value;
 
-        if (selectedVal === "google_server") {
-            if(currentAudio) currentAudio.pause();
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-us&client=tw-ob`;
-            currentAudio = new Audio(url);
-            currentAudio.playbackRate = rate;
-            currentAudio.play().catch(() => {
-                const msg = new SpeechSynthesisUtterance(t);
-                msg.lang = 'en-US';
-                msg.rate = rate;
-                synth.speak(msg);
-            });
+        // 1. 고품질 서버 음성 모드 (컴퓨터와 동일)
+        if (selectedVal === "high_quality") {
+            // 구글 번역 TTS API 호출 (고음질 원어민)
+            const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-US&total=1&idx=0&textlen=${t.length}&client=tw-ob&prev=input`);
+            audio.playbackRate = rate;
+            
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    // 서버 오디오가 막혔을 때만 기기 음성으로 전환
+                    speakWithDevice(t, rate);
+                });
+            }
         } else {
-            synth.cancel();
-            const msg = new SpeechSynthesisUtterance(t);
-            const enVoices = voices.filter(v => v.lang.startsWith('en'));
-            if(enVoices[selectedVal]) msg.voice = enVoices[selectedVal];
-            msg.rate = rate;
-            synth.speak(msg);
+            // 2. 선택한 기기 음성 모드
+            speakWithDevice(t, rate, selectedVal);
         }
+    }
+
+    function speakWithDevice(t, rate, voiceIdx = null) {
+        synth.cancel();
+        const msg = new SpeechSynthesisUtterance(t);
+        const enVoices = voices.filter(v => v.lang.startsWith('en'));
+        
+        if(voiceIdx !== null && enVoices[voiceIdx]) {
+            msg.voice = enVoices[voiceIdx];
+        } else {
+            // 백업: 기기 내에서 가장 품질이 좋은 목소리 자동 찾기
+            msg.voice = enVoices.find(v => v.name.includes('Samantha') || v.name.includes('Natural')) || enVoices[0];
+        }
+        
+        msg.lang = 'en-US';
+        msg.rate = rate;
+        synth.speak(msg);
     }
 
     function searchWord() {
