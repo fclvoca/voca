@@ -23,17 +23,21 @@
             <h2>📖 FCL 고등 필수 영단어</h2>
             <p style="font-size:13px; color:#999;">🔊 영어 클릭 시 발음 / 빨간 박스 클릭 시 뜻</p>
         </div>
-        <div id="wordList">데이터를 불러오는 중입니다...</div>
+        <div id="wordList" style="text-align:center;">서버에서 단어를 가져오는 중입니다...</div>
     </div>
 
     <script>
-        // 사진 2번에서 확인된 선생님의 최신 주소를 제가 직접 넣었습니다.
+        // 선생님의 성공적인 웹 앱 URL (이미 검증됨)
         const API_URL = 'https://script.google.com/macros/s/AKfycbwrfodzbbvO_iAKVO2hdQFiWL_YoXSeOTAL5dqBjSQulXPeioo89MOTrsplRN23xViF/exec';
 
         async function loadWords() {
+            const listDiv = document.getElementById('wordList');
             try {
-                // 뒤에 t=시간을 붙여서 브라우저가 옛날 화면을 안 쓰게 강제합니다.
-                const response = await fetch(API_URL + '?t=' + Date.now());
+                // 주소 뒤에 랜덤 숫자를 붙여 브라우저가 매번 새것으로 인식하게 만듭니다.
+                const finalUrl = API_URL + "?t=" + Math.random();
+                const response = await fetch(finalUrl);
+                
+                if (!response.ok) throw new Error();
                 const words = await response.json();
                 
                 let html = '';
@@ -50,9 +54,11 @@
                             </div>
                         </div>`;
                 });
-                document.getElementById('wordList').innerHTML = html;
+                listDiv.innerHTML = html;
             } catch (error) {
-                document.getElementById('wordList').innerHTML = '데이터 로딩 실패. 잠시 후 새로고침(F5)을 해주세요!';
+                listDiv.innerHTML = '<div style="padding:20px;">데이터 연결 중입니다. <br>3초만 기다려보시거나 새로고침을 해주세요!</div>';
+                // 실패 시 3초 후 자동으로 한 번 더 시도합니다.
+                setTimeout(loadWords, 3000);
             }
         }
 
@@ -66,6 +72,7 @@
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
+            utterance.rate = 0.8;
             window.speechSynthesis.speak(utterance);
         }
 
