@@ -22,7 +22,7 @@
             text-align: center; cursor: pointer; border: 1px dashed #ffc9c9;
             min-height: 40px; display: flex; align-items: center; justify-content: center;
         }
-        /* 레이아웃 유지: 클릭 시 사라지거나 위치가 변하지 않음 */
+        /* 한글 뜻 숨기기/보이기용 스타일 (레이아웃 고정) */
         .hidden-text { visibility: hidden; }
         .show-text { visibility: visible; }
         .guide-msg { font-size: 13px; color: #999; margin-top: 5px; }
@@ -33,57 +33,51 @@
         <div class="header">
             <h2>📖 FCL 고등 필수 영단어</h2>
             <p class="guide-msg">🔊 <b>영어</b>를 누르면 원어민 발음이 나옵니다.</p>
-            <p class="guide-msg">💡 <b>빨간 박스</b>를 누르면 뜻이 토글됩니다.</p>
+            <p class="guide-msg">💡 <b>빨간 박스</b>를 누르면 뜻이 보입니다.</p>
         </div>
-        <div id="wordList">데이터를 로딩 중입니다...</div>
+        <div id="wordList">데이터를 불러오는 중입니다...</div>
     </div>
 
     <script>
-        // 여기에 새 배포 후 받은 웹 앱 URL을 붙여넣으세요.
-        const API_URL = '여기에_복사한_웹_앱_URL을_붙여넣으세요';
+        // 선생님께서 보내주신 최신 웹 앱 URL입니다.
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwrfodzbbvO_iAKVO2hdQFiWL_YoXSeOTAL5dqBjSQulXPeioo89MOTrsplRN23xViF/exec';
 
         async function loadWords() {
-            const listDiv = document.getElementById('wordList');
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('서버 응답 오류');
                 const words = await response.json();
-                
-                let html = '';
-                words.forEach(word => {
-                    const cleanEng = word.english.replace(/'/g, "\\'");
-                    html += `
-                        <div class="word-card">
-                            <div class="english-section" onclick="speak('${cleanEng}')">
-                                <div class="english">${word.english} <span>🔊</span></div>
-                                <div class="pronunciation">${word.pronunciation}</div>
-                            </div>
-                            <div class="korean-section" onclick="toggleKorean(this)">
-                                <span class="hidden-text">${word.korean}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-                listDiv.innerHTML = html;
+                renderWords(words);
             } catch (error) {
                 console.error(error);
-                listDiv.innerHTML = '데이터 로딩 실패. <br>1. 시트 공유 설정 확인 <br>2. 웹 앱 배포 권한(모든 사용자) 확인';
+                document.getElementById('wordList').innerHTML = '데이터 로딩 실패. 잠시 후 다시 시도해 주세요.';
             }
         }
 
-        // 뜻 보이기/숨기기 토글 (공간은 유지하여 단어가 사라지지 않음)
+        function renderWords(words) {
+            let html = '';
+            words.forEach(word => {
+                const cleanEng = word.english.toString().replace(/'/g, "\\'");
+                html += `
+                    <div class="word-card">
+                        <div class="english-section" onclick="speak('${cleanEng}')">
+                            <div class="english">${word.english} <span>🔊</span></div>
+                            <div class="pronunciation">${word.pronunciation}</div>
+                        </div>
+                        <div class="korean-section" onclick="toggleKorean(this)">
+                            <span class="hidden-text">${word.korean}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('wordList').innerHTML = html;
+        }
+
         function toggleKorean(element) {
             const span = element.querySelector('span');
-            if (span.classList.contains('hidden-text')) {
-                span.classList.remove('hidden-text');
-                span.classList.add('show-text');
-            } else {
-                span.classList.remove('show-text');
-                span.classList.add('hidden-text');
-            }
+            span.classList.toggle('hidden-text');
+            span.classList.toggle('show-text');
         }
 
-        // 영어 클릭 시 TTS 발음 재생
         function speak(text) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
@@ -92,7 +86,6 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // 실행
         loadWords();
     </script>
 </body>
