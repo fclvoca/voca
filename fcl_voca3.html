@@ -26,7 +26,7 @@
 
         .container { max-width: 600px; margin: 0 auto; padding-bottom: 20px; }
 
-        /* [Header] - 더 세련된 그라데이션 포인트 */
+        /* [Header] */
         .header { 
             background: var(--card-bg); 
             padding: 12px 16px; 
@@ -37,97 +37,88 @@
         }
 
         .top-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-        
         .voca-select { 
             flex: 1; padding: 0 12px; height: 40px;
             border-radius: 10px; border: 2px solid #E2E8F0;
             font-weight: 700; font-size: 15px; color: var(--dark);
             background: #FFF; outline: none;
-            cursor: pointer; transition: 0.2s;
         }
-        .voca-select:focus { border-color: var(--primary); }
 
         .btn-setting { 
             background: #EDF2F7; border: none; width: 40px; height: 40px;
             border-radius: 10px; cursor: pointer; font-size: 20px;
             display: flex; align-items: center; justify-content: center;
-            transition: 0.2s;
         }
-        .btn-setting:hover { background: #E2E8F0; }
 
-        /* [Tools] - 검색창 대폭 확장 및 슬라이더 스타일링 */
+        /* [Tools] */
         .tool-row { display: flex; gap: 10px; align-items: center; }
-        
         .search-input { 
             width: 220px; height: 40px; padding: 0 15px;
             border-radius: 10px; border: 1px solid #CBD5E0;
             font-size: 14px; background: #F1F5F9; outline: none;
         }
-
         .btn-hide { 
             background: var(--dark); color: white; border: none; 
             padding: 0 15px; border-radius: 10px; font-size: 13px; 
             font-weight: 600; height: 40px; white-space: nowrap; cursor: pointer;
         }
-
         .speed-box { flex: 1; display: flex; align-items: center; gap: 5px; }
-        .speed-box input[type="range"] { 
-            flex: 1; accent-color: var(--primary); height: 6px; cursor: pointer; 
-        }
+        .speed-box input[type="range"] { flex: 1; accent-color: var(--primary); height: 6px; cursor: pointer; }
 
-        /* [Pagination] - 시원한 크기와 액티브 효과 */
-        .page-wrapper { padding: 15px 10px; text-align: center; }
-        .page-container { display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap; }
+        /* [Pagination - 좌우 여백 최소화 및 가득 차게 배치] */
+        .page-wrapper { 
+            padding: 15px 5mm; /* 좌우 여백을 정확히 5mm로 설정 */
+            text-align: center; 
+        }
+        .page-container { 
+            display: flex; 
+            justify-content: space-between; /* 버튼들 사이를 균등하게 벌려 가득 채움 */
+            align-items: center; 
+            gap: 4px; 
+        }
         
         .p-btn { 
-            min-width: 36px; height: 42px; border: none; 
+            flex: 1; /* 모든 버튼이 동일한 너비를 가짐 */
+            height: 45px; /* 터치하기 편하도록 높이 확보 */
+            border: none; 
             background: var(--card-bg); color: #64748B;
             border-radius: 8px; cursor: pointer; font-size: 15px; 
             font-weight: 700; box-shadow: var(--shadow);
             transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
         }
         .p-btn.active { background: var(--primary); color: white; transform: translateY(-2px); }
-        .p-btn.nav { color: var(--primary); background: #EBF4FF; width: 42px; font-size: 18px; }
+        .p-btn.nav { color: var(--primary); background: #EBF4FF; flex: 1.2; font-size: 18px; }
 
-        /* [Word List] - 깔끔한 카드 레이아웃 */
+        /* [Word List] */
         .word-list { padding: 10px; }
         .word-item { 
             display: grid; grid-template-columns: 40px 1.2fr 1fr; 
             align-items: center; background: var(--card-bg); padding: 16px; 
             margin-bottom: 12px; border-radius: 15px; gap: 12px;
-            box-shadow: var(--shadow); transition: 0.2s;
-            border: 1px solid rgba(0,0,0,0.02);
+            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.02);
         }
-        .word-item:active { transform: scale(0.98); }
 
-        .check-btn { 
-            width: 24px; height: 24px; border-radius: 8px; 
-            border: 2px solid #E2E8F0; cursor: pointer; position: relative;
-        }
+        .check-btn { width: 24px; height: 24px; border-radius: 8px; border: 2px solid #E2E8F0; cursor: pointer; }
         .check-btn.blue { background: var(--primary); border-color: var(--primary); }
         .check-btn.red { background: var(--accent); border-color: var(--accent); }
 
-        .eng-box { cursor: pointer; }
-        .eng-text { font-size: 20px; font-weight: 800; color: #1E293B; display: block; letter-spacing: -0.5px; }
+        .eng-text { font-size: 20px; font-weight: 800; color: #1E293B; display: block; }
         .pro-text { font-size: 14px; color: #94A3B8; display: block; margin-top: 4px; font-style: italic; }
 
         .kor-box { 
             padding: 12px 8px; background: #FFF5F5; color: var(--accent); 
             font-weight: 700; text-align: center; cursor: pointer; 
             border-radius: 12px; font-size: 15px; border: 1px solid #FFE3E3;
-            transition: 0.2s; min-height: 20px;
+            min-height: 20px;
         }
         .hidden { background: #F1F5F9 !important; color: transparent !important; border-color: #E2E8F0 !important; }
 
-        /* [Admin Panel] */
         .setting-panel { 
             display: none; background: #FFFBEB; padding: 20px; 
             margin: 15px; border-radius: 15px; border: 1px solid #FEF3C7;
-            box-shadow: var(--shadow);
         }
-        .setting-panel.show { display: block; animation: fadeIn 0.3s ease; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .setting-panel.show { display: block; }
     </style>
 </head>
 <body>
@@ -158,8 +149,8 @@
         <div id="adminStat" style="font-size:13px; margin-bottom:12px; color:#92400E; line-height:1.5;"></div>
         <strong style="display:block; margin-bottom:8px;">단어장 이름 수정</strong>
         <div style="display:flex; gap:8px;">
-            <input type="text" id="newVocaName" style="flex:1; padding:10px; border:1px solid #D1D5DB; border-radius:8px; outline:none;">
-            <button onclick="renameVoca()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:8px; font-weight:600;">적용</button>
+            <input type="text" id="newVocaName" style="flex:1; padding:10px; border:1px solid #D1D5DB; border-radius:8px;">
+            <button onclick="renameVoca()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:8px;">적용</button>
         </div>
     </div>
 
@@ -176,14 +167,14 @@
 
     async function init() {
         const display = document.getElementById('wordDisplay');
-        display.innerHTML = "<div style='text-align:center; padding:50px; color:#94A3B8;'>✨ 단어를 불러오는 중입니다...</div>";
+        display.innerHTML = "<div style='text-align:center; padding:50px; color:#94A3B8;'>✨ 로딩 중...</div>";
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation, state: 'none' }));
             drawUI();
         } catch (e) {
-            display.innerHTML = "<div style='text-align:center; padding:50px; color:var(--accent);'>⚠️ 연결에 실패했습니다.</div>";
+            display.innerHTML = "<div style='text-align:center; padding:50px; color:var(--accent);'>⚠️ 데이터 로드 실패</div>";
         }
     }
 
@@ -245,7 +236,7 @@
         const newName = document.getElementById('newVocaName').value.trim();
         if (newName) {
             document.getElementById('vocaSelect').options[0].text = "📖 " + newName;
-            alert("이름이 변경되었습니다.");
+            alert("수정 완료");
         }
     }
 
