@@ -3,102 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FCL 영단어 학습기</title>
+    <title>FCL 영단어 스마트 암기장</title>
     <style>
         :root {
-            --point-blue: #007bff;
-            --point-red: #e74c3c;
-            --light-gray: #f8f9fa;
+            --blue-point: #007bff;
+            --red-point: #e74c3c;
+            --gray-bg: #f1f3f5;
         }
 
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--gray-bg); margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 600px; margin: 0 auto; }
 
         /* [Head 부분] */
-        .header { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 10px; }
-        .head-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
-        .voca-select { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 16px; }
+        .header { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 10px; position: sticky; top: 0; z-index: 100; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .voca-selector { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 16px; background: #fff; }
         
-        .head-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .search-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 8px; min-width: 120px; }
+        .search-area { display: flex; gap: 5px; align-items: center; margin-bottom: 10px; }
+        .search-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
         
-        /* 관리자 패널 */
-        .admin-panel { display: none; background: #fff9e6; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px dashed #d1b894; }
-        .admin-panel.active { display: block; }
-        .admin-btn-group { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+        .toggle-btn { padding: 10px 15px; border-radius: 8px; border: none; background: #333; color: white; cursor: pointer; white-space: nowrap; }
 
-        /* [단어장 실행 영역] */
+        /* 페이지 네이션 */
+        .pagination { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .page-link { padding: 5px 10px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .page-link.active { background: var(--blue-point); color: white; border-color: var(--blue-point); }
+
+        /* 관리자 모드 */
+        .admin-panel { display: none; background: #fff9e6; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ffeeba; }
+        .admin-panel.active { display: block; }
+
+        /* [단어장 실행 부분] */
         .word-item { 
             display: grid; 
-            grid-template-columns: 45px 1fr 1fr; 
+            grid-template-columns: 40px 1.2fr 1fr; 
             align-items: center; 
             background: white; 
-            padding: 12px; 
-            margin-bottom: 6px; 
-            border-radius: 10px; 
-            gap: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            padding: 15px; 
+            margin-bottom: 8px; 
+            border-radius: 12px; 
+            gap: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
 
-        /* 상태 버튼: 흰색 -> 파랑 -> 빨강 */
-        .status-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; background: white; transition: 0.2s; }
-        .status-btn.blue { background: var(--point-blue); border-color: var(--point-blue); }
-        .status-btn.red { background: var(--point-red); border-color: var(--point-red); }
+        /* 암기 체크 버튼 */
+        .check-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; background: white; transition: 0.2s; }
+        .check-btn.blue { background: var(--blue-point); border-color: var(--blue-point); }
+        .check-btn.red { background: var(--red-point); border-color: var(--red-point); }
 
-        /* 영단어(좌) / 발음기호(하단) */
-        .eng-section { cursor: pointer; display: flex; flex-direction: column; }
-        .eng-text { font-size: 19px; font-weight: bold; color: #333; }
-        .pronun-text { font-size: 13px; color: #888; margin-top: 2px; font-style: italic; }
+        /* 단어 및 발음 */
+        .word-info { cursor: pointer; display: flex; flex-direction: column; }
+        .eng-text { font-size: 20px; font-weight: bold; color: #212529; }
+        .pronun-text { font-size: 14px; color: #868e96; margin-top: 3px; }
 
-        /* 뜻(우) */
-        .kor-section { 
-            padding: 10px; 
+        /* 뜻 영역 */
+        .kor-box { 
+            padding: 12px; 
             background: #fff5f5; 
             color: #e74c3c; 
             font-weight: bold; 
             text-align: center; 
             cursor: pointer; 
-            border-radius: 6px;
-            min-height: 22px;
-            font-size: 17px;
+            border-radius: 8px;
+            min-height: 24px;
+            font-size: 18px;
+            border: 1px solid #ffe3e3;
         }
-        .hidden-mode { color: transparent !important; background: #eee !important; border: 1px solid #ddd; }
+        .hidden-mode { color: transparent !important; background: #f1f3f5 !important; border: 1px solid #dee2e6; }
 
-        /* 발음 속도 및 버튼 */
-        .speed-box { font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px; }
-        button { padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; background: white; cursor: pointer; }
-
-        /* 편집 팝업 */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: 80%; background: white; z-index: 1000; padding: 20px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.3); }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
-        textarea { width: 100%; height: 70%; margin: 10px 0; font-family: monospace; }
+        /* 설정 */
+        .setting-row { display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 12px; color: #666; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div class="head-top">
-            <select id="vocaSelect" class="voca-select" onchange="changeVoca()">
+        <div class="top-nav">
+            <select id="vocaSelect" class="voca-selector" onchange="changeVoca()">
                 <option value="voca1">📖 FCL 고등 필수 영단어</option>
             </select>
-            <button onclick="toggleAdmin()" title="관리자 모드">⚙️</button>
+            <button onclick="toggleAdmin()">⚙️</button>
         </div>
 
-        <div class="head-controls">
-            <input type="text" id="searchInput" class="search-input" placeholder="단어 검색..." oninput="renderWords()">
-            <button onclick="toggleMasterMeaning()" id="masterBtn">뜻 숨김</button>
-            <div class="speed-box">
-                Speed <input type="range" id="speechRate" min="0.3" max="1.2" step="0.1" value="0.8" style="width:50px;">
-            </div>
+        <div class="search-area">
+            <input type="text" id="searchInput" class="search-input" placeholder="단어 검색 (해당 페이지로 이동)" oninput="handleSearch()">
+            <button onclick="toggleAllMeanings()" id="masterToggle" class="toggle-btn">뜻 숨김</button>
+        </div>
+
+        <div id="pagination" class="pagination"></div>
+
+        <div class="setting-row">
+            발음 속도: <input type="range" id="speechRate" min="0.4" max="1.1" step="0.1" value="0.8" style="width:60px;">
         </div>
 
         <div id="adminPanel" class="admin-panel">
             <strong>관리자 모드</strong>
-            <div class="admin-btn-group">
-                <button onclick="openFullEdit()">전체 단어 편집(팝업)</button>
-                <button onclick="addWord()">단어 추가</button>
+            <div style="margin-top:5px; display:flex; gap:5px; flex-wrap:wrap;">
                 <button onclick="editVocaTitle()">제목 수정</button>
+                <button onclick="alert('전체 편집 기능(준비중)')">전체 단어 편집</button>
                 <button onclick="addVoca()">단어장 추가</button>
                 <button onclick="deleteVoca()" style="color:red;">단어장 삭제</button>
             </div>
@@ -109,27 +112,18 @@
         </div>
 </div>
 
-<div id="overlay" class="overlay" onclick="closeFullEdit()"></div>
-<div id="editModal" class="modal">
-    <h3>단어 전체 편집 (팝업)</h3>
-    <p style="font-size: 12px; color: #666;">형식: 단어|뜻|발음기호 (한 줄에 한 개씩)</p>
-    <textarea id="fullDataArea"></textarea>
-    <div style="display:flex; gap:8px;">
-        <button onclick="saveFullData()" style="flex:1; background:#007bff; color:white; border:none;">저장</button>
-        <button onclick="closeFullEdit()" style="flex:1;">취1소</button>
-    </div>
-</div>
-
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec";
     
     let words = [];
+    let currentPage = 1;
+    const itemsPerPage = 50;
     let isAllHidden = false;
 
-    // 데이터 로드 (구글 시트 연동)
+    // 데이터 로드
     async function loadData() {
         const listDiv = document.getElementById('wordList');
-        listDiv.innerHTML = "<p style='text-align:center;'>단어장을 동기화 중...</p>";
+        listDiv.innerHTML = "<p style='text-align:center;'>단어장을 펼치는 중...</p>";
         try {
             const res = await fetch(API_URL + "?v=" + Date.now());
             const data = await res.json();
@@ -137,61 +131,101 @@
                 eng: item.english,
                 kor: item.korean,
                 pron: item.pronunciation,
-                status: 'default' // 기본 흰색
+                status: 'white'
             }));
+            updatePagination();
             renderWords();
         } catch (e) {
-            listDiv.innerHTML = "<p style='text-align:center;'>연결 실패. 다시 시도해 주세요.</p>";
+            listDiv.innerHTML = "<p style='text-align:center;'>연결이 원활하지 않습니다.</p>";
         }
     }
 
-    // 단어 출력 함수
+    // 단어 출력 (50개씩)
     function renderWords() {
         const listDiv = document.getElementById('wordList');
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         listDiv.innerHTML = "";
 
-        words.forEach((w, idx) => {
-            if (w.eng.toLowerCase().includes(searchTerm) || w.kor.includes(searchTerm)) {
-                const item = document.createElement('div');
-                item.className = 'word-item';
-                item.innerHTML = `
-                    <div class="status-btn ${w.status}" onclick="toggleStatus(${idx})"></div>
-                    <div class="eng-section" onclick="speak('${w.eng.replace(/'/g, "\\'")}')">
-                        <span class="eng-text">${w.eng}</span>
-                        <span class="pronun-text">${w.pron}</span>
-                    </div>
-                    <div class="kor-section ${isAllHidden ? 'hidden-mode' : ''}" onclick="this.classList.toggle('hidden-mode')">
-                        ${w.kor}
-                    </div>
-                `;
-                listDiv.appendChild(item);
-            }
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageItems = words.slice(start, end);
+
+        pageItems.forEach((w, idx) => {
+            const actualIdx = start + idx;
+            const item = document.createElement('div');
+            item.className = 'word-item';
+            item.innerHTML = `
+                <div class="check-btn ${w.status}" onclick="toggleStatus(${actualIdx})"></div>
+                <div class="word-info" onclick="speak('${w.eng.replace(/'/g, "\\'")}')">
+                    <span class="eng-text">${w.eng}</span>
+                    <span class="pronun-text">${w.pron}</span>
+                </div>
+                <div class="kor-box ${isAllHidden ? 'hidden-mode' : ''}" onclick="this.classList.toggle('hidden-mode')">
+                    ${w.kor}
+                </div>
+            `;
+            listDiv.appendChild(item);
         });
+        window.scrollTo(0, 0);
     }
 
-    // 발음 기능 (강세 및 속도 조절)
+    // 검색 기능: 단어를 찾으면 해당 단어가 포함된 페이지로 이동
+    function handleSearch() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        if (!term) return;
+
+        const foundIndex = words.findIndex(w => w.eng.toLowerCase().includes(term));
+        if (foundIndex !== -1) {
+            currentPage = Math.floor(foundIndex / itemsPerPage) + 1;
+            updatePagination();
+            renderWords();
+            
+            // 검색된 단어 강조를 위해 잠시 스크롤은 수동 조절 가능
+        }
+    }
+
+    // 페이지네이션 업데이트
+    function updatePagination() {
+        const nav = document.getElementById('pagination');
+        nav.innerHTML = "";
+        const totalPages = Math.ceil(words.length / itemsPerPage);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('span');
+            btn.className = `page-link ${i === currentPage ? 'active' : ''}`;
+            btn.innerText = i;
+            btn.onclick = () => {
+                currentPage = i;
+                updatePagination();
+                renderWords();
+            };
+            nav.appendChild(btn);
+        }
+    }
+
+    // 발음 기능 (TTS)
     function speak(text) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
         msg.rate = document.getElementById('speechRate').value;
+        // 음성 고도화: 강세 유지를 위해 pitch 기본값 사용
+        msg.pitch = 1;
         window.speechSynthesis.speak(msg);
     }
 
     // 상태 토글 (흰색 -> 파랑 -> 빨강)
     function toggleStatus(idx) {
         const s = words[idx].status;
-        if (s === 'default') words[idx].status = 'blue';
+        if (s === 'white') words[idx].status = 'blue';
         else if (s === 'blue') words[idx].status = 'red';
-        else words[idx].status = 'default';
+        else words[idx].status = 'white';
         renderWords();
     }
 
-    // 전체 뜻 보임/숨김
-    function toggleMasterMeaning() {
+    // 전체 뜻 토글
+    function toggleAllMeanings() {
         isAllHidden = !isAllHidden;
-        document.getElementById('masterBtn').innerText = isAllHidden ? "뜻 보임" : "뜻 숨김";
+        document.getElementById('masterToggle').innerText = isAllHidden ? "뜻 보임" : "뜻 숨김";
         renderWords();
     }
 
@@ -200,43 +234,9 @@
         document.getElementById('adminPanel').classList.toggle('active');
     }
 
-    // 전체 편집 팝업 로직
-    function openFullEdit() {
-        const raw = words.map(w => `${w.eng}|${w.kor}|${w.pron}`).join('\n');
-        document.getElementById('fullDataArea').value = raw;
-        document.getElementById('editModal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-    }
-
-    function closeFullEdit() {
-        document.getElementById('editModal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-    }
-
-    function saveFullData() {
-        const text = document.getElementById('fullDataArea').value;
-        const lines = text.split('\n');
-        words = lines.filter(l => l.trim()).map(l => {
-            const [eng, kor, pron] = l.split('|');
-            return { eng: eng||"", kor: kor||"", pron: pron||"", status: 'default' };
-        });
-        renderWords();
-        closeFullEdit();
-    }
-
-    // 개별 단어 추가
-    function addWord() {
-        const eng = prompt("영단어:");
-        const kor = prompt("뜻:");
-        const pron = prompt("발음기호:");
-        if (eng && kor) {
-            words.unshift({ eng, kor, pron, status: 'default' });
-            renderWords();
-        }
-    }
-
-    // 초기 실행
+    // 초기화
     loadData();
 </script>
+
 </body>
 </html>
