@@ -5,32 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FCL 영단어 학습기</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .word-card { 
-            background: white; padding: 20px; margin-bottom: 15px; 
-            border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-            cursor: pointer; transition: transform 0.2s;
+            background: white; padding: 20px; margin-bottom: 12px; 
+            border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            display: flex; flex-direction: column; position: relative;
         }
-        .word-card:active { transform: scale(0.98); }
-        .english { font-size: 24px; font-weight: bold; color: #2c3e50; display: inline-block; }
-        .korean { font-size: 18px; color: #e74c3c; float: right; margin-top: 5px; }
-        .pronunciation { font-size: 16px; color: #7f8c8d; margin-top: 8px; display: block; }
-        .header { text-align: center; margin-bottom: 30px; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .english { font-size: 24px; font-weight: bold; color: #1e90ff; }
+        .pronunciation { font-size: 15px; color: #888; margin-top: 5px; }
+        .korean-area { 
+            margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee;
+            font-size: 19px; color: #e74c3c; font-weight: bold;
+            cursor: pointer; display: none; /* 처음에 숨김 */
+        }
+        .korean-area.show { display: block; } /* 클릭 시 보임 */
+        .guide { font-size: 14px; color: #666; margin-top: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h2>📖 FCL 고등 필수 영단어</h2>
-            <p>단어를 누르면 발음이 나옵니다.</p>
+            <p class="guide">🔵 영어를 누르면 <b>발음</b>이 나옵니다.</p>
+            <p class="guide">🔴 아래 빈 칸을 누르면 <b>뜻</b>이 보입니다.</p>
         </div>
-        <div id="wordList">로딩 중...</div>
+        <div id="wordList">데이터를 불러오는 중...</div>
     </div>
 
     <script>
-        // 선생님의 구글 시트 ID를 여기에 정확히 입력해 주세요
-        const spreadsheetId = '여기에_실제_시트_ID를_복사해서_넣으세요';
+        // 선생님의 구글 시트 ID를 정확히 입력하세요
+        const spreadsheetId = '여기에_실제_시트_ID를_넣으세요';
         const sheetName = 'words';
         const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
@@ -42,32 +49,45 @@
                 const rows = json.table.rows;
                 
                 let html = '';
-                // 1행은 제목이므로 i=1부터 시작합니다
+                // i = 1부터 시작하여 제목행(english, korean)을 건너뛰고 'release'부터 가져옵니다.
                 for (let i = 1; i < rows.length; i++) {
                     const english = rows[i].c[0] ? rows[i].c[0].v : '';
                     const pronunciation = rows[i].c[1] ? rows[i].c[1].v : '';
                     const korean = rows[i].c[2] ? rows[i].c[2].v : '';
 
                     html += `
-                        <div class="word-card" onclick="speak('${english.replace(/'/g, "\\'")}')">
-                            <div class="english">${english}</div>
-                            <div class="korean">${korean}</div>
-                            <div class="pronunciation">${pronunciation}</div>
+                        <div class="word-card">
+                            <div class="top-row" onclick="speak('${english.replace(/'/g, "\\'")}')">
+                                <div>
+                                    <div class="english">${english}</div>
+                                    <div class="pronunciation">${pronunciation}</div>
+                                </div>
+                                <span style="font-size:20px;">🔊</span>
+                            </div>
+                            <div class="korean-area" onclick="toggleKorean(this)">
+                                ${korean}
+                            </div>
+                            <div style="text-align:center; font-size:12px; color:#ccc; margin-top:5px; cursor:pointer;" onclick="toggleKorean(this.previousElementSibling)">[뜻 보기/숨기기]</div>
                         </div>
                     `;
                 }
                 document.getElementById('wordList').innerHTML = html;
             } catch (error) {
-                document.getElementById('wordList').innerHTML = '데이터를 불러오는 데 실패했습니다. ID와 공유 설정을 확인해 주세요.';
+                document.getElementById('wordList').innerHTML = '데이터 로딩 실패. 시트 ID와 공유 설정을 확인하세요.';
             }
         }
 
+        // 한글 뜻 보이기/숨기기 함수
+        function toggleKorean(element) {
+            element.classList.toggle('show');
+        }
+
+        // 발음 듣기 함수
         function speak(text) {
-            // 목소리 재생 중이면 중단하고 새로 재생
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            utterance.rate = 0.8; // 학생들이 듣기 편하게 약간 천천히
+            utterance.rate = 0.8;
             window.speechSynthesis.speak(utterance);
         }
 
