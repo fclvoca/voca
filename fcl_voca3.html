@@ -3,112 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FCL Voca App</title>
+    <title>FCL 영단어 학습기</title>
     <style>
-        :root { --navy: #2B3E8C; --bg: #F3F4F6; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        header { background: var(--navy); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        .word-card { background: white; padding: 20px; margin-bottom: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
-        .row-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-        .word-english { font-size: 1.5rem; font-weight: 800; color: var(--navy); }
-        .word-korean { font-size: 1.1rem; color: #333; font-weight: 500; text-align: right; }
-        .word-pron { color: #666; font-size: 1rem; border-top: 1px solid #eee; padding-top: 8px; }
-        .hidden { visibility: hidden; }
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; display: flex; justify-content: center; gap: 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        button { padding: 10px 25px; border: none; border-radius: 8px; background: var(--navy); color: white; cursor: pointer; font-weight: bold; font-size: 1rem; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        #pageIndicator { align-self: center; font-weight: bold; color: var(--navy); }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .word-card { 
+            background: white; padding: 20px; margin-bottom: 15px; 
+            border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .word-card:active { transform: scale(0.98); }
+        .english { font-size: 24px; font-weight: bold; color: #2c3e50; display: inline-block; }
+        .korean { font-size: 18px; color: #e74c3c; float: right; margin-top: 5px; }
+        .pronunciation { font-size: 16px; color: #7f8c8d; margin-top: 8px; display: block; }
+        .header { text-align: center; margin-bottom: 30px; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h2>📖 FCL 고등 필수 영단어</h2>
+            <p>단어를 누르면 발음이 나옵니다.</p>
+        </div>
+        <div id="wordList">로딩 중...</div>
+    </div>
 
-<header>
-    <h2 style="margin:0">FCL 단어장</h2>
-    <button onclick="toggleHide()">숨기기/보이기</button>
-</header>
+    <script>
+        // 선생님의 구글 시트 ID를 여기에 정확히 입력해 주세요
+        const spreadsheetId = '여기에_실제_시트_ID를_복사해서_넣으세요';
+        const sheetName = 'words';
+        const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
-<div class="container" id="wordList">데이터를 불러오는 중입니다...</div>
+        async function fetchWords() {
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                const rows = json.table.rows;
+                
+                let html = '';
+                // 1행은 제목이므로 i=1부터 시작합니다
+                for (let i = 1; i < rows.length; i++) {
+                    const english = rows[i].c[0] ? rows[i].c[0].v : '';
+                    const pronunciation = rows[i].c[1] ? rows[i].c[1].v : '';
+                    const korean = rows[i].c[2] ? rows[i].c[2].v : '';
 
-<div class="nav-bar">
-    <button id="prevBtn" onclick="changePage(-1)">이전</button>
-    <span id="pageIndicator">1 / 1</span>
-    <button id="nextBtn" onclick="changePage(1)">다음</button>
-</div>
-
-<script>
-    const SHEETS_CONFIG = {
-        // 선생님의 스프레드시트 ID (주소창 d/ 와 /edit 사이의 문자열)를 아래에 넣으세요.
-        spreadsheetId: '1O42hpPlDqUmU9y90RonCh3HWWq_0QnSzNLSBegYxxmY', 
-        url: (id) => `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&sheet=words`
-    };
-
-    let allWords = [];
-    let currentPage = 1;
-    const pageSize = 50;
-    let isHidden = false;
-
-    async function loadData() {
-        try {
-            const res = await fetch(SHEETS_CONFIG.url(SHEETS_CONFIG.spreadsheetId));
-            const text = await res.text();
-            const json = JSON.parse(text.substr(47).slice(0, -2));
-            
-            allWords = json.table.rows
-                .filter(row => row.c[0] && row.c[0].v) // A열(영어)이 있는 줄만 선택
-                .map(row => ({
-                    eng: row.c[0]?.v || '', // A열: 영어
-                    pron: row.c[1]?.v || '', // B열: 발음
-                    kor: row.c[2]?.v || ''  // C열: 한글
-                }));
-            render();
-        } catch (e) {
-            document.getElementById('wordList').innerHTML = "데이터 로딩 실패. <br>1. 시트 ID 확인 <br>2. 시트 공유 설정 확인 <br>3. 시트 탭 이름이 words인지 확인해 주세요.";
+                    html += `
+                        <div class="word-card" onclick="speak('${english.replace(/'/g, "\\'")}')">
+                            <div class="english">${english}</div>
+                            <div class="korean">${korean}</div>
+                            <div class="pronunciation">${pronunciation}</div>
+                        </div>
+                    `;
+                }
+                document.getElementById('wordList').innerHTML = html;
+            } catch (error) {
+                document.getElementById('wordList').innerHTML = '데이터를 불러오는 데 실패했습니다. ID와 공유 설정을 확인해 주세요.';
+            }
         }
-    }
 
-    function render() {
-        const list = document.getElementById('wordList');
-        list.innerHTML = '';
-        const start = (currentPage - 1) * pageSize;
-        const pagedData = allWords.slice(start, start + pageSize);
-        const totalPages = Math.ceil(allWords.length / pageSize);
+        function speak(text) {
+            // 목소리 재생 중이면 중단하고 새로 재생
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8; // 학생들이 듣기 편하게 약간 천천히
+            window.speechSynthesis.speak(utterance);
+        }
 
-        pagedData.forEach(word => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerHTML = `
-                <div class="row-top">
-                    <div class="word-english ${isHidden ? 'hidden' : ''}">${word.eng}</div>
-                    <div class="word-korean">${word.kor}</div>
-                </div>
-                <div class="word-pron ${isHidden ? 'hidden' : ''}">${word.pron}</div>
-            `;
-            card.onclick = () => {
-                card.querySelector('.word-english').classList.toggle('hidden');
-                card.querySelector('.word-pron').classList.toggle('hidden');
-            };
-            list.appendChild(card);
-        });
-
-        document.getElementById('pageIndicator').innerText = `${currentPage} / ${totalPages}`;
-        document.getElementById('prevBtn').disabled = currentPage === 1;
-        document.getElementById('nextBtn').disabled = currentPage === totalPages;
-        window.scrollTo(0, 0);
-    }
-
-    function changePage(offset) {
-        currentPage += offset;
-        render();
-    }
-
-    function toggleHide() {
-        isHidden = !isHidden;
-        render();
-    }
-
-    loadData();
-</script>
-
+        fetchWords();
+    </script>
 </body>
 </html>
