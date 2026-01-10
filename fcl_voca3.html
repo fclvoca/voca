@@ -5,61 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FCL 영단어 학습기</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 500px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 30px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .word-card { background: #fff; padding: 25px; margin-bottom: 20px; border-radius: 20px; border: 1px solid #eee; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .english { font-size: 28px; font-weight: bold; color: #007bff; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .pronunciation { font-size: 16px; color: #999; margin-top: 5px; font-style: italic; }
-        .korean-box { margin-top: 15px; padding: 18px; border-radius: 15px; background-color: #fff0f0; color: #dc3545; font-size: 20px; font-weight: bold; text-align: center; cursor: pointer; border: 2px dashed #ffc107; min-height: 30px; }
+        .header { text-align: center; margin-bottom: 25px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .word-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 15px; border: 1px solid #eef2f6; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .english { font-size: 26px; font-weight: bold; color: #007bff; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .pronunciation { font-size: 15px; color: #99aab5; margin: 5px 0 10px 0; font-style: italic; }
+        .korean-box { padding: 15px; border-radius: 12px; background-color: #fff5f5; color: #e74c3c; font-size: 19px; font-weight: bold; text-align: center; cursor: pointer; border: 2px dashed #ffdada; min-height: 25px; }
         .hidden { display: none; }
-        .guide { font-size: 13px; color: #aaa; margin-top: 15px; line-height: 1.6; }
+        .guide { font-size: 13px; color: #8898aa; margin-top: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1 style="margin:0; font-size:24px;">📘 FCL 고등 필수 영단어</h1>
-            <div class="guide">🔊 영어 클릭: 발음 재생<br>💡 노란 점선 클릭: 뜻 보이기</div>
+            <h1 style="margin:0; font-size:22px; color:#333;">📖 FCL 고등 필수 영단어</h1>
+            <div class="guide">🔊 단어 클릭: 발음 / 💡 박스 클릭: 뜻 확인</div>
         </div>
-        <div id="displayArea" style="text-align:center; color:#666;">데이터를 연결 중입니다...</div>
+        <div id="wordList" style="text-align:center; color:#666;">단어장을 펼치는 중입니다...</div>
     </div>
 
     <script>
-        // 선생님의 '제목 없음' 배포 주소입니다.
+        // 선생님의 '제목 없음' 배포 주소
         const API_URL = "https://script.google.com/macros/s/AKfycbwrfodzbbvO_iAKVO2hdQFiWL_YoXSeOTAL5dqBjSQulXPeioo89MOTrsplRN23xViF/exec";
 
-        async function init() {
+        async function loadData() {
             try {
-                // 브라우저 캐시 방지를 위해 랜덤 값을 붙여 요청합니다.
-                const res = await fetch(API_URL + "?t=" + Date.now());
+                // 캐시 방지용 파라미터 추가
+                const res = await fetch(API_URL + "?v=" + Date.now());
                 const data = await res.json();
                 
                 let html = "";
                 data.forEach(item => {
                     html += `
                         <div class="word-card">
-                            <div class="english" onclick="say('${item.english.replace(/'/g, "\\'")}')">${item.english} <span>🔊</span></div>
+                            <div class="english" onclick="speak('${item.english.replace(/'/g, "\\'")}')">
+                                ${item.english} <span style="font-size:18px;">🔊</span>
+                            </div>
                             <div class="pronunciation">${item.pronunciation}</div>
                             <div class="korean-box" onclick="this.firstElementChild.classList.toggle('hidden')">
                                 <span class="hidden">${item.korean}</span>
                             </div>
                         </div>`;
                 });
-                document.getElementById('displayArea').innerHTML = html;
-            } catch (err) {
-                document.getElementById('displayArea').innerHTML = "로딩 실패. 1~2분 뒤에 다시 접속해 주세요!";
+                document.getElementById('wordList').innerHTML = html;
+            } catch (e) {
+                document.getElementById('wordList').innerHTML = "연결이 원활하지 않습니다. 잠시 후 새로고침 해주세요.";
             }
         }
 
-        function say(txt) {
+        function speak(text) {
             window.speechSynthesis.cancel();
-            const msg = new SpeechSynthesisUtterance(txt);
+            const msg = new SpeechSynthesisUtterance(text);
             msg.lang = 'en-US';
+            msg.rate = 0.8;
             window.speechSynthesis.speak(msg);
         }
 
-        init();
+        loadData();
     </script>
 </body>
 </html>
