@@ -19,17 +19,18 @@
         .top-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
         .voca-select { flex: 1; padding: 5px; border-radius: 6px; border: 1px solid #ddd; font-weight: bold; font-size: 13px; height: 32px; }
         
-        /* [도구 행: 검색창 축소 및 슬라이더 확대] */
+        /* [도구 행: 검색창 및 슬라이더 길이 확장] */
         .tool-row { display: flex; gap: 6px; align-items: center; }
-        .search-input { width: 85px; padding: 7px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; height: 32px; box-sizing: border-box; }
+        /* 검색창 길이 약 50% 확장 (기존 85px -> 125px) */
+        .search-input { width: 125px; padding: 7px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; height: 32px; box-sizing: border-box; }
         .btn-hide { background: #333; color: white; border: none; padding: 0 8px; border-radius: 6px; font-size: 11px; height: 32px; white-space: nowrap; cursor: pointer; }
         
-        /* 발음 속도 영역: 최대한 길게 배정 */
+        /* 발음 속도 영역: 검색창 확장 후에도 남은 공간을 최대로 활용 */
         .speed-box { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
         .speed-box span { font-size: 10px; color: #777; white-space: nowrap; }
         .speed-box input[type="range"] { flex: 1; cursor: pointer; height: 25px; }
 
-        /* [페이지네이션] */
+        /* [페이지네이션: 10개 한 줄] */
         .page-wrapper { background: #fff; padding: 6px 2px; border-bottom: 1px solid #eee; text-align: center; }
         .page-container { display: flex; justify-content: center; align-items: center; gap: 1px; }
         .p-btn { 
@@ -54,7 +55,8 @@
 
         .eng-box { cursor: pointer; }
         .eng-text { font-size: 17px; font-weight: bold; color: #333; display: block; }
-        .pro-text { font-size: 11px; color: #999; }
+        /* 발음기호 크기 확대 (기존 11px -> 14px) */
+        .pro-text { font-size: 14px; color: #777; font-weight: 400; font-family: 'Lucida Sans', sans-serif; display: block; margin-top: 2px; }
 
         .kor-box { 
             padding: 8px 4px; background: #fff5f5; color: var(--red); 
