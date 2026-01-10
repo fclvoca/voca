@@ -22,11 +22,10 @@
         .tool-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         .tool-line { display: flex; align-items: center; gap: 8px; width: 100%; }
         .search-input { flex: 1; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; }
-        .voice-select { flex: 1; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; font-weight: 700; color: #1A237E; }
+        .voice-select { flex: 1.5; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; font-weight: 700; color: #1A237E; }
         
         .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
-        
         .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; }
         .speed-slider { width: 60px; accent-color: var(--fcl-orange); cursor: pointer; }
 
@@ -110,7 +109,6 @@
     let voices = [];
     let audioUnlocked = false;
 
-    // 모바일 오디오 잠금 해제 (최초 클릭 시)
     function unlockAudio() {
         if (!audioUnlocked) {
             const silent = new Audio();
@@ -119,18 +117,31 @@
         }
     }
 
+    // [목소리 고정 로직 핵심]
     function loadVoices() {
         voices = synth.getVoices();
         const vSelect = document.getElementById('voiceSelect');
-        const savedVal = localStorage.getItem('fcl_voca_voice') || "high_quality";
+        const savedVoiceName = localStorage.getItem('fcl_fixed_voice_name');
+        
         vSelect.innerHTML = '<option value="high_quality">✨ 초고화질 원어민 음성</option>';
+        
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
         enVoices.forEach((voice, i) => {
             const opt = document.createElement('option');
-            opt.value = i; opt.innerText = "기기: " + voice.name;
+            opt.value = i;
+            opt.innerText = "기기: " + voice.name;
+            // 만약 이전에 저장된 Ava 목소리 이름이 리스트에 있다면 자동 선택
+            if (savedVoiceName && voice.name === savedVoiceName) {
+                opt.selected = true;
+            }
             vSelect.appendChild(opt);
         });
-        vSelect.value = savedVal;
+
+        // 만약 저장된 값이 없고 Ava(선생님 추천) 목소리가 리스트에 있다면 초기값으로 설정
+        if (!savedVoiceName) {
+            const avaIdx = enVoices.findIndex(v => v.name.includes('Ava'));
+            if(avaIdx !== -1) vSelect.value = avaIdx;
+        }
     }
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -138,7 +149,16 @@
     }
 
     function saveVoiceSetting() {
-        localStorage.setItem('fcl_voca_voice', document.getElementById('voiceSelect').value);
+        const vSelect = document.getElementById('voiceSelect');
+        const selectedOption = vSelect.options[vSelect.selectedIndex];
+        
+        localStorage.setItem('fcl_voca_voice', vSelect.value);
+        // 목소리 '이름' 자체를 저장해서 다음에도 이름으로 찾음
+        if (vSelect.value !== "high_quality") {
+            localStorage.setItem('fcl_fixed_voice_name', selectedOption.innerText.replace("기기: ", ""));
+        } else {
+            localStorage.removeItem('fcl_fixed_voice_name');
+        }
     }
 
     async function init() {
@@ -209,26 +229,15 @@
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
 
-    // [최종 발음 엔진 - 서버 음성 강제 실행 방식]
     function play(t) {
         const rate = document.getElementById('rateRange').value;
         const selectedVal = document.getElementById('voiceSelect').value;
 
-        // 1. 고품질 서버 음성 모드 (컴퓨터와 동일)
         if (selectedVal === "high_quality") {
-            // 구글 번역 TTS API 호출 (고음질 원어민)
             const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-US&total=1&idx=0&textlen=${t.length}&client=tw-ob&prev=input`);
             audio.playbackRate = rate;
-            
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // 서버 오디오가 막혔을 때만 기기 음성으로 전환
-                    speakWithDevice(t, rate);
-                });
-            }
+            audio.play().catch(e => speakWithDevice(t, rate));
         } else {
-            // 2. 선택한 기기 음성 모드
             speakWithDevice(t, rate, selectedVal);
         }
     }
@@ -237,15 +246,7 @@
         synth.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
-        
-        if(voiceIdx !== null && enVoices[voiceIdx]) {
-            msg.voice = enVoices[voiceIdx];
-        } else {
-            // 백업: 기기 내에서 가장 품질이 좋은 목소리 자동 찾기
-            msg.voice = enVoices.find(v => v.name.includes('Samantha') || v.name.includes('Natural')) || enVoices[0];
-        }
-        
-        msg.lang = 'en-US';
+        if(voiceIdx !== null && enVoices[voiceIdx]) msg.voice = enVoices[voiceIdx];
         msg.rate = rate;
         synth.speak(msg);
     }
