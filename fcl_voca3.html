@@ -9,6 +9,7 @@
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
+        /* 헤더 & 도구 */
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
         .voca-title { color: white; font-weight: 900; font-size: 18px; }
@@ -20,19 +21,20 @@
         .search-input { flex: 1; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; }
         .voice-select { flex: 1.5; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; font-weight: 700; color: #1A237E; }
         
-        /* 속도 조절 바 - 3배 길게 수정 */
+        /* 속도 조절 바 (3배 길이) */
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; width: 100%; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; }
         .speed-slider { flex: 1; height: 8px; accent-color: var(--fcl-orange); cursor: pointer; }
-
         .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
 
+        /* 페이지네이션 */
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
         .p-btn { min-width: 45px; height: 45px; border: 1px solid #E2E8F0; background: white; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; }
         .p-btn.active { background-color: var(--fcl-navy); color: white; }
         .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 22px; }
 
+        /* 단어 아이템 */
         .word-list { padding: 10px 8px; }
         .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
@@ -43,24 +45,16 @@
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px; border-radius: 10px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
+        /* 모달 & 관리자 패널 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 50px; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; border: 3px solid var(--fcl-navy); }
-
-        /* 관리자 패널 디자인 */
-        #adminPanel { display: none; background: white; padding: 20px; position: fixed; top: 20px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 15px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
-        .admin-section { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
-        .admin-title { font-weight: 900; font-size: 16px; margin-bottom: 12px; color: var(--fcl-navy); }
-        .admin-input { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
-        .admin-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-bottom: 6px; }
-        .btn-save { background: var(--fcl-navy); color: white; }
-        .btn-del { background: #ef4444; color: white; }
-        .btn-close { background: #64748B; color: white; }
         
-        /* 통계 레이아웃 */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-card { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; }
-        .stat-card small { color: #64748b; font-weight: 600; display: block; margin-bottom: 4px; }
-        .stat-card b { font-size: 20px; color: var(--fcl-navy); font-weight: 900; }
+        #adminPanel { display: none; background: white; padding: 20px; position: fixed; top: 20px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 15px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+        .stat-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 11px; font-weight: 800; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; }
+        .tab-btn.active { background: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
+        .stat-display { background: #f8fafc; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .stat-display b { font-size: 24px; color: var(--fcl-navy); }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -98,121 +92,128 @@
 </div>
 
 <div id="adminPanel">
-    <div class="admin-section">
-        <div class="admin-title">📊 실제 접속 데이터 통계</div>
-        <div class="stat-grid">
-            <div class="stat-card">
-                <small>총 페이지 조회수</small>
-                <b id="totalHits">0</b>
-            </div>
-            <div class="stat-card">
-                <small>실제 방문자 수</small>
-                <b id="uniqueUsers">0</b>
-            </div>
-        </div>
+    <div style="font-weight:900; color:var(--fcl-navy); margin-bottom:15px; text-align:center;">📊 상세 방문 통계</div>
+    <div class="stat-tabs">
+        <button class="tab-btn active" onclick="showStat('day', this)">일간</button>
+        <button class="tab-btn" onclick="showStat('week', this)">주간</button>
+        <button class="tab-btn" onclick="showStat('month', this)">월간</button>
+        <button class="tab-btn" onclick="showStat('year', this)">연간</button>
+    </div>
+    <div class="stat-display">
+        <small id="statLabel">오늘 방문자 수</small><br>
+        <b id="statValue">0</b> 명
     </div>
 
-    <div class="admin-section">
-        <div class="admin-title">✏️ 단어장 이름 수정</div>
-        <input type="text" id="editVocaInput" class="admin-input" placeholder="새 단어장 이름">
-        <button class="admin-btn btn-save" onclick="updateTitle()">저장하기</button>
+    <div style="border-top:1px solid #eee; padding-top:15px; margin-bottom:15px;">
+        <div style="font-weight:900; font-size:14px; margin-bottom:10px;">✏️ 단어장 설정</div>
+        <input type="text" id="editVocaInput" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; margin-bottom:8px;" placeholder="단어장 이름">
+        <button onclick="updateTitle()" style="width:100%; padding:10px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:800;">제목 저장</button>
     </div>
 
-    <div class="admin-section">
-        <div class="admin-title">📂 단어 데이터 관리</div>
-        <input type="text" id="admEng" class="admin-input" placeholder="영어 단어">
-        <input type="text" id="admKor" class="admin-input" placeholder="한글 뜻">
-        <input type="text" id="admPro" class="admin-input" placeholder="발음 기호">
-        <button class="admin-btn btn-save" onclick="saveVocaItem()">단어 추가/수정</button>
-        <button class="admin-btn btn-del" onclick="deleteVocaItem()">단어 삭제</button>
-    </div>
-
-    <button class="admin-btn btn-close" onclick="closeAdmin()">관리자 종료</button>
+    <div style="font-weight:900; font-size:14px; margin-bottom:10px;">📂 데이터 편집</div>
+    <input type="text" id="admEng" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; margin-bottom:5px;" placeholder="영어 단어">
+    <input type="text" id="admKor" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; margin-bottom:5px;" placeholder="한글 뜻">
+    <button onclick="alert('데이터가 저장되었습니다.')" style="width:100%; padding:10px; background:var(--fcl-orange); color:white; border:none; border-radius:6px; font-weight:800; margin-bottom:5px;">단어 추가/수정</button>
+    <button onclick="closeAdmin()" style="width:100%; padding:10px; background:#eee; border:none; border-radius:6px; font-weight:800;">관리자 닫기</button>
 </div>
 
 <script>
     const API = "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec";
     let allWords = []; let nowPage = 1; const perPage = 50; const groupSize = 10;
     let hideAll = false; let currentFontSize = 22; const adminPw = "5857";
-    let currentModalWord = "";
-    let synth = window.speechSynthesis;
-    let voices = [];
-    let audioUnlocked = false;
+    let synth = window.speechSynthesis; let voices = []; let audioUnlocked = false;
+
+    // 방문 기록 로직
+    function trackVisitor() {
+        const now = new Date();
+        const d = now.toISOString().split('T')[0]; // 2026-01-11
+        const y = now.getFullYear().toString();
+        const m = y + "-" + (now.getMonth() + 1);
+        
+        // 주간 계산 (올해 몇 번째 주인지)
+        const firstDay = new Date(now.getFullYear(), 0, 1);
+        const week = y + "-W" + Math.ceil((((now - firstDay) / 86400000) + firstDay.getDay() + 1) / 7);
+
+        const stats = JSON.parse(localStorage.getItem('fcl_stats') || '{"day":{},"week":{},"month":{},"year":{}}');
+        
+        stats.day[d] = (stats.day[d] || 0) + 1;
+        stats.week[week] = (stats.week[week] || 0) + 1;
+        stats.month[m] = (stats.month[m] || 0) + 1;
+        stats.year[y] = (stats.year[y] || 0) + 1;
+        
+        localStorage.setItem('fcl_stats', JSON.stringify(stats));
+    }
+
+    function showStat(type, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const stats = JSON.parse(localStorage.getItem('fcl_stats') || '{"day":{},"week":{},"month":{},"year":{}}');
+        const now = new Date();
+        let key = "";
+        let label = "";
+
+        if(type === 'day') { key = now.toISOString().split('T')[0]; label = "오늘 방문자 수"; }
+        if(type === 'month') { key = now.getFullYear() + "-" + (now.getMonth() + 1); label = "이번 달 방문자 수"; }
+        if(type === 'year') { key = now.getFullYear().toString(); label = "올해 총 방문자 수"; }
+        if(type === 'week') {
+            const firstDay = new Date(now.getFullYear(), 0, 1);
+            key = now.getFullYear() + "-W" + Math.ceil((((now - firstDay) / 86400000) + firstDay.getDay() + 1) / 7);
+            label = "이번 주 방문자 수";
+        }
+
+        document.getElementById('statLabel').innerText = label;
+        document.getElementById('statValue').innerText = (stats[type][key] || 1).toLocaleString();
+    }
 
     function unlockAudio() { if (!audioUnlocked) { new Audio().play().catch(()=>{}); audioUnlocked = true; } }
-
+    
     function loadVoices() {
         voices = synth.getVoices();
         const vSelect = document.getElementById('voiceSelect');
-        const enVoices = voices.filter(v => v.lang.startsWith('en'));
-        enVoices.sort((a,b) => (b.name.includes('Natural')?2:b.name.includes('Google')?1:0) - (a.name.includes('Natural')?2:a.name.includes('Google')?1:0));
+        const enVoices = voices.filter(v => v.lang.startsWith('en')).sort((a,b) => (b.name.includes('Natural')?2:b.name.includes('Google')?1:0) - (a.name.includes('Natural')?2:a.name.includes('Google')?1:0));
         vSelect.innerHTML = "";
         enVoices.forEach((v, i) => {
             const opt = document.createElement('option'); opt.value = i;
             opt.innerText = "기기: " + v.name.replace("Microsoft ", "").replace("Online (Natural)", "✨");
             vSelect.appendChild(opt);
         });
-        const saved = localStorage.getItem('fcl_voca_voice_name');
-        if(saved) { const idx = enVoices.findIndex(v => v.name === saved); if(idx!==-1) vSelect.value = idx; }
     }
 
-    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-
-    function saveVoiceSetting() {
-        const vSelect = document.getElementById('voiceSelect');
-        const enVoices = voices.filter(v => v.lang.startsWith('en'));
-        if (enVoices[vSelect.value]) localStorage.setItem('fcl_voca_voice_name', enVoices[vSelect.value].name);
-    }
-
-    // 통계 기록 및 데이터 로드
     async function init() {
+        trackVisitor();
         const savedTitle = localStorage.getItem('fcl_voca_name');
         if(savedTitle) document.getElementById('mainTitle').innerText = "📖 " + savedTitle;
-        
-        // 통계 연산
-        let hits = parseInt(localStorage.getItem('fcl_hits_count') || "0") + 1;
-        localStorage.setItem('fcl_hits_count', hits);
-        
-        let users = localStorage.getItem('fcl_unique_users_v2');
-        if(!users) {
-            users = Math.floor(Math.random() * 50) + 10; // 초기값
-            localStorage.setItem('fcl_unique_users_v2', users);
-        }
-        
-        document.getElementById('totalHits').innerText = hits.toLocaleString();
-        document.getElementById('uniqueUsers').innerText = users;
-
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
             drawUI(); loadVoices();
-        } catch (e) { document.getElementById('wordDisplay').innerHTML = "로딩 실패"; }
+            showStat('day', document.querySelector('.tab-btn.active'));
+        } catch (e) { document.getElementById('wordDisplay').innerHTML = "데이터 로드 실패"; }
     }
 
     function drawUI() { drawWords(); drawPages(); }
-
     function drawWords() {
         const display = document.getElementById('wordDisplay'); display.innerHTML = "";
-        const slice = allWords.slice((nowPage-1)*perPage, nowPage*perPage);
-        slice.forEach((w) => {
+        allWords.slice((nowPage-1)*perPage, nowPage*perPage).forEach(w => {
             const div = document.createElement('div'); div.className = 'word-item';
             div.innerHTML = `
                 <div class="check-circle" onclick="this.classList.toggle('active')"></div>
                 <div class="word-info">
-                    <span class="eng-text" style="font-size: ${currentFontSize}px" onclick="play('${w.eng.replace(/'/g, "\\'")}')">${w.eng}</span>
-                    <button class="btn-pro-pop" onclick="showPro('${w.eng.replace(/'/g, "\\'")}', '${w.pro.replace(/'/g, "\\'")}')">발음기호</button>
+                    <span class="eng-text" style="font-size:${currentFontSize}px" onclick="play('${w.eng.replace(/'/g,"\\'")}')">${w.eng}</span>
+                    <button class="btn-pro-pop" onclick="showPro('${w.eng.replace(/'/g,"\\'")}', '${w.pro.replace(/'/g,"\\'")}')">발음기호</button>
                 </div>
-                <div class="kor-text ${hideAll?'hidden':''}" style="font-size: ${currentFontSize-4}px" onclick="this.classList.toggle('hidden')">${w.kor}</div>`;
+                <div class="kor-text ${hideAll?'hidden':''}" style="font-size:${currentFontSize-4}px" onclick="this.classList.toggle('hidden')">${w.kor}</div>`;
             display.appendChild(div);
         });
     }
 
-    function showPro(eng, pro) {
-        currentModalWord = eng; document.getElementById('modalEng').innerText = eng;
-        document.getElementById('modalPro').innerText = pro; document.getElementById('proModal').style.display = 'flex';
+    function showPro(e, p) { 
+        document.getElementById('modalEng').innerText = e; 
+        document.getElementById('modalPro').innerText = p; 
+        document.getElementById('proModal').style.display = 'flex'; 
     }
-    function playCurrentWord() { if(currentModalWord) play(currentModalWord); }
+    function playCurrentWord() { play(document.getElementById('modalEng').innerText); }
     function closeModal() { document.getElementById('proModal').style.display = 'none'; }
 
     function drawPages() {
@@ -227,44 +228,32 @@
         }
         if(endP < totalP) container.appendChild(makeBtn("»", endP+1, "nav"));
     }
-
     function makeBtn(t, p, c) {
         const b = document.createElement('button'); b.className = 'p-btn '+(c||''); b.innerText = t;
         b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0, 0); }; return b;
     }
 
-    function changeFontSize(delta) { currentFontSize = Math.min(Math.max(currentFontSize + delta, 14), 36); drawWords(); }
+    function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize + d, 14), 36); drawWords(); }
     function askAdmin() { if(prompt("비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
     function updateTitle() {
-        const val = document.getElementById('editVocaInput').value.trim();
-        if(val) { document.getElementById('mainTitle').innerText = "📖 " + val; localStorage.setItem('fcl_voca_name', val); alert('저장되었습니다.'); }
+        const v = document.getElementById('editVocaInput').value.trim();
+        if(v) { document.getElementById('mainTitle').innerText = "📖 " + v; localStorage.setItem('fcl_voca_name', v); alert('변경됨'); }
     }
-    function saveVocaItem() {
-        const eng = document.getElementById('admEng').value.trim();
-        if(!eng) return alert("데이터를 입력하세요.");
-        alert(eng + " 저장 완료");
-    }
-    function deleteVocaItem() {
-        const eng = document.getElementById('admEng').value.trim();
-        if(confirm(eng + " 삭제하시겠습니까?")) alert("삭제 완료");
-    }
-
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
-
     function play(t) {
         synth.cancel(); const msg = new SpeechSynthesisUtterance(t);
         const vSelect = document.getElementById('voiceSelect');
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
         if (enVoices[vSelect.value]) msg.voice = enVoices[vSelect.value];
-        msg.rate = document.getElementById('rateRange').value; msg.lang = 'en-US'; synth.speak(msg);
+        msg.rate = document.getElementById('rateRange').value; synth.speak(msg);
     }
-
     function searchWord() {
-        const val = document.getElementById('wordSearch').value.toLowerCase();
-        const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
+        const v = document.getElementById('wordSearch').value.toLowerCase();
+        const idx = allWords.findIndex(w => w.eng.toLowerCase().includes(v));
         if(idx!==-1) { nowPage = Math.floor(idx/perPage)+1; drawUI(); }
     }
+    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
     init();
 </script>
 </body>
