@@ -6,66 +6,43 @@
     <title>FCL Premium Smart Voca</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
-
-        :root {
-            --fcl-navy: #1A237E; 
-            --fcl-orange: #FF9800; 
-            --fcl-bg: #F5F7F9; 
-            --text-dark: #1E293B;
-        }
-
+        :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         .container { max-width: 1000px; margin: 0 auto; }
-
-        /* [Header] */
         .header-section { background-color: var(--fcl-navy); padding: 15px 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
         .voca-title { color: white; font-weight: 900; font-size: 20px; white-space: nowrap; }
-        
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 15px; height: 36px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 22px; cursor: pointer; }
-
-        /* [툴바 레이아웃] */
         .tool-row { display: flex; align-items: center; width: 100%; gap: 25px; }
         .search-box { width: 320px; flex-shrink: 0; } 
         .search-input { width: 100%; height: 38px; padding: 0 12px; border-radius: 6px; border: none; font-size: 14px; outline: none; }
-
         .font-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; flex-shrink: 0; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: 900; color: var(--fcl-navy); display: flex; align-items: center; justify-content: center; }
-
         .speed-control { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 15px; color: white; font-size: 13px; }
         .speed-slider { width: 280px; cursor: pointer; accent-color: var(--fcl-orange); height: 18px; }
-
-        /* [관리자 패널: 통계 방식 2가지 추가] */
         #adminPanel { display: none; background: white; margin: 10px; padding: 25px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
-        
         .stat-container { display: flex; gap: 8px; margin-bottom: 25px; }
         .stat-box { flex: 1; background: #F8FAFC; padding: 12px 5px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
         .stat-box small { color: #64748B; font-size: 11px; font-weight: 500; margin-bottom: 3px; display: block; }
         .stat-box b { font-size: 18px; color: var(--fcl-navy); display: block; font-weight: 900; }
-
         .admin-edit-row { border-top: 1px solid #F1F5F9; padding-top: 20px; margin-bottom: 25px; }
         .admin-edit-row label { display: block; margin-bottom: 10px; font-weight: 800; font-size: 14px; color: var(--fcl-navy); }
         .input-group { display: flex; gap: 8px; }
         .admin-input { flex: 1; padding: 12px; border-radius: 8px; border: 2px solid #E2E8F0; font-size: 15px; font-weight: 500; font-family: 'Noto Sans KR'; }
-
         .admin-btn-group { display: flex; gap: 10px; margin-bottom: 10px; }
         .a-btn { flex: 1; padding: 15px; border-radius: 8px; border: none; color: white; font-weight: 800; cursor: pointer; font-size: 15px; }
         .btn-add-voca { background-color: #3F51B5; }
         .btn-del-voca { background-color: #F44336; }
-
-        /* [페이지네이션 및 리스트] */
         .page-wrapper { padding: 10px; background: #FFF; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; align-items: center; justify-content: space-between; gap: 2px; width: 100%; }
         .p-btn { flex: 1; max-width: 60px; height: 42px; border: 1px solid #E2E8F0; background: white; color: #475569; border-radius: 4px; font-size: 14px; font-weight: 800; cursor: pointer; }
         .p-btn.active { background-color: #2563EB; color: white; border-color: #2563EB; }
         .p-btn.nav { background-color: #F1F5F9; color: #2563EB; font-weight: 900; font-size: 18px; max-width: 45px; }
-
         .word-list { padding: 8px; }
         .word-item { background: white; margin-bottom: 5px; border-radius: 8px; display: flex; align-items: center; padding: 10px 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
-        
         .word-info { flex: 1; display: flex; align-items: baseline; gap: 15px; cursor: pointer; }
         .eng-text { font-weight: 900; color: #0F172A; } 
         .pro-text { color: #64748B; font-weight: 500; }
@@ -74,7 +51,6 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="header-section">
         <div class="top-row">
@@ -85,30 +61,18 @@
             </div>
         </div>
         <div class="tool-row">
-            <div class="search-box">
-                <input type="text" id="wordSearch" class="search-input" placeholder="단어 검색..." oninput="searchWord()">
-            </div>
-            <div class="font-control">
-                <span>글자</span>
-                <button class="font-btn" onclick="changeFontSize(-2)">-</button>
-                <button class="font-btn" onclick="changeFontSize(2)">+</button>
-            </div>
-            <div class="speed-control">
-                <span>Speed</span>
-                <input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8">
-            </div>
+            <div class="search-box"><input type="text" id="wordSearch" class="search-input" placeholder="단어 검색..." oninput="searchWord()"></div>
+            <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
+            <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8"></div>
         </div>
     </div>
-
     <div id="adminPanel">
         <div style="text-align:center; font-weight:900; margin-bottom:20px; color:var(--fcl-navy); font-size:20px;">[ 관리자 모드 ]</div>
-        
         <div class="stat-container">
             <div class="stat-box"><small>오늘 조회수</small><b id="totalHits">0</b></div>
             <div class="stat-box"><small>순수 방문자</small><b id="uniqueUsers">0</b></div>
-            <div class="stat-box"><small>학습 시간</small><b>425분</b></div>
+            <div class="stat-box"><small>학습 시간</small><b>0분</b></div>
         </div>
-
         <div class="admin-edit-row">
             <label>단어장 이름 수정</label>
             <div class="input-group">
@@ -116,28 +80,19 @@
                 <button onclick="updateTitle()" style="padding:0 20px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer;">이름 변경</button>
             </div>
         </div>
-
         <div class="admin-btn-group">
             <button class="a-btn btn-add-voca" onclick="alert('단어장 추가 기능')">단어장 추가</button>
             <button class="a-btn btn-del-voca" onclick="if(confirm('삭제하시겠습니까?')) alert('삭제됨')">단어장 삭제</button>
         </div>
-
         <button onclick="closeAdmin()" style="width:100%; margin-top:25px; padding:15px; background:#F1F5F9; border:none; border-radius:10px; font-weight:800; cursor:pointer; color:#475569;">관리 창 닫기</button>
     </div>
-
     <div class="page-wrapper"><div id="pageBtns" class="page-container"></div></div>
     <div id="wordDisplay" class="word-list"></div>
 </div>
-
 <script>
     const API = "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec";
-    let allWords = [];
-    let nowPage = 1;
-    const perPage = 50;
-    const groupSize = 10;
-    let hideAll = false;
-    let currentFontSize = 22;
-    const adminPw = "5857";
+    let allWords = []; let nowPage = 1; const perPage = 50; const groupSize = 10;
+    let hideAll = false; let currentFontSize = 22; const adminPw = "5857";
 
     async function init() {
         try {
@@ -145,80 +100,57 @@
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
             
-            // 통계 로직
-            let hits = parseInt(localStorage.getItem('fcl_hits') || "120");
+            // 통계 로직 (초기값 0으로 수정)
+            let hits = parseInt(localStorage.getItem('fcl_hits') || "0");
             hits++;
             localStorage.setItem('fcl_hits', hits);
             document.getElementById('totalHits').innerText = hits;
 
-            let unique = parseInt(localStorage.getItem('fcl_unique') || "45");
+            let unique = parseInt(localStorage.getItem('fcl_unique') || "0");
             const lastVisit = localStorage.getItem('fcl_last_visit');
             const today = new Date().toDateString();
-            if(lastVisit !== today) {
-                unique++;
-                localStorage.setItem('fcl_unique', unique);
-                localStorage.setItem('fcl_last_visit', today);
-            }
+            if(lastVisit !== today) { unique++; localStorage.setItem('fcl_unique', unique); localStorage.setItem('fcl_last_visit', today); }
             document.getElementById('uniqueUsers').innerText = unique;
 
             drawUI();
         } catch (e) { document.getElementById('wordDisplay').innerHTML = "로딩 실패"; }
     }
-
     function drawUI() { drawWords(); drawPages(); }
-
     function drawWords() {
-        const display = document.getElementById('wordDisplay');
-        display.innerHTML = "";
+        const display = document.getElementById('wordDisplay'); display.innerHTML = "";
         const slice = allWords.slice((nowPage-1)*perPage, nowPage*perPage);
         slice.forEach((w) => {
-            const div = document.createElement('div');
-            div.className = 'word-item';
-            div.innerHTML = `
-                <div class="check-circle" onclick="this.classList.toggle('active')"></div>
+            const div = document.createElement('div'); div.className = 'word-item';
+            div.innerHTML = `<div class="check-circle" onclick="this.classList.toggle('active')"></div>
                 <div class="word-info" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
                     <span class="eng-text" style="font-size: ${currentFontSize}px">${w.eng}</span>
                     <span class="pro-text" style="font-size: ${currentFontSize-5}px">${w.pro}</span>
                 </div>
-                <div class="kor-text ${hideAll?'hidden':''}" style="font-size: ${currentFontSize-4}px" onclick="this.classList.toggle('hidden')">${w.kor}</div>
-            `;
+                <div class="kor-text ${hideAll?'hidden':''}" style="font-size: ${currentFontSize-4}px" onclick="this.classList.toggle('hidden')">${w.kor}</div>`;
             display.appendChild(div);
         });
     }
-
     function drawPages() {
-        const container = document.getElementById('pageBtns');
-        container.innerHTML = "";
+        const container = document.getElementById('pageBtns'); container.innerHTML = "";
         const totalP = Math.ceil(allWords.length / perPage);
         const startP = (Math.ceil(nowPage/groupSize)-1)*groupSize+1;
         const endP = Math.min(totalP, startP + groupSize - 1);
         if(startP > 1) container.appendChild(makeBtn("«", startP-1, "nav"));
         for(let i=startP; i<=endP; i++) {
-            const b = makeBtn(i, i);
-            if(i===nowPage) b.classList.add('active');
+            const b = makeBtn(i, i); if(i===nowPage) b.classList.add('active');
             container.appendChild(b);
         }
         if(endP < totalP) container.appendChild(makeBtn("»", endP+1, "nav"));
     }
-
     function makeBtn(t, p, c) {
-        const b = document.createElement('button');
-        b.className = 'p-btn '+(c||''); b.innerText = t;
-        b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0,0); };
-        return b;
+        const b = document.createElement('button'); b.className = 'p-btn '+(c||''); b.innerText = t;
+        b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0,0); }; return b;
     }
-
-    function changeFontSize(delta) {
-        currentFontSize += delta;
-        currentFontSize = Math.min(Math.max(currentFontSize, 14), 36);
-        drawWords();
-    }
-
+    function changeFontSize(delta) { currentFontSize = Math.min(Math.max(currentFontSize + delta, 14), 36); drawWords(); }
     function askAdmin() {
-        const pw = prompt("관리자 비밀번호를 입력하세요.");
+        const pw = prompt("비밀번호를 입력하세요.");
         if(pw === adminPw) {
-            const currentTitle = document.getElementById('mainTitle').innerText.replace("📖 ", "");
-            document.getElementById('editVocaInput').value = currentTitle;
+            document.getElementById('editVocaInput').value = document.getElementById('mainTitle').innerText.replace("📖 ", "");
             document.getElementById('adminPanel').style.display = 'block';
         }
     }
@@ -230,12 +162,10 @@
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
     function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
     function searchWord() {
-        const val = document.getElementById('wordSearch').value.toLowerCase();
-        if(!val) return;
+        const val = document.getElementById('wordSearch').value.toLowerCase(); if(!val) return;
         const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
         if(idx!==-1) { nowPage = Math.floor(idx/perPage)+1; drawUI(); }
     }
-
     init();
 </script>
 </body>
