@@ -43,7 +43,8 @@
         .word-item { background: white; margin-bottom: 5px; border-radius: 8px; display: flex; align-items: center; padding: 10px 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
-        .word-info { flex: 1; display: flex; align-items: baseline; gap: 15px; cursor: pointer; }
+        /* 수정된 부분: flex-direction을 column으로 변경하여 세로 배치 */
+        .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; cursor: pointer; }
         .eng-text { font-weight: 900; color: #0F172A; } 
         .pro-text { color: #64748B; font-weight: 500; }
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 10px 15px; border-radius: 10px; min-width: 150px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
@@ -100,7 +101,6 @@
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
             
-            // 통계 로직 (초기값 0으로 수정)
             let hits = parseInt(localStorage.getItem('fcl_hits') || "0");
             hits++;
             localStorage.setItem('fcl_hits', hits);
@@ -124,7 +124,7 @@
             div.innerHTML = `<div class="check-circle" onclick="this.classList.toggle('active')"></div>
                 <div class="word-info" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
                     <span class="eng-text" style="font-size: ${currentFontSize}px">${w.eng}</span>
-                    <span class="pro-text" style="font-size: ${currentFontSize-5}px">${w.pro}</span>
+                    <span class="pro-text" style="font-size: ${currentFontSize-7}px">${w.pro}</span>
                 </div>
                 <div class="kor-text ${hideAll?'hidden':''}" style="font-size: ${currentFontSize-4}px" onclick="this.classList.toggle('hidden')">${w.kor}</div>`;
             display.appendChild(div);
@@ -160,13 +160,4 @@
         if(val) { document.getElementById('mainTitle').innerText = "📖 " + val; alert('변경됨'); }
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
-    function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
-    function searchWord() {
-        const val = document.getElementById('wordSearch').value.toLowerCase(); if(!val) return;
-        const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
-        if(idx!==-1) { nowPage = Math.floor(idx/perPage)+1; drawUI(); }
-    }
-    init();
-</script>
-</body>
-</html>
+    function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-
