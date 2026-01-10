@@ -14,56 +14,71 @@
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 0 auto; }
 
-        /* [상단 고정 헤더] */
-        .header { background: white; padding: 12px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .top-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        .voca-select { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; }
+        /* [Head 부분] */
+        .header { background: white; padding: 10px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .top-row { display: flex; gap: 6px; margin-bottom: 8px; }
+        .voca-select { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-weight: bold; font-size: 14px; }
         
-        .search-row { display: flex; gap: 5px; margin-bottom: 10px; }
-        .search-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .search-row { display: flex; gap: 4px; margin-bottom: 8px; }
+        .search-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
 
-        /* [페이지네이션 디자인: 10개 단위 최적화] */
-        .page-wrapper { background: #fff; padding: 12px 5px; border-bottom: 1px solid #eee; text-align: center; }
+        /* [페이지네이션: 10개 한 줄 배치 핵심 스타일] */
+        .page-wrapper { background: #fff; padding: 10px 2px; border-bottom: 1px solid #eee; text-align: center; }
         .page-container { 
-            display: flex; justify-content: center; align-items: center; 
-            gap: 2px; flex-wrap: wrap; /* 모바일 대응을 위해 좁은 간격 설정 */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 2px; /* 버튼 사이 간격 최소화 */
         }
         
         .p-btn { 
-            padding: 6px 0; min-width: 32px; border: 1px solid #ddd; background: #fff; 
-            border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500;
+            flex: 1; /* 가로 공간 균등 배분 */
+            max-width: 32px; /* 휴대폰 화면에서 10개가 들어가기 위한 적정 크기 */
+            height: 35px;
+            padding: 0;
+            border: 1px solid #ddd; 
+            background: #fff; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 12px; 
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .p-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-        .p-btn.nav { color: var(--blue); font-weight: bold; background: #f0f7ff; min-width: 40px; }
-        .page-summary { font-size: 11px; color: #888; margin-top: 10px; }
+        .p-btn.nav { background: #f0f7ff; color: var(--blue); font-weight: bold; max-width: 38px; }
+        .page-summary { font-size: 11px; color: #888; margin-top: 8px; }
 
         /* [단어 리스트] */
-        .word-list { padding: 10px; }
+        .word-list { padding: 8px; }
         .word-item { 
-            display: grid; grid-template-columns: 45px 1.2fr 1fr; 
-            align-items: center; background: #fff; padding: 15px; 
-            margin-bottom: 8px; border-radius: 12px; gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: grid; grid-template-columns: 40px 1.2fr 1fr; 
+            align-items: center; background: #fff; padding: 12px; 
+            margin-bottom: 6px; border-radius: 10px; gap: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
 
-        .check-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; }
+        .check-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; }
         .check-btn.blue { background: var(--blue); border-color: var(--blue); }
         .check-btn.red { background: var(--red); border-color: var(--red); }
 
-        .eng-box { cursor: pointer; }
-        .eng-text { font-size: 19px; font-weight: bold; color: #333; display: block; }
-        .pro-text { font-size: 13px; color: #999; margin-top: 2px; }
+        .eng-box { cursor: pointer; overflow: hidden; }
+        .eng-text { font-size: 18px; font-weight: bold; color: #333; display: block; word-break: break-all; }
+        .pro-text { font-size: 12px; color: #999; margin-top: 1px; }
 
         .kor-box { 
-            padding: 10px 5px; background: #fff5f5; color: var(--red); 
+            padding: 8px 4px; background: #fff5f5; color: var(--red); 
             font-weight: bold; text-align: center; cursor: pointer; 
-            border-radius: 8px; font-size: 15px; min-height: 20px;
+            border-radius: 6px; font-size: 15px; min-height: 20px;
+            border: 1px solid #ffe3e3;
         }
-        .hidden { color: transparent !important; background: #eee !important; border: 1px solid #ddd; }
+        .hidden { color: transparent !important; background: #eee !important; border-color: #ddd !important; }
 
-        .setting-panel { display: none; background: #fff9e6; padding: 15px; margin: 10px; border-radius: 10px; }
+        /* 설정 패널 */
+        .setting-panel { display: none; background: #fff9e6; padding: 15px; margin: 10px; border-radius: 10px; border: 1px solid #ffeeba; }
         .setting-panel.show { display: block; }
-        button { cursor: pointer; border-radius: 6px; border: 1px solid #ccc; background: #fff; padding: 8px 12px; }
+        .btn-black { background: #333; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -71,20 +86,19 @@
 <div class="container">
     <div class="header">
         <div class="top-row">
-            <select id="vocaSelect" class="voca-select" onchange="changeVoca()">
+            <select id="vocaSelect" class="voca-select">
                 <option value="voca1">📖 FCL 고등 필수 영단어</option>
             </select>
-            <button onclick="toggleSet()">⚙️</button>
+            <button onclick="toggleSet()" style="border:none; background:none; font-size:20px;">⚙️</button>
         </div>
         <div class="search-row">
-            <input type="text" id="wordSearch" class="search-input" placeholder="단어 검색 (페이지 자동이동)" oninput="searchWord()">
-            <button onclick="toggleHide()" id="hideBtn" style="background:#333; color:white; border:none; padding:10px 15px; border-radius:8px;">뜻 숨김</button>
+            <input type="text" id="wordSearch" class="search-input" placeholder="단어 검색 (페이지 이동)" oninput="searchWord()">
+            <button onclick="toggleHide()" id="hideBtn" class="btn-black">뜻 숨김</button>
         </div>
-        <div style="display:flex; justify-content: space-between; align-items: center;">
-            <div id="pageSummaryMini" style="font-size:11px; color:#666;"></div>
-            <div>
-                <span style="font-size:11px; color:#999;">발음 속도</span>
-                <input type="range" id="rateRange" min="0.4" max="1.1" step="0.1" value="0.8" style="width:50px; vertical-align: middle;">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+            <div id="miniInfo" style="font-size:11px; color:#666;"></div>
+            <div style="font-size:11px; color:#999;">
+                발음 속도 <input type="range" id="rateRange" min="0.4" max="1.1" step="0.1" value="0.8" style="width:40px; vertical-align: middle;">
             </div>
         </div>
     </div>
@@ -95,9 +109,9 @@
     </div>
 
     <div id="setPanel" class="setting-panel">
-        <strong>관리자 모드</strong><br><br>
-        <button onclick="addVoca()">단어장 추가</button>
-        <button onclick="delVoca()" style="color:red;">현재 단어장 삭제</button>
+        <strong>관리자 설정</strong><br><br>
+        <button onclick="alert('단어장 추가 기능')">단어장 추가</button>
+        <button onclick="alert('삭제 기능')" style="color:red;">현재 단어장 삭제</button>
     </div>
 
     <div id="wordDisplay" class="word-list"></div>
@@ -108,19 +122,19 @@
     let allWords = [];
     let nowPage = 1;
     const perPage = 50;
-    const pageGroupSize = 10; // 요청하신 대로 10개 단위로 보이게 수정
+    const pageGroupSize = 10; // 10개 단위 설정 확인
     let hideAll = false;
 
     async function init() {
         const display = document.getElementById('wordDisplay');
-        display.innerHTML = "<p style='text-align:center; padding:50px;'>데이터 동기화 중...</p>";
+        display.innerHTML = "<p style='text-align:center; padding:50px;'>동기화 중...</p>";
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation, state: 'none' }));
             drawUI();
         } catch (e) {
-            display.innerHTML = "<p style='text-align:center; color:red;'>로드 실패</p>";
+            display.innerHTML = "<p style='text-align:center; color:red;'>데이터를 불러올 수 없습니다.</p>";
         }
     }
 
@@ -151,9 +165,9 @@
             `;
             display.appendChild(div);
         });
-        const summary = `Total: ${allWords.length} 단어 (현재 ${nowPage}페이지)`;
-        document.getElementById('pageDesc').innerText = summary;
-        document.getElementById('pageSummaryMini').innerText = summary;
+        const infoText = `Total: ${allWords.length} 단어 (현재 ${nowPage}페이지)`;
+        document.getElementById('pageDesc').innerText = infoText;
+        document.getElementById('miniInfo').innerText = infoText;
     }
 
     function drawPages() {
@@ -161,28 +175,25 @@
         container.innerHTML = "";
         const totalP = Math.ceil(allWords.length / perPage);
         
-        // 10개 단위 묶음 계산
         const groupNum = Math.ceil(nowPage / pageGroupSize);
         const startP = (groupNum - 1) * pageGroupSize + 1;
         const endP = Math.min(totalP, startP + pageGroupSize - 1);
 
-        // [처음] 및 [이전]
+        // [이전 그룹] 버튼
         if (groupNum > 1) {
-            container.appendChild(makeBtn("«", 1, "nav"));
             container.appendChild(makeBtn("<", startP - 1, "nav"));
         }
 
-        // 1~10 숫자 버튼
+        // 1~10 숫자 버튼 (핵심)
         for (let i = startP; i <= endP; i++) {
             const btn = makeBtn(i, i);
             if (i === nowPage) btn.classList.add('active');
             container.appendChild(btn);
         }
 
-        // [다음] 및 [끝]
+        // [다음 그룹] 버튼
         if (endP < totalP) {
             container.appendChild(makeBtn(">", endP + 1, "nav"));
-            container.appendChild(makeBtn("»", totalP, "nav"));
         }
     }
 
