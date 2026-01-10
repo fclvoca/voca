@@ -25,16 +25,16 @@
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 15px; height: 38px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 22px; cursor: pointer; padding: 5px; }
 
-        /* [검색창 및 속도조절 레이아웃 최적화] */
-        .tool-row { display: flex; align-items: center; gap: 25px; width: 100%; }
+        /* [검색창 4배 확장 및 Speed 간격 조정] */
+        .tool-row { display: flex; align-items: center; gap: 30px; width: 100%; }
         
-        /* 검색창 너비 4배 확장 (기존 80px -> 320px) */
-        .search-box { width: 320px; flex-shrink: 0; } 
-        .search-input { width: 100%; height: 38px; padding: 0 12px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
+        /* 검색창 너비 대폭 확장 */
+        .search-box { width: 350px; flex-shrink: 0; } 
+        .search-input { width: 100%; height: 38px; padding: 0 15px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
 
-        /* Speed 텍스트와 슬라이더 간격 확보 */
-        .speed-control { flex: 1; display: flex; align-items: center; gap: 15px; color: white; font-size: 13px; min-width: 150px; }
-        .speed-slider { flex: 1; cursor: pointer; accent-color: var(--fcl-orange); height: 18px; }
+        /* Speed 영역 간격 확보 */
+        .speed-control { flex: 1; display: flex; align-items: center; gap: 15px; color: white; font-size: 13px; white-space: nowrap; }
+        .speed-slider { flex: 1; cursor: pointer; accent-color: var(--fcl-orange); height: 18px; max-width: 200px; }
 
         /* [관리자 패널] */
         #adminPanel { display: none; background: #FFF; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
@@ -52,20 +52,20 @@
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
         
-        /* 단어와 발음기호를 가로로 배치 */
-        .word-info { flex: 1; display: flex; align-items: baseline; gap: 15px; cursor: pointer; }
-        .eng-text { font-size: 22px; font-weight: 800; color: #0F172A; }
+        /* 단어 정보 가로 배열 */
+        .word-info { flex: 1; display: flex; align-items: center; gap: 15px; cursor: pointer; overflow: hidden; }
+        .eng-text { font-size: 22px; font-weight: 800; color: #0F172A; white-space: nowrap; }
         
-        /* 발음기호를 옆으로 이동 및 가독성 강화 */
+        /* 발음기호를 영단어 우측 바로 옆에 배치 */
         .pro-text { 
             font-size: 16px; 
             color: #64748B; 
             font-style: normal; 
-            font-weight: 500;
-            letter-spacing: 0.2px;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        .kor-text { color: #000; font-weight: 700; font-size: 17px; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 150px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
+        .kor-text { color: #000; font-weight: 700; font-size: 17px; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 150px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; margin-left: 10px; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
     </style>
 </head>
@@ -74,7 +74,7 @@
 <div class="container">
     <div class="header-section">
         <div class="top-row">
-            <div class="voca-title" id="mainTitle">📖 FCL_Premium Voca</div>
+            <div class="voca-title" id="mainTitle">📖 FCL_우선순위 영단어</div>
             <div style="display:flex; gap:8px; align-items:center;">
                 <button onclick="toggleHide()" class="btn-hide" id="hideBtn">뜻 숨기기</button>
                 <button onclick="askAdmin()" class="btn-admin-gear">⚙️</button>
@@ -101,14 +101,7 @@
                 <small style="color:#666;">학습 시간</small><br><b style="font-size:20px; color:var(--fcl-navy);">18</b>분
             </div>
         </div>
-        <div style="border-top:2px solid #F1F5F9; padding-top:15px;">
-            <div style="margin-bottom:10px; font-weight:700; font-size:13px;">단어장 이름 수정</div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="editVoca" placeholder="새 이름 입력" style="flex:1; padding:10px; border-radius:6px; border:1px solid #DDD;">
-                <button onclick="editVoca()" style="padding:0 15px; background:#10B981; color:white; border:none; border-radius:6px; font-weight:700;">수정</button>
-            </div>
-        </div>
-        <button onclick="closeAdmin()" style="width:100%; margin-top:20px; padding:12px; background:#F1F5F9; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:#475569;">관리 창 닫기</button>
+        <button onclick="closeAdmin()" style="width:100%; margin-top:10px; padding:12px; background:#F1F5F9; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:#475569;">관리 창 닫기</button>
     </div>
 
     <div class="page-wrapper"><div id="pageBtns" class="page-container"></div></div>
@@ -186,10 +179,6 @@
         } else if(pw !== null) alert("비밀번호가 틀렸습니다.");
     }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-    function editVoca() {
-        const name = document.getElementById('editVoca').value.trim();
-        if(name) { document.getElementById('mainTitle').innerText = "📖 " + name; alert("수정완료"); }
-    }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
     function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
     function searchWord() {
