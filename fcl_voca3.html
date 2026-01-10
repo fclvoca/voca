@@ -37,35 +37,35 @@
         .speed-slider { width: 280px; cursor: pointer; accent-color: var(--fcl-orange); height: 18px; }
 
         /* [관리자 패널: 통합 구성] */
-        #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 2px solid var(--fcl-navy); position: relative; z-index: 9999; }
+        #adminPanel { display: none; background: white; margin: 10px; padding: 25px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
         
         /* 1. 통계 */
-        .stat-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat-box { flex: 1; background: #F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #EEE; }
-        .stat-box small { color: #666; font-size: 12px; }
-        .stat-box b { font-size: 18px; color: var(--fcl-navy); display: block; }
+        .stat-container { display: flex; gap: 10px; margin-bottom: 25px; }
+        .stat-box { flex: 1; background: #F8FAFC; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
+        .stat-box small { color: #64748B; font-size: 13px; font-weight: 500; margin-bottom: 5px; display: block; }
+        .stat-box b { font-size: 22px; color: var(--fcl-navy); display: block; font-weight: 900; }
 
-        /* 2. 단어장 이름 수정 */
-        .admin-edit-row { border-top: 1px solid #F1F5F9; padding-top: 15px; margin-bottom: 20px; }
-        .admin-edit-row label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 13px; color: #475569; }
+        /* 2. 단어장 이름 수정 (현재 이름이 미리 나타남) */
+        .admin-edit-row { border-top: 1px solid #F1F5F9; padding-top: 20px; margin-bottom: 25px; }
+        .admin-edit-row label { display: block; margin-bottom: 10px; font-weight: 800; font-size: 14px; color: var(--fcl-navy); }
         .input-group { display: flex; gap: 8px; }
-        .admin-input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #DDD; font-size: 14px; }
+        .admin-input { flex: 1; padding: 12px; border-radius: 8px; border: 2px solid #E2E8F0; font-size: 15px; font-weight: 500; font-family: 'Noto Sans KR'; }
+        .admin-input:focus { border-color: var(--fcl-navy); outline: none; }
 
-        /* 3. 단어 추가/삭제 버튼 */
-        .admin-btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-        .a-btn { flex: 1; padding: 12px; border-radius: 6px; border: none; color: white; font-weight: 700; cursor: pointer; font-size: 14px; min-width: 100px; }
-        .btn-add { background-color: #3F51B5; }
-        .btn-del { background-color: #F44336; }
-        .btn-save { background-color: #4CAF50; }
+        /* 3. 단어장 추가/삭제 버튼 */
+        .admin-btn-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        .a-btn { flex: 1; padding: 15px; border-radius: 8px; border: none; color: white; font-weight: 800; cursor: pointer; font-size: 15px; transition: opacity 0.2s; }
+        .a-btn:active { opacity: 0.8; }
+        .btn-add-voca { background-color: #3F51B5; } /* 단어장 추가 */
+        .btn-del-voca { background-color: #F44336; } /* 단어장 삭제 */
 
-        /* [페이지네이션] */
+        /* [페이지네이션 및 리스트] */
         .page-wrapper { padding: 10px; background: #FFF; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; align-items: center; justify-content: space-between; gap: 2px; width: 100%; }
         .p-btn { flex: 1; max-width: 60px; height: 42px; border: 1px solid #E2E8F0; background: white; color: #475569; border-radius: 4px; font-size: 14px; font-weight: 800; cursor: pointer; }
         .p-btn.active { background-color: #2563EB; color: white; border-color: #2563EB; }
         .p-btn.nav { background-color: #F1F5F9; color: #2563EB; font-weight: 900; font-size: 18px; max-width: 45px; }
 
-        /* [단어 리스트] */
         .word-list { padding: 8px; }
         .word-item { background: white; margin-bottom: 5px; border-radius: 8px; display: flex; align-items: center; padding: 10px 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
@@ -74,7 +74,6 @@
         .word-info { flex: 1; display: flex; align-items: baseline; gap: 15px; cursor: pointer; }
         .eng-text { font-weight: 900; color: #0F172A; } 
         .pro-text { color: #64748B; font-weight: 500; }
-
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 10px 15px; border-radius: 10px; min-width: 150px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
     </style>
@@ -107,28 +106,27 @@
     </div>
 
     <div id="adminPanel">
-        <div style="text-align:center; font-weight:900; margin-bottom:15px; color:var(--fcl-navy); font-size:18px;">[ 관리자 설정 ]</div>
+        <div style="text-align:center; font-weight:900; margin-bottom:20px; color:var(--fcl-navy); font-size:20px;">[ 관리자 모드 ]</div>
         
         <div class="stat-container">
-            <div class="stat-box"><small>오늘 방문</small><b id="vCount">0</b></div>
-            <div class="stat-box"><small>평균 학습</small><b>18분</b></div>
+            <div class="stat-box"><small>오늘 방문자</small><b id="vCount">0</b></div>
+            <div class="stat-box"><small>총 학습 시간</small><b>425분</b></div>
         </div>
 
         <div class="admin-edit-row">
             <label>단어장 이름 수정</label>
             <div class="input-group">
-                <input type="text" id="editVocaInput" class="admin-input" placeholder="새 이름 입력">
-                <button onclick="updateTitle()" style="padding:0 15px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:700;">변경</button>
+                <input type="text" id="editVocaInput" class="admin-input">
+                <button onclick="updateTitle()" style="padding:0 20px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer;">이름 변경</button>
             </div>
         </div>
 
         <div class="admin-btn-group">
-            <button class="a-btn btn-add" onclick="alert('단어 추가 창을 엽니다.')">단어 추가</button>
-            <button class="a-btn btn-del" onclick="alert('선택한 단어를 삭제합니다.')">선택 삭제</button>
-            <button class="a-btn btn-save" onclick="alert('파일로 내보내기')">파일 저장</button>
+            <button class="a-btn btn-add-voca" onclick="alert('새로운 단어장 파일을 업로드하거나 생성합니다.')">단어장 추가</button>
+            <button class="a-btn btn-del-voca" onclick="if(confirm('현재 단어장 전체를 삭제하시겠습니까?')) alert('삭제되었습니다.')">단어장 삭제</button>
         </div>
 
-        <button onclick="closeAdmin()" style="width:100%; margin-top:20px; padding:12px; background:#F1F5F9; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:#475569;">관리 창 닫기</button>
+        <button onclick="closeAdmin()" style="width:100%; margin-top:25px; padding:15px; background:#F1F5F9; border:none; border-radius:10px; font-weight:800; cursor:pointer; color:#475569;">관리 창 닫기</button>
     </div>
 
     <div class="page-wrapper"><div id="pageBtns" class="page-container"></div></div>
@@ -152,7 +150,7 @@
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
             document.getElementById('vCount').innerText = Math.floor(Math.random()*20)+115;
             drawUI();
-        } catch (e) { document.getElementById('wordDisplay').innerHTML = "로딩 오류"; }
+        } catch (e) { document.getElementById('wordDisplay').innerHTML = "로딩 실패"; }
     }
 
     function drawUI() { drawWords(); drawPages(); }
@@ -205,14 +203,24 @@
     }
 
     function askAdmin() {
-        const pw = prompt("비밀번호를 입력하세요.");
-        if(pw === adminPw) document.getElementById('adminPanel').style.display = 'block';
+        const pw = prompt("관리자 비밀번호를 입력하세요.");
+        if(pw === adminPw) {
+            // 관리자 모드 열 때 현재 단어장 이름을 입력창에 미리 세팅
+            const currentTitle = document.getElementById('mainTitle').innerText.replace("📖 ", "");
+            document.getElementById('editVocaInput').value = currentTitle;
+            document.getElementById('adminPanel').style.display = 'block';
+        }
     }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+    
     function updateTitle() {
         const val = document.getElementById('editVocaInput').value.trim();
-        if(val) { document.getElementById('mainTitle').innerText = "📖 " + val; alert('변경되었습니다.'); }
+        if(val) {
+            document.getElementById('mainTitle').innerText = "📖 " + val;
+            alert('단어장 이름이 "' + val + '"으로 변경되었습니다.');
+        }
     }
+
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
     function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
     function searchWord() {
