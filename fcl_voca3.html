@@ -19,25 +19,28 @@
         .top-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .voca-select { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; }
         
-        .search-row { display: flex; gap: 5px; }
+        .search-row { display: flex; gap: 5px; margin-bottom: 10px; }
         .search-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
 
-        /* [페이지네이션 디자인 개선] */
-        .page-wrapper { background: #fff; padding: 10px 5px; border-bottom: 1px solid #eee; text-align: center; }
-        .page-container { display: flex; justify-content: center; align-items: center; gap: 3px; flex-wrap: wrap; }
+        /* [페이지네이션 디자인: 10개 단위 최적화] */
+        .page-wrapper { background: #fff; padding: 12px 5px; border-bottom: 1px solid #eee; text-align: center; }
+        .page-container { 
+            display: flex; justify-content: center; align-items: center; 
+            gap: 2px; flex-wrap: wrap; /* 모바일 대응을 위해 좁은 간격 설정 */
+        }
         
         .p-btn { 
-            padding: 8px 10px; min-width: 35px; border: 1px solid #ddd; background: #fff; 
-            border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;
+            padding: 6px 0; min-width: 32px; border: 1px solid #ddd; background: #fff; 
+            border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500;
         }
         .p-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-        .p-btn.nav { color: var(--blue); font-weight: bold; background: #f0f7ff; }
-        .page-summary { font-size: 12px; color: #888; margin-top: 8px; }
+        .p-btn.nav { color: var(--blue); font-weight: bold; background: #f0f7ff; min-width: 40px; }
+        .page-summary { font-size: 11px; color: #888; margin-top: 10px; }
 
         /* [단어 리스트] */
         .word-list { padding: 10px; }
         .word-item { 
-            display: grid; grid-template-columns: 45px 1fr 110px; 
+            display: grid; grid-template-columns: 45px 1.2fr 1fr; 
             align-items: center; background: #fff; padding: 15px; 
             margin-bottom: 8px; border-radius: 12px; gap: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -75,11 +78,14 @@
         </div>
         <div class="search-row">
             <input type="text" id="wordSearch" class="search-input" placeholder="단어 검색 (페이지 자동이동)" oninput="searchWord()">
-            <button onclick="toggleHide()" id="hideBtn">뜻 숨김</button>
+            <button onclick="toggleHide()" id="hideBtn" style="background:#333; color:white; border:none; padding:10px 15px; border-radius:8px;">뜻 숨김</button>
         </div>
-        <div style="text-align: right; margin-top: 5px;">
-            <span style="font-size:11px; color:#999;">발음 속도</span>
-            <input type="range" id="rateRange" min="0.4" max="1.1" step="0.1" value="0.8" style="width:50px; vertical-align: middle;">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <div id="pageSummaryMini" style="font-size:11px; color:#666;"></div>
+            <div>
+                <span style="font-size:11px; color:#999;">발음 속도</span>
+                <input type="range" id="rateRange" min="0.4" max="1.1" step="0.1" value="0.8" style="width:50px; vertical-align: middle;">
+            </div>
         </div>
     </div>
 
@@ -102,12 +108,12 @@
     let allWords = [];
     let nowPage = 1;
     const perPage = 50;
-    const pageGroupSize = 5; // 한 번에 보여줄 페이지 번호 개수
+    const pageGroupSize = 10; // 요청하신 대로 10개 단위로 보이게 수정
     let hideAll = false;
 
     async function init() {
         const display = document.getElementById('wordDisplay');
-        display.innerHTML = "<p style='text-align:center; padding:50px;'>데이터를 가져오는 중...</p>";
+        display.innerHTML = "<p style='text-align:center; padding:50px;'>데이터 동기화 중...</p>";
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
@@ -145,7 +151,9 @@
             `;
             display.appendChild(div);
         });
-        document.getElementById('pageDesc').innerText = `총 ${allWords.length}개 단어 중 ${(start+1)}~${Math.min(start+perPage, allWords.length)} 표시`;
+        const summary = `Total: ${allWords.length} 단어 (현재 ${nowPage}페이지)`;
+        document.getElementById('pageDesc').innerText = summary;
+        document.getElementById('pageSummaryMini').innerText = summary;
     }
 
     function drawPages() {
@@ -153,26 +161,28 @@
         container.innerHTML = "";
         const totalP = Math.ceil(allWords.length / perPage);
         
-        // 현재 페이지가 속한 그룹 계산
+        // 10개 단위 묶음 계산
         const groupNum = Math.ceil(nowPage / pageGroupSize);
         const startP = (groupNum - 1) * pageGroupSize + 1;
         const endP = Math.min(totalP, startP + pageGroupSize - 1);
 
-        // [이전] 버튼
+        // [처음] 및 [이전]
         if (groupNum > 1) {
-            container.appendChild(makeBtn("이전", startP - 1, "nav"));
+            container.appendChild(makeBtn("«", 1, "nav"));
+            container.appendChild(makeBtn("<", startP - 1, "nav"));
         }
 
-        // 숫자 버튼
+        // 1~10 숫자 버튼
         for (let i = startP; i <= endP; i++) {
             const btn = makeBtn(i, i);
             if (i === nowPage) btn.classList.add('active');
             container.appendChild(btn);
         }
 
-        // [다음] 버튼
+        // [다음] 및 [끝]
         if (endP < totalP) {
-            container.appendChild(makeBtn("다음", endP + 1, "nav"));
+            container.appendChild(makeBtn(">", endP + 1, "nav"));
+            container.appendChild(makeBtn("»", totalP, "nav"));
         }
     }
 
