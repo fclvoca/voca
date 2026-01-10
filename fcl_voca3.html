@@ -25,25 +25,19 @@
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 15px; height: 38px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 22px; cursor: pointer; padding: 5px; }
 
-        /* [검색창 및 속도조절] */
-        .tool-row { display: flex; align-items: center; gap: 15px; width: 100%; }
-        .search-box { width: 80px; flex-shrink: 0; } 
-        .search-input { width: 100%; height: 36px; padding: 0 10px; border-radius: 6px; border: none; font-size: 12px; outline: none; }
-        .speed-control { flex: 0 1 220px; display: flex; align-items: center; gap: 10px; color: white; font-size: 12px; }
+        /* [검색창 및 속도조절 레이아웃 최적화] */
+        .tool-row { display: flex; align-items: center; gap: 25px; width: 100%; }
+        
+        /* 검색창 너비 4배 확장 (기존 80px -> 320px) */
+        .search-box { width: 320px; flex-shrink: 0; } 
+        .search-input { width: 100%; height: 38px; padding: 0 12px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
+
+        /* Speed 텍스트와 슬라이더 간격 확보 */
+        .speed-control { flex: 1; display: flex; align-items: center; gap: 15px; color: white; font-size: 13px; min-width: 150px; }
         .speed-slider { flex: 1; cursor: pointer; accent-color: var(--fcl-orange); height: 18px; }
 
         /* [관리자 패널] */
-        #adminPanel { 
-            display: none; 
-            background: #FFF; 
-            margin: 15px; 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
-            border: 3px solid var(--fcl-navy); 
-            position: relative; 
-            z-index: 9999; 
-        }
+        #adminPanel { display: none; background: #FFF; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
 
         /* [페이지네이션] */
         .page-wrapper { padding: 12px 2mm; background: #FFF; border-bottom: 1px solid #E2E8F0; }
@@ -54,25 +48,24 @@
 
         /* [단어 리스트] */
         .word-list { padding: 12px; }
-        .word-item { background: white; margin-bottom: 10px; border-radius: 12px; display: flex; align-items: center; padding: 18px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
+        .word-item { background: white; margin-bottom: 10px; border-radius: 12px; display: flex; align-items: center; padding: 18px 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
+        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
         
-        /* 단어 텍스트 스타일 */
+        /* 단어와 발음기호를 가로로 배치 */
+        .word-info { flex: 1; display: flex; align-items: baseline; gap: 15px; cursor: pointer; }
         .eng-text { font-size: 22px; font-weight: 800; color: #0F172A; }
         
-        /* 발음기호 수정: 이탤릭 제거, 더 선명한 고딕체와 색상 적용 */
+        /* 발음기호를 옆으로 이동 및 가독성 강화 */
         .pro-text { 
             font-size: 16px; 
-            color: #475569; 
-            font-style: normal; /* 이탤릭 제거 */
-            margin-top: 5px; 
-            display: block; 
-            font-weight: 600; /* 약간 굵게 */
-            letter-spacing: 0.5px;
+            color: #64748B; 
+            font-style: normal; 
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
-        .kor-text { color: #000; font-weight: 700; font-size: 17px; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 140px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
+        .kor-text { color: #000; font-weight: 700; font-size: 17px; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 150px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
     </style>
 </head>
@@ -89,7 +82,7 @@
         </div>
         <div class="tool-row">
             <div class="search-box">
-                <input type="text" id="wordSearch" class="search-input" placeholder="검색" oninput="searchWord()">
+                <input type="text" id="wordSearch" class="search-input" placeholder="이동할 단어 검색..." oninput="searchWord()">
             </div>
             <div class="speed-control">
                 <span>Speed</span>
@@ -138,7 +131,7 @@
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
             document.getElementById('vCount').innerText = Math.floor(Math.random()*30)+110;
             drawUI();
-        } catch (e) { document.getElementById('wordDisplay').innerHTML = "데이터 로딩 중 오류가 발생했습니다."; }
+        } catch (e) { document.getElementById('wordDisplay').innerHTML = "데이터 로딩 중..."; }
     }
 
     function drawUI() { drawWords(); drawPages(); }
@@ -152,7 +145,7 @@
             div.className = 'word-item';
             div.innerHTML = `
                 <div class="check-circle" onclick="this.classList.toggle('active')"></div>
-                <div style="flex:1" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
+                <div class="word-info" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
                     <span class="eng-text">${w.eng}</span>
                     <span class="pro-text">${w.pro}</span>
                 </div>
@@ -185,30 +178,18 @@
         return b;
     }
 
-    /* [관리자 기능 핵심 로직] */
     function askAdmin() {
         const pw = prompt("관리자 비밀번호를 입력하세요.");
         if(pw === adminPw) {
             document.getElementById('adminPanel').style.display = 'block';
             window.scrollTo({top: 0, behavior: 'smooth'});
-        } else if(pw !== null) {
-            alert("비밀번호가 일치하지 않습니다.");
-        }
+        } else if(pw !== null) alert("비밀번호가 틀렸습니다.");
     }
-
-    function closeAdmin() {
-        document.getElementById('adminPanel').style.display = 'none';
-    }
-
+    function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
     function editVoca() {
         const name = document.getElementById('editVoca').value.trim();
-        if(name) {
-            document.getElementById('mainTitle').innerText = "📖 " + name;
-            alert("단어장 이름이 변경되었습니다.");
-            document.getElementById('editVoca').value = "";
-        }
+        if(name) { document.getElementById('mainTitle').innerText = "📖 " + name; alert("수정완료"); }
     }
-
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
     function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
     function searchWord() {
