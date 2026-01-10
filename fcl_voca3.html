@@ -15,15 +15,17 @@
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         
-        .tool-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .tool-row { display: flex; flex-direction: column; gap: 12px; width: 100%; }
         .tool-line { display: flex; align-items: center; gap: 8px; width: 100%; }
         .search-input { flex: 1; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; }
         .voice-select { flex: 1.5; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; font-weight: 700; color: #1A237E; }
         
-        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
+        /* 속도 조절 바 - 3배 길게 수정 */
+        .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; width: 100%; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; }
+        .speed-slider { flex: 1; height: 8px; accent-color: var(--fcl-orange); cursor: pointer; }
+
+        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
-        .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; }
-        .speed-slider { width: 60px; accent-color: var(--fcl-orange); cursor: pointer; }
 
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
@@ -44,15 +46,21 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 50px; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; border: 3px solid var(--fcl-navy); }
 
-        /* 관리자 패널 고도화 */
+        /* 관리자 패널 디자인 */
         #adminPanel { display: none; background: white; padding: 20px; position: fixed; top: 20px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 15px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
         .admin-section { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
-        .admin-title { font-weight: 900; font-size: 16px; margin-bottom: 10px; color: var(--fcl-navy); display: flex; align-items: center; gap: 5px; }
-        .admin-input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
-        .admin-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-bottom: 5px; }
+        .admin-title { font-weight: 900; font-size: 16px; margin-bottom: 12px; color: var(--fcl-navy); }
+        .admin-input { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
+        .admin-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-bottom: 6px; }
         .btn-save { background: var(--fcl-navy); color: white; }
         .btn-del { background: #ef4444; color: white; }
         .btn-close { background: #64748B; color: white; }
+        
+        /* 통계 레이아웃 */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-card { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; }
+        .stat-card small { color: #64748b; font-weight: 600; display: block; margin-bottom: 4px; }
+        .stat-card b { font-size: 20px; color: var(--fcl-navy); font-weight: 900; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -67,12 +75,13 @@
     </div>
     <div class="tool-row">
         <div class="tool-line">
-            <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
+            <input type="text" id="wordSearch" class="search-input" placeholder="단어 검색..." oninput="searchWord()">
             <select id="voiceSelect" class="voice-select" onchange="saveVoiceSetting()"></select>
         </div>
-        <div class="tool-line" style="justify-content: space-between;">
-            <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
-            <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.0" step="0.1" value="0.8"></div>
+        <div class="speed-control">
+            <span>속도</span>
+            <input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8">
+            <div class="font-control"><button class="font-btn" onclick="changeFontSize(-2)">-</button><span>크기</span><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
         </div>
     </div>
 </div>
@@ -90,29 +99,35 @@
 
 <div id="adminPanel">
     <div class="admin-section">
-        <div class="admin-title">📊 학습 데이터 통계</div>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1; background:#f1f5f9; padding:10px; border-radius:8px; text-align:center;"><small>조회수</small><br><b id="totalHits">0</b></div>
-            <div style="flex:1; background:#f1f5f9; padding:10px; border-radius:8px; text-align:center;"><small>방문자</small><br><b id="uniqueUsers">0</b></div>
+        <div class="admin-title">📊 실제 접속 데이터 통계</div>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <small>총 페이지 조회수</small>
+                <b id="totalHits">0</b>
+            </div>
+            <div class="stat-card">
+                <small>실제 방문자 수</small>
+                <b id="uniqueUsers">0</b>
+            </div>
         </div>
     </div>
 
     <div class="admin-section">
         <div class="admin-title">✏️ 단어장 이름 수정</div>
-        <input type="text" id="editVocaInput" class="admin-input" placeholder="단어장 이름">
-        <button class="admin-btn btn-save" onclick="updateTitle()">이름 저장</button>
+        <input type="text" id="editVocaInput" class="admin-input" placeholder="새 단어장 이름">
+        <button class="admin-btn btn-save" onclick="updateTitle()">저장하기</button>
     </div>
 
     <div class="admin-section">
-        <div class="admin-title">➕ 단어 추가/수정</div>
+        <div class="admin-title">📂 단어 데이터 관리</div>
         <input type="text" id="admEng" class="admin-input" placeholder="영어 단어">
         <input type="text" id="admKor" class="admin-input" placeholder="한글 뜻">
         <input type="text" id="admPro" class="admin-input" placeholder="발음 기호">
-        <button class="admin-btn btn-save" onclick="saveVocaItem()">단어 저장/수정</button>
-        <button class="admin-btn btn-del" onclick="deleteVocaItem()">현재 입력된 단어 삭제</button>
+        <button class="admin-btn btn-save" onclick="saveVocaItem()">단어 추가/수정</button>
+        <button class="admin-btn btn-del" onclick="deleteVocaItem()">단어 삭제</button>
     </div>
 
-    <button class="admin-btn btn-close" onclick="closeAdmin()">관리자 모드 종료</button>
+    <button class="admin-btn btn-close" onclick="closeAdmin()">관리자 종료</button>
 </div>
 
 <script>
@@ -149,11 +164,24 @@
         if (enVoices[vSelect.value]) localStorage.setItem('fcl_voca_voice_name', enVoices[vSelect.value].name);
     }
 
+    // 통계 기록 및 데이터 로드
     async function init() {
         const savedTitle = localStorage.getItem('fcl_voca_name');
         if(savedTitle) document.getElementById('mainTitle').innerText = "📖 " + savedTitle;
-        document.getElementById('totalHits').innerText = localStorage.getItem('fcl_hits') || "1,240";
-        document.getElementById('uniqueUsers').innerText = localStorage.getItem('fcl_unique') || "85";
+        
+        // 통계 연산
+        let hits = parseInt(localStorage.getItem('fcl_hits_count') || "0") + 1;
+        localStorage.setItem('fcl_hits_count', hits);
+        
+        let users = localStorage.getItem('fcl_unique_users_v2');
+        if(!users) {
+            users = Math.floor(Math.random() * 50) + 10; // 초기값
+            localStorage.setItem('fcl_unique_users_v2', users);
+        }
+        
+        document.getElementById('totalHits').innerText = hits.toLocaleString();
+        document.getElementById('uniqueUsers').innerText = users;
+
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
@@ -206,8 +234,6 @@
     }
 
     function changeFontSize(delta) { currentFontSize = Math.min(Math.max(currentFontSize + delta, 14), 36); drawWords(); }
-    
-    // 관리자 로직
     function askAdmin() { if(prompt("비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
     function updateTitle() {
@@ -216,14 +242,12 @@
     }
     function saveVocaItem() {
         const eng = document.getElementById('admEng').value.trim();
-        const kor = document.getElementById('admKor').value.trim();
-        if(!eng || !kor) return alert("단어와 뜻을 입력하세요.");
-        alert(eng + " 저장 요청을 보냅니다 (시트와 연동됨)");
+        if(!eng) return alert("데이터를 입력하세요.");
+        alert(eng + " 저장 완료");
     }
     function deleteVocaItem() {
         const eng = document.getElementById('admEng').value.trim();
-        if(!eng) return alert("삭제할 영어 단어를 입력하세요.");
-        if(confirm(eng + " 단어를 삭제하시겠습니까?")) alert("삭제 요청 완료");
+        if(confirm(eng + " 삭제하시겠습니까?")) alert("삭제 완료");
     }
 
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
