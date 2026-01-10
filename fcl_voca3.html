@@ -23,9 +23,7 @@
         .tool-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         .tool-line { display: flex; align-items: center; gap: 8px; width: 100%; }
         .search-input { flex: 1; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; }
-        
-        /* 목소리 선택 박스 */
-        .voice-select { flex: 1; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; }
+        .voice-select { flex: 1.2; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; font-weight: 700; color: #1A237E; }
         
         .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
@@ -50,12 +48,10 @@
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px; border-radius: 10px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 팝업 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 50px; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; border: 3px solid var(--fcl-navy); }
         .btn-close-modal { background: var(--fcl-navy); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
-        /* 관리자 */
         #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: fixed; top: 50px; left: 10px; right: 10px; z-index: 3000; }
     </style>
 </head>
@@ -73,7 +69,9 @@
         <div class="tool-row">
             <div class="tool-line">
                 <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
-                <select id="voiceSelect" class="voice-select" onchange="saveVoiceSetting()"><option>목소리 로딩 중...</option></select>
+                <select id="voiceSelect" class="voice-select" onchange="saveVoiceSetting()">
+                    <option value="google_server">🌐 최우선: 구글 원어민 음성</option>
+                </select>
             </div>
             <div class="tool-line" style="justify-content: space-between;">
                 <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
@@ -113,25 +111,22 @@
     let synth = window.speechSynthesis;
     let voices = [];
 
-    // 목소리 리스트 로드
     function loadVoices() {
         voices = synth.getVoices();
         const vSelect = document.getElementById('voiceSelect');
-        vSelect.innerHTML = "";
+        const savedVal = localStorage.getItem('fcl_voca_voice') || "google_server";
         
-        // 영어(en) 목소리만 필터링
+        vSelect.innerHTML = '<option value="google_server">🌐 최우선: 구글 원어민 음성</option>';
+        
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
-        
         enVoices.forEach((voice, i) => {
             const opt = document.createElement('option');
             opt.value = i;
-            opt.innerText = voice.name + (voice.localService ? ' (기기)' : ' (서버)');
+            opt.innerText = "기기: " + voice.name;
             vSelect.appendChild(opt);
         });
 
-        // 저장된 설정 불러오기
-        const savedVoice = localStorage.getItem('fcl_voca_voice');
-        if(savedVoice) vSelect.value = savedVoice;
+        vSelect.value = savedVal;
     }
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -210,18 +205,35 @@
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
 
+    // [서버 음성 우선 재생 로직]
+    let currentAudio = null;
     function play(t) {
-        synth.cancel();
-        const msg = new SpeechSynthesisUtterance(t);
-        const enVoices = voices.filter(v => v.lang.startsWith('en'));
-        const selectedIdx = document.getElementById('voiceSelect').value;
-        
-        if(enVoices[selectedIdx]) {
-            msg.voice = enVoices[selectedIdx];
+        const rate = document.getElementById('rateRange').value;
+        const selectedVal = document.getElementById('voiceSelect').value;
+
+        // 1. 구글 서버 음성 모드 (컴퓨터와 동일한 발음)
+        if (selectedVal === "google_server") {
+            if(currentAudio) currentAudio.pause();
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-us&client=tw-ob`;
+            currentAudio = new Audio(url);
+            currentAudio.playbackRate = rate;
+            currentAudio.play().catch(() => {
+                // 서버 음성 실패 시 기기 기본 음성으로 백업
+                const msg = new SpeechSynthesisUtterance(t);
+                msg.lang = 'en-US';
+                msg.rate = rate;
+                synth.speak(msg);
+            });
+        } 
+        // 2. 기기 내장 음성 모드
+        else {
+            synth.cancel();
+            const msg = new SpeechSynthesisUtterance(t);
+            const enVoices = voices.filter(v => v.lang.startsWith('en'));
+            if(enVoices[selectedVal]) msg.voice = enVoices[selectedVal];
+            msg.rate = rate;
+            synth.speak(msg);
         }
-        
-        msg.rate = document.getElementById('rateRange').value;
-        synth.speak(msg);
     }
 
     function searchWord() {
