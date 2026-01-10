@@ -14,42 +14,42 @@
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 0 auto; }
 
-        /* [Head 부분: 극도로 압축] */
-        .header { background: white; padding: 8px 10px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
-        .top-row { display: flex; gap: 5px; align-items: center; margin-bottom: 6px; }
-        .voca-select { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #ddd; font-weight: bold; font-size: 13px; }
+        /* [Head 영역: 극도의 압축] */
+        .header { background: white; padding: 6px 10px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+        .top-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
+        .voca-select { flex: 1; padding: 5px; border-radius: 6px; border: 1px solid #ddd; font-weight: bold; font-size: 13px; height: 32px; }
         
-        /* 검색, 뜻숨김, 발음속도 한 줄 통합 */
-        .tool-row { display: flex; gap: 5px; align-items: center; }
-        .search-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
-        .btn-tool { background: #333; color: white; border: none; padding: 8px 10px; border-radius: 6px; font-size: 12px; white-space: nowrap; cursor: pointer; }
-        .speed-box { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #777; white-space: nowrap; }
-
-        /* [페이지네이션: 10개 한 줄 배치] */
-        .page-wrapper { background: #fff; padding: 8px 2px; border-bottom: 1px solid #eee; text-align: center; }
-        .page-container { display: flex; justify-content: center; align-items: center; gap: 2px; }
+        /* 기능 통합 행 (검색창 축소 + 뜻 숨김 + 발음 속도) */
+        .tool-row { display: flex; gap: 4px; align-items: center; }
+        .search-input { width: 40%; padding: 7px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; height: 32px; box-sizing: border-box; }
+        .btn-hide { background: #333; color: white; border: none; padding: 0 10px; border-radius: 6px; font-size: 12px; height: 32px; white-space: nowrap; cursor: pointer; }
+        .speed-box { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: flex-end; }
+        .speed-box span { font-size: 10px; color: #777; white-space: nowrap; }
+        
+        /* [페이지네이션] */
+        .page-wrapper { background: #fff; padding: 6px 2px; border-bottom: 1px solid #eee; text-align: center; }
+        .page-container { display: flex; justify-content: center; align-items: center; gap: 1px; }
         .p-btn { 
-            flex: 1; max-width: 30px; height: 32px; border: 1px solid #ddd; background: #fff; 
-            border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 500;
-            display: flex; align-items: center; justify-content: center;
+            flex: 1; max-width: 28px; height: 30px; border: 1px solid #ddd; background: #fff; 
+            border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center;
         }
         .p-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-        .p-btn.nav { background: #f0f7ff; color: var(--blue); font-weight: bold; max-width: 35px; }
+        .p-btn.nav { background: #f0f7ff; color: var(--blue); font-weight: bold; max-width: 32px; }
 
-        /* [단어 리스트] */
-        .word-list { padding: 6px; }
+        /* [단어 리스트 영역 확대] */
+        .word-list { padding: 5px; }
         .word-item { 
             display: grid; grid-template-columns: 35px 1.2fr 1fr; 
             align-items: center; background: #fff; padding: 10px; 
-            margin-bottom: 5px; border-radius: 8px; gap: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 4px; border-radius: 8px; gap: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        .check-btn { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; }
+        .check-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; }
         .check-btn.blue { background: var(--blue); border-color: var(--blue); }
         .check-btn.red { background: var(--red); border-color: var(--red); }
 
-        .eng-box { cursor: pointer; line-height: 1.2; }
+        .eng-box { cursor: pointer; }
         .eng-text { font-size: 17px; font-weight: bold; color: #333; display: block; }
         .pro-text { font-size: 11px; color: #999; }
 
@@ -60,12 +60,10 @@
         }
         .hidden { color: transparent !important; background: #eee !important; border-color: #ddd !important; }
 
-        /* [관리자 패널: 단어 숫자 정보 포함] */
+        /* [관리자 패널] */
         .setting-panel { display: none; background: #fff9e6; padding: 12px; margin: 8px; border-radius: 10px; border: 1px solid #ffeeba; }
         .setting-panel.show { display: block; }
-        .admin-info { font-size: 12px; color: #666; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dotted #ccc; }
-        .admin-edit-row { display: flex; gap: 5px; margin-bottom: 8px; }
-        .admin-input { flex: 1; padding: 7px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+        .admin-edit-row { display: flex; gap: 5px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -76,14 +74,15 @@
             <select id="vocaSelect" class="voca-select">
                 <option value="voca1">📖 FCL 고등 필수 영단어</option>
             </select>
-            <button onclick="toggleSet()" style="border:none; background:none; font-size:18px;">⚙️</button>
+            <button onclick="toggleSet()" style="border:none; background:none; font-size:18px; padding:0 5px;">⚙️</button>
         </div>
         
         <div class="tool-row">
-            <input type="text" id="wordSearch" class="search-input" placeholder="단어 검색" oninput="searchWord()">
-            <button onclick="toggleHide()" id="hideBtn" class="btn-tool">뜻 숨김</button>
+            <input type="text" id="wordSearch" class="search-input" placeholder="검색" oninput="searchWord()">
+            <button onclick="toggleHide()" id="hideBtn" class="btn-hide">뜻 숨김</button>
             <div class="speed-box">
-                🔊<input type="range" id="rateRange" min="0.4" max="1.1" step="0.1" value="0.8" style="width:35px;">
+                <span>속도</span>
+                <input type="range" id="rateRange" min="0.4" max="1.1" step="0.1" value="0.8" style="width:50px;">
             </div>
         </div>
     </div>
@@ -93,15 +92,11 @@
     </div>
 
     <div id="setPanel" class="setting-panel">
-        <div id="adminInfoText" class="admin-info">데이터 로딩 중...</div>
+        <div id="adminStat" style="font-size:12px; margin-bottom:10px; color:#666;"></div>
         <strong>단어장 이름 수정</strong>
         <div class="admin-edit-row">
-            <input type="text" id="newVocaName" class="admin-input">
-            <button onclick="renameVoca()" style="background:var(--blue); color:white; border:none; padding:7px 10px; border-radius:6px; font-size:12px;">수정</button>
-        </div>
-        <div style="display:flex; gap:5px;">
-            <button onclick="alert('준비중')" style="flex:1; padding:7px; font-size:12px; border-radius:6px; border:1px solid #ccc;">단어장 추가</button>
-            <button onclick="alert('준비중')" style="flex:1; padding:7px; font-size:12px; border-radius:6px; border:1px solid #ccc; color:red;">삭제</button>
+            <input type="text" id="newVocaName" style="flex:1; padding:7px; border:1px solid #ddd; border-radius:6px;">
+            <button onclick="renameVoca()" style="background:var(--blue); color:white; border:none; padding:7px 10px; border-radius:6px;">수정</button>
         </div>
     </div>
 
@@ -118,21 +113,20 @@
 
     async function init() {
         const display = document.getElementById('wordDisplay');
-        display.innerHTML = "<p style='text-align:center; padding:30px; font-size:13px;'>로딩 중...</p>";
+        display.innerHTML = "<p style='text-align:center; padding:30px;'>로딩 중...</p>";
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation, state: 'none' }));
             drawUI();
         } catch (e) {
-            display.innerHTML = "<p style='text-align:center; color:red;'>연결 실패</p>";
+            display.innerHTML = "<p style='text-align:center; color:red;'>데이터 로드 실패</p>";
         }
     }
 
     function drawUI() {
         drawWords();
         drawPages();
-        updateAdminInfo();
     }
 
     function drawWords() {
@@ -168,13 +162,11 @@
         const endP = Math.min(totalP, startP + pageGroupSize - 1);
 
         if (groupNum > 1) container.appendChild(makeBtn("<", startP - 1, "nav"));
-
         for (let i = startP; i <= endP; i++) {
             const btn = makeBtn(i, i);
             if (i === nowPage) btn.classList.add('active');
             container.appendChild(btn);
         }
-
         if (endP < totalP) container.appendChild(makeBtn(">", endP + 1, "nav"));
     }
 
@@ -186,20 +178,11 @@
         return b;
     }
 
-    function updateAdminInfo() {
-        const start = (nowPage - 1) * perPage + 1;
-        const end = Math.min(nowPage * perPage, allWords.length);
-        document.getElementById('adminInfoText').innerHTML = 
-            `📊 <strong>통계:</strong> 총 ${allWords.length}개 단어 수록<br>` +
-            `📍 <strong>현재:</strong> ${nowPage}페이지 (${start}~${end}번 표시 중)`;
-    }
-
     function renameVoca() {
         const newName = document.getElementById('newVocaName').value.trim();
         if (newName) {
-            const select = document.getElementById('vocaSelect');
-            select.options[select.selectedIndex].text = "📖 " + newName;
-            alert("수정 완료");
+            document.getElementById('vocaSelect').options[0].text = "📖 " + newName;
+            alert("이름이 수정되었습니다.");
         }
     }
 
@@ -237,8 +220,8 @@
         const panel = document.getElementById('setPanel');
         panel.classList.toggle('show');
         if (panel.classList.contains('show')) {
-            const select = document.getElementById('vocaSelect');
-            document.getElementById('newVocaName').value = select.options[select.selectedIndex].text.replace("📖 ", "");
+            document.getElementById('adminStat').innerText = `현재 수록 단어: ${allWords.length}개 / 현재 페이지: ${nowPage}P`;
+            document.getElementById('newVocaName').value = document.getElementById('vocaSelect').options[0].text.replace("📖 ", "");
         }
     }
 
