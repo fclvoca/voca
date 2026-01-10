@@ -27,17 +27,13 @@
     </div>
 
     <script>
-        // 선생님께서 보내주신 최신 성공 주소입니다.
+        // 사진 2번에서 확인된 선생님의 최신 주소를 제가 직접 넣었습니다.
         const API_URL = 'https://script.google.com/macros/s/AKfycbwrfodzbbvO_iAKVO2hdQFiWL_YoXSeOTAL5dqBjSQulXPeioo89MOTrsplRN23xViF/exec';
 
         async function loadWords() {
             try {
-                // 주소 뒤에 시간을 붙여서 브라우저가 강제로 새 데이터를 읽게 합니다.
-                const finalUrl = API_URL + '?t=' + new Date().getTime();
-                const response = await fetch(finalUrl);
-                
-                if (!response.ok) throw new Error('Network response was not ok');
-                
+                // 뒤에 t=시간을 붙여서 브라우저가 옛날 화면을 안 쓰게 강제합니다.
+                const response = await fetch(API_URL + '?t=' + Date.now());
                 const words = await response.json();
                 
                 let html = '';
@@ -56,8 +52,7 @@
                 });
                 document.getElementById('wordList').innerHTML = html;
             } catch (error) {
-                console.error(error);
-                document.getElementById('wordList').innerHTML = '로딩 실패. 창을 끄고 다시 접속해 보세요!';
+                document.getElementById('wordList').innerHTML = '데이터 로딩 실패. 잠시 후 새로고침(F5)을 해주세요!';
             }
         }
 
@@ -71,7 +66,6 @@
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            utterance.rate = 0.8;
             window.speechSynthesis.speak(utterance);
         }
 
