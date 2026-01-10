@@ -8,108 +8,101 @@
         :root {
             --blue-point: #007bff;
             --red-point: #e74c3c;
-            --gray-bg: #f1f3f5;
+            --gray-bg: #f8f9fa;
         }
 
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--gray-bg); margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 600px; margin: 0 auto; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--gray-bg); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 600px; margin: 0 auto; padding-bottom: 50px; }
 
-        /* [Head 부분] */
-        .header { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 10px; position: sticky; top: 0; z-index: 100; }
-        .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .voca-selector { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 16px; background: #fff; }
+        /* [Head 부분: 빈 공간 효율적 활용] */
+        .header { background: white; padding: 10px 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .top-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
         
-        .search-area { display: flex; gap: 5px; align-items: center; margin-bottom: 10px; }
-        .search-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .voca-selector { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 15px; outline: none; }
         
-        .toggle-btn { padding: 10px 15px; border-radius: 8px; border: none; background: #333; color: white; cursor: pointer; white-space: nowrap; }
+        .search-row { display: flex; gap: 8px; align-items: center; }
+        .search-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        
+        /* 페이지네이션 스타일 개선 */
+        .pagination-container { display: flex; flex-direction: column; align-items: center; padding: 10px; background: #fff; border-bottom: 1px solid #eee; }
+        .pagination { display: flex; gap: 5px; overflow-x: auto; width: 100%; padding: 5px 0; justify-content: flex-start; scrollbar-width: none; }
+        .pagination::-webkit-scrollbar { display: none; }
+        .page-btn { padding: 6px 12px; background: #f1f3f5; border: 1px solid #dee2e6; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 13px; }
+        .page-btn.active { background: var(--blue-point); color: white; border-color: var(--blue-point); font-weight: bold; }
 
-        /* 페이지 네이션 */
-        .pagination { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; }
-        .page-link { padding: 5px 10px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .page-link.active { background: var(--blue-point); color: white; border-color: var(--blue-point); }
-
-        /* 관리자 모드 */
-        .admin-panel { display: none; background: #fff9e6; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ffeeba; }
+        /* [관리자 모드] */
+        .admin-panel { display: none; background: #fff9e6; padding: 15px; border-radius: 10px; margin: 10px; border: 1px solid #ffeeba; }
         .admin-panel.active { display: block; }
+        .admin-input { width: calc(100% - 20px); padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
 
         /* [단어장 실행 부분] */
+        .word-list { padding: 10px; }
         .word-item { 
             display: grid; 
             grid-template-columns: 40px 1.2fr 1fr; 
             align-items: center; 
             background: white; 
             padding: 15px; 
-            margin-bottom: 8px; 
+            margin-bottom: 10px; 
             border-radius: 12px; 
-            gap: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        /* 암기 체크 버튼 */
-        .check-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; background: white; transition: 0.2s; }
-        .check-btn.blue { background: var(--blue-point); border-color: var(--blue-point); }
-        .check-btn.red { background: var(--red-point); border-color: var(--red-point); }
+        /* 체크 버튼 */
+        .status-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; background: white; }
+        .status-btn.blue { background: var(--blue-point); border-color: var(--blue-point); }
+        .status-btn.red { background: var(--red-point); border-color: var(--red-point); }
 
-        /* 단어 및 발음 */
-        .word-info { cursor: pointer; display: flex; flex-direction: column; }
-        .eng-text { font-size: 20px; font-weight: bold; color: #212529; }
-        .pronun-text { font-size: 14px; color: #868e96; margin-top: 3px; }
+        .word-info { cursor: pointer; }
+        .eng-text { font-size: 19px; font-weight: bold; color: #333; display: block; }
+        .pronun-text { font-size: 13px; color: #888; margin-top: 2px; }
 
-        /* 뜻 영역 */
         .kor-box { 
-            padding: 12px; 
-            background: #fff5f5; 
-            color: #e74c3c; 
-            font-weight: bold; 
-            text-align: center; 
-            cursor: pointer; 
-            border-radius: 8px;
-            min-height: 24px;
-            font-size: 18px;
-            border: 1px solid #ffe3e3;
+            padding: 12px; background: #fff5f5; color: #e74c3c; font-weight: bold; text-align: center; 
+            cursor: pointer; border-radius: 8px; min-height: 24px; font-size: 17px;
         }
-        .hidden-mode { color: transparent !important; background: #f1f3f5 !important; border: 1px solid #dee2e6; }
+        .hidden-mode { color: transparent !important; background: #eee !important; border: 1px solid #ddd; }
 
-        /* 설정 */
-        .setting-row { display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 12px; color: #666; }
+        .btn-black { background: #333; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+        .speed-control { font-size: 11px; color: #999; margin-left: auto; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div class="top-nav">
+        <div class="top-row">
             <select id="vocaSelect" class="voca-selector" onchange="changeVoca()">
                 <option value="voca1">📖 FCL 고등 필수 영단어</option>
             </select>
-            <button onclick="toggleAdmin()">⚙️</button>
+            <button class="btn-black" onclick="toggleAdmin()">⚙️ 관리</button>
         </div>
 
-        <div class="search-area">
-            <input type="text" id="searchInput" class="search-input" placeholder="단어 검색 (해당 페이지로 이동)" oninput="handleSearch()">
-            <button onclick="toggleAllMeanings()" id="masterToggle" class="toggle-btn">뜻 숨김</button>
-        </div>
-
-        <div id="pagination" class="pagination"></div>
-
-        <div class="setting-row">
-            발음 속도: <input type="range" id="speechRate" min="0.4" max="1.1" step="0.1" value="0.8" style="width:60px;">
-        </div>
-
-        <div id="adminPanel" class="admin-panel">
-            <strong>관리자 모드</strong>
-            <div style="margin-top:5px; display:flex; gap:5px; flex-wrap:wrap;">
-                <button onclick="editVocaTitle()">제목 수정</button>
-                <button onclick="alert('전체 편집 기능(준비중)')">전체 단어 편집</button>
-                <button onclick="addVoca()">단어장 추가</button>
-                <button onclick="deleteVoca()" style="color:red;">단어장 삭제</button>
+        <div class="search-row">
+            <input type="text" id="searchInput" class="search-input" placeholder="단어 검색 (페이지 자동 이동)" oninput="handleSearch()">
+            <button onclick="toggleAllMeanings()" id="masterToggle" class="btn-black">뜻 숨김</button>
+            <div class="speed-control">
+                속도 <input type="range" id="speechRate" min="0.4" max="1.1" step="0.1" value="0.8" style="width:40px; vertical-align: middle;">
             </div>
         </div>
     </div>
 
-    <div id="wordList">
+    <div class="pagination-container">
+        <div id="pagination" class="pagination"></div>
+        <div id="pageInfo" style="font-size: 11px; color: #888; margin-top: 5px;"></div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel">
+        <input type="text" id="vocaTitleInput" class="admin-input" placeholder="현재 단어장 제목 편집">
+        <div style="display:flex; gap:5px;">
+            <button onclick="updateTitle()">제목 수정</button>
+            <button onclick="addVoca()">단어장 추가</button>
+            <button onclick="deleteVoca()" style="color:red;">현재 단어장 삭제</button>
         </div>
+    </div>
+
+    <div id="wordList" class="word-list"></div>
 </div>
 
 <script>
@@ -120,10 +113,9 @@
     const itemsPerPage = 50;
     let isAllHidden = false;
 
-    // 데이터 로드
     async function loadData() {
         const listDiv = document.getElementById('wordList');
-        listDiv.innerHTML = "<p style='text-align:center;'>단어장을 펼치는 중...</p>";
+        listDiv.innerHTML = "<p style='text-align:center; padding:20px;'>데이터를 불러오는 중입니다...</p>";
         try {
             const res = await fetch(API_URL + "?v=" + Date.now());
             const data = await res.json();
@@ -131,16 +123,19 @@
                 eng: item.english,
                 kor: item.korean,
                 pron: item.pronunciation,
-                status: 'white'
+                status: 'default'
             }));
-            updatePagination();
-            renderWords();
+            renderUI();
         } catch (e) {
-            listDiv.innerHTML = "<p style='text-align:center;'>연결이 원활하지 않습니다.</p>";
+            listDiv.innerHTML = "<p style='text-align:center; color:red;'>연결 실패. 다시 시도해 주세요.</p>";
         }
     }
 
-    // 단어 출력 (50개씩)
+    function renderUI() {
+        updatePagination();
+        renderWords();
+    }
+
     function renderWords() {
         const listDiv = document.getElementById('wordList');
         listDiv.innerHTML = "";
@@ -154,7 +149,7 @@
             const item = document.createElement('div');
             item.className = 'word-item';
             item.innerHTML = `
-                <div class="check-btn ${w.status}" onclick="toggleStatus(${actualIdx})"></div>
+                <div class="status-btn ${w.status}" onclick="toggleStatus(${actualIdx})"></div>
                 <div class="word-info" onclick="speak('${w.eng.replace(/'/g, "\\'")}')">
                     <span class="eng-text">${w.eng}</span>
                     <span class="pronun-text">${w.pron}</span>
@@ -165,78 +160,91 @@
             `;
             listDiv.appendChild(item);
         });
-        window.scrollTo(0, 0);
+        document.getElementById('pageInfo').innerText = `총 ${words.length}개 중 ${start+1}~${Math.min(end, words.length)} 표시 중`;
     }
 
-    // 검색 기능: 단어를 찾으면 해당 단어가 포함된 페이지로 이동
-    function handleSearch() {
-        const term = document.getElementById('searchInput').value.toLowerCase();
-        if (!term) return;
-
-        const foundIndex = words.findIndex(w => w.eng.toLowerCase().includes(term));
-        if (foundIndex !== -1) {
-            currentPage = Math.floor(foundIndex / itemsPerPage) + 1;
-            updatePagination();
-            renderWords();
-            
-            // 검색된 단어 강조를 위해 잠시 스크롤은 수동 조절 가능
-        }
-    }
-
-    // 페이지네이션 업데이트
     function updatePagination() {
         const nav = document.getElementById('pagination');
         nav.innerHTML = "";
         const totalPages = Math.ceil(words.length / itemsPerPage);
 
         for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('span');
-            btn.className = `page-link ${i === currentPage ? 'active' : ''}`;
-            btn.innerText = i;
+            const btn = document.createElement('div');
+            btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+            btn.innerText = `${i}P`;
             btn.onclick = () => {
                 currentPage = i;
-                updatePagination();
-                renderWords();
+                renderUI();
+                window.scrollTo(0,0);
             };
             nav.appendChild(btn);
         }
     }
 
-    // 발음 기능 (TTS)
+    function handleSearch() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        if (!term) return;
+
+        const foundIdx = words.findIndex(w => w.eng.toLowerCase().includes(term));
+        if (foundIdx !== -1) {
+            currentPage = Math.floor(foundIdx / itemsPerPage) + 1;
+            renderUI();
+            // 검색된 단어 위치로 약간의 지연 후 스크롤 (선택사항)
+        }
+    }
+
     function speak(text) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
         msg.rate = document.getElementById('speechRate').value;
-        // 음성 고도화: 강세 유지를 위해 pitch 기본값 사용
-        msg.pitch = 1;
         window.speechSynthesis.speak(msg);
     }
 
-    // 상태 토글 (흰색 -> 파랑 -> 빨강)
     function toggleStatus(idx) {
         const s = words[idx].status;
-        if (s === 'white') words[idx].status = 'blue';
-        else if (s === 'blue') words[idx].status = 'red';
-        else words[idx].status = 'white';
+        words[idx].status = (s === 'default') ? 'blue' : (s === 'blue') ? 'red' : 'default';
         renderWords();
     }
 
-    // 전체 뜻 토글
     function toggleAllMeanings() {
         isAllHidden = !isAllHidden;
         document.getElementById('masterToggle').innerText = isAllHidden ? "뜻 보임" : "뜻 숨김";
         renderWords();
     }
 
-    // 관리자 모드 토글
-    function toggleAdmin() {
-        document.getElementById('adminPanel').classList.toggle('active');
+    function toggleAdmin() { document.getElementById('adminPanel').classList.toggle('active'); }
+
+    function updateTitle() {
+        const newTitle = document.getElementById('vocaTitleInput').value;
+        if(newTitle) {
+            const select = document.getElementById('vocaSelect');
+            select.options[select.selectedIndex].text = "📖 " + newTitle;
+            alert("제목이 수정되었습니다.");
+        }
     }
 
-    // 초기화
+    function addVoca() {
+        const name = prompt("새 단어장 이름을 입력하세요:");
+        if(name) {
+            const select = document.getElementById('vocaSelect');
+            const opt = new Option("📖 " + name, "voca_" + Date.now());
+            select.add(opt);
+            alert("단어장이 추가되었습니다.");
+        }
+    }
+
+    function deleteVoca() {
+        const select = document.getElementById('vocaSelect');
+        if(select.length > 1) {
+            if(confirm("현재 단어장을 삭제하시겠습니까?")) {
+                select.remove(select.selectedIndex);
+                renderUI();
+            }
+        } else { alert("최소 하나의 단어장은 있어야 합니다."); }
+    }
+
     loadData();
 </script>
-
 </body>
 </html>
