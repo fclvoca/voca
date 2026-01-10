@@ -25,42 +25,29 @@
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 15px; height: 38px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.3); font-size: 20px; cursor: pointer; }
 
-        /* [검색창 50% 축소 및 속도조절 최대 확장] */
-        .tool-row { display: flex; align-items: center; gap: 20px; width: 100%; }
+        /* [검색창 및 속도조절 레이아웃 재조정] */
+        .tool-row { display: flex; align-items: center; gap: 20px; width: 100%; justify-content: flex-start; }
         
-        /* 검색창을 기존의 절반 수준(80px)으로 대폭 축소 */
         .search-box { width: 80px; flex-shrink: 0; } 
         .search-input { width: 100%; height: 36px; padding: 0 10px; border-radius: 6px; border: none; font-size: 12px; outline: none; }
 
-        /* 속도 조절바가 나머지 모든 공간을 점유하도록 설정 */
-        .speed-control { flex: 1; display: flex; align-items: center; gap: 12px; color: white; font-size: 12px; }
+        /* 속도 조절바 길이를 기존보다 약간 줄임 (max-width 설정) */
+        .speed-control { flex: 0 1 300px; display: flex; align-items: center; gap: 12px; color: white; font-size: 12px; }
         .speed-slider { 
             flex: 1; 
             cursor: pointer; 
             accent-color: var(--fcl-orange); 
-            height: 25px; /* 터치 영역 확대 */
+            height: 20px;
         }
 
-        /* [페이지네이션: 가로로 더 넓게 펼침] */
+        /* [페이지네이션: 가로 확장 유지] */
         .page-wrapper { padding: 12px 2mm; background: #FFF; border-bottom: 1px solid #E2E8F0; }
-        .page-container { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; /* 양 끝으로 넓게 배치 */
-            gap: 2px; 
-            width: 100%;
-        }
+        .page-container { display: flex; align-items: center; justify-content: space-between; gap: 2px; width: 100%; }
         .p-btn { 
-            flex: 1; /* 버튼들이 가로 공간을 균등하게 꽉 채움 */
-            max-width: 60px;
-            height: 42px; 
-            border: 1px solid #E2E8F0; 
-            background: white; 
-            color: #475569; 
-            border-radius: 4px; 
-            font-size: 14px; 
-            font-weight: 800; 
-            cursor: pointer; 
+            flex: 1; max-width: 60px; height: 42px; 
+            border: 1px solid #E2E8F0; background: white; 
+            color: #475569; border-radius: 4px; font-size: 14px; 
+            font-weight: 800; cursor: pointer; 
         }
         .p-btn.active { background-color: #2563EB; color: white; border-color: #2563EB; }
         .p-btn.nav { background-color: #F1F5F9; color: #2563EB; font-weight: 900; font-size: 18px; max-width: 45px; }
@@ -75,7 +62,6 @@
         .kor-text { color: #000; font-weight: 700; font-size: 17px; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 140px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 관리자 패널 */
         .admin-panel { display: none; background: #FFF; margin: 10px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--fcl-navy); position: relative; z-index: 1001; }
     </style>
 </head>
@@ -129,7 +115,9 @@
     const perPage = 50;
     const groupSize = 10;
     let hideAll = false;
-    const adminPw = "1234";
+    
+    // 관리자 비밀번호 5857 설정
+    const adminPw = "5857";
 
     async function init() {
         try {
@@ -188,10 +176,11 @@
     function askAdmin() {
         const pw = prompt("관리자 비밀번호를 입력하세요.");
         if(pw === adminPw) { document.getElementById('adminPanel').style.display = 'block'; window.scrollTo(0,0); }
+        else if(pw !== null) alert("비밀번호가 틀렸습니다.");
     }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
     function editVoca() { const name = document.getElementById('editVoca').value.trim(); if(name) { document.getElementById('mainTitle').innerText = "📖 " + name; alert("수정완료"); } }
-    function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
+    function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
     function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
     function searchWord() {
         const val = document.getElementById('wordSearch').value.toLowerCase();
