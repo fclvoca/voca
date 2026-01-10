@@ -21,14 +21,21 @@
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         
         .tool-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-        .tool-line { display: flex; align-items: center; gap: 8px; width: 100%; }
-        .search-input { flex: 1; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; }
-        .voice-select { flex: 1.2; height: 34px; border-radius: 6px; border: none; font-size: 12px; background: white; outline: none; padding: 0 5px; font-weight: 700; color: #1A237E; }
+        .tool-line { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .search-input { flex: 1; height: 36px; padding: 0 12px; border-radius: 6px; border: none; font-size: 14px; outline: none; }
+        .voice-select { flex: 1.2; height: 36px; border-radius: 6px; border: none; font-size: 13px; background: white; outline: none; padding: 0 8px; font-weight: 700; color: #1A237E; }
         
-        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
-        .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
-        .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; }
-        .speed-slider { width: 60px; accent-color: var(--fcl-orange); cursor: pointer; }
+        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; }
+        .font-btn { background: white; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
+        
+        /* Speed 슬라이더 길이 3배 연장 */
+        .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; margin-left: auto; }
+        .speed-slider { 
+            width: 180px; /* 기존 60px에서 3배인 180px로 변경 */
+            max-width: 40vw; /* 모바일 대응 */
+            accent-color: var(--fcl-orange); 
+            cursor: pointer; 
+        }
 
         /* 페이지네이션 */
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
@@ -40,7 +47,7 @@
         /* 리스트 */
         .word-list { padding: 10px 8px; }
         .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; }
+        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
         .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; cursor: pointer; }
         .eng-text { font-weight: 900; color: #0F172A; line-height: 1.1; }
@@ -73,9 +80,12 @@
                     <option value="google_server">🌐 최우선: 구글 원어민 음성</option>
                 </select>
             </div>
-            <div class="tool-line" style="justify-content: space-between;">
+            <div class="tool-line">
                 <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
-                <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.0" step="0.1" value="0.8"></div>
+                <div class="speed-control">
+                    <span>Speed</span>
+                    <input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.0" step="0.1" value="0.8">
+                </div>
             </div>
         </div>
     </div>
@@ -125,7 +135,6 @@
             opt.innerText = "기기: " + voice.name;
             vSelect.appendChild(opt);
         });
-
         vSelect.value = savedVal;
     }
 
@@ -205,28 +214,23 @@
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
 
-    // [서버 음성 우선 재생 로직]
     let currentAudio = null;
     function play(t) {
         const rate = document.getElementById('rateRange').value;
         const selectedVal = document.getElementById('voiceSelect').value;
 
-        // 1. 구글 서버 음성 모드 (컴퓨터와 동일한 발음)
         if (selectedVal === "google_server") {
             if(currentAudio) currentAudio.pause();
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-us&client=tw-ob`;
             currentAudio = new Audio(url);
             currentAudio.playbackRate = rate;
             currentAudio.play().catch(() => {
-                // 서버 음성 실패 시 기기 기본 음성으로 백업
                 const msg = new SpeechSynthesisUtterance(t);
                 msg.lang = 'en-US';
                 msg.rate = rate;
                 synth.speak(msg);
             });
-        } 
-        // 2. 기기 내장 음성 모드
-        else {
+        } else {
             synth.cancel();
             const msg = new SpeechSynthesisUtterance(t);
             const enVoices = voices.filter(v => v.lang.startsWith('en'));
