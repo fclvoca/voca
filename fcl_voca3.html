@@ -21,19 +21,21 @@
     <div class="container">
         <div class="header">
             <h2>📖 FCL 고등 필수 영단어</h2>
-            <p style="font-size:13px; color:#999;">🔊 영어를 누르면 발음이, 빨간 박스를 누르면 뜻이 보입니다.</p>
+            <p style="font-size:13px; color:#999;">🔊 영어 클릭 시 발음 / 빨간 박스 클릭 시 뜻</p>
         </div>
         <div id="wordList">데이터를 불러오는 중입니다...</div>
     </div>
 
     <script>
-        // 선생님이 방금 성공하신 최신 웹 앱 URL입니다.
+        // 선생님께서 보내주신 최신 성공 주소입니다.
         const API_URL = 'https://script.google.com/macros/s/AKfycbwrfodzbbvO_iAKVO2hdQFiWL_YoXSeOTAL5dqBjSQulXPeioo89MOTrsplRN23xViF/exec';
 
         async function loadWords() {
             try {
-                // 구글 보안 정책 때문에 주소 뒤에 파라미터를 살짝 붙여서 다시 시도합니다.
-                const response = await fetch(API_URL);
+                // 주소 뒤에 시간을 붙여서 브라우저가 강제로 새 데이터를 읽게 합니다.
+                const finalUrl = API_URL + '?t=' + new Date().getTime();
+                const response = await fetch(finalUrl);
+                
                 if (!response.ok) throw new Error('Network response was not ok');
                 
                 const words = await response.json();
@@ -55,8 +57,7 @@
                 document.getElementById('wordList').innerHTML = html;
             } catch (error) {
                 console.error(error);
-                document.getElementById('wordList').innerHTML = 
-                    '데이터 로딩 실패.<br>1. 시트 우측 상단 [공유] 클릭<br>2. [링크가 있는 모든 사용자]로 변경했는지 확인!';
+                document.getElementById('wordList').innerHTML = '로딩 실패. 창을 끄고 다시 접속해 보세요!';
             }
         }
 
@@ -70,6 +71,7 @@
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
+            utterance.rate = 0.8;
             window.speechSynthesis.speak(utterance);
         }
 
