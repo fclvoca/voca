@@ -5,78 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FCL 영단어 학습기</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 20px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .word-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .english-section { cursor: pointer; padding-bottom: 10px; }
-        .english { font-size: 26px; font-weight: bold; color: #1e90ff; display: flex; align-items: center; justify-content: space-between; }
-        .pronunciation { font-size: 16px; color: #888; margin-top: 5px; font-style: italic; }
-        .korean-section { margin-top: 10px; padding: 15px; border-radius: 10px; background-color: #fff5f5; color: #e74c3c; font-size: 20px; font-weight: bold; text-align: center; cursor: pointer; border: 1px dashed #ffc9c9; min-height: 40px; display: flex; align-items: center; justify-content: center; }
-        .hidden-text { visibility: hidden; }
-        .show-text { visibility: visible; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .word-card { background: #fff; padding: 25px; margin-bottom: 20px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #eee; }
+        .english { font-size: 28px; font-weight: 800; color: #007bff; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .pronunciation { font-size: 16px; color: #999; margin-top: 5px; font-style: italic; }
+        .korean-box { margin-top: 15px; padding: 18px; border-radius: 15px; background-color: #fff0f0; color: #dc3545; font-size: 20px; font-weight: bold; text-align: center; cursor: pointer; border: 2px dashed #ffc107; min-height: 30px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h2>📖 FCL 고등 필수 영단어</h2>
-            <p style="font-size:13px; color:#999;">🔊 영어 클릭 시 발음 / 빨간 박스 클릭 시 뜻</p>
+            <h1 style="margin:0; font-size:24px;">📘 FCL 고등 필수 영단어</h1>
+            <p style="font-size:13px; color:#aaa; margin-top:10px;">🔊 영어를 누르면 발음 / 노란 박스를 누르면 뜻이 보입니다.</p>
         </div>
-        <div id="wordList" style="text-align:center;">서버에서 단어를 가져오는 중입니다...</div>
+        <div id="displayArea">데이터를 불러오는 중입니다...</div>
     </div>
 
     <script>
-        // 선생님의 성공적인 웹 앱 URL (이미 검증됨)
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwrfodzbbvO_iAKVO2hdQFiWL_YoXSeOTAL5dqBjSQulXPeioo89MOTrsplRN23xViF/exec';
+        const URL = "https://script.google.com/macros/s/AKfycbwrfodzbbvO_iAKVO2hdQFiWL_YoXSeOTAL5dqBjSQulXPeioo89MOTrsplRN23xViF/exec";
 
-        async function loadWords() {
-            const listDiv = document.getElementById('wordList');
+        async function init() {
             try {
-                // 주소 뒤에 랜덤 숫자를 붙여 브라우저가 매번 새것으로 인식하게 만듭니다.
-                const finalUrl = API_URL + "?t=" + Math.random();
-                const response = await fetch(finalUrl);
+                const response = await fetch(URL + "?t=" + Date.now());
+                const data = await response.json();
                 
-                if (!response.ok) throw new Error();
-                const words = await response.json();
-                
-                let html = '';
-                words.forEach(word => {
-                    const cleanEng = word.english.toString().replace(/'/g, "\\'");
+                let html = "";
+                data.forEach(item => {
+                    const word = item.english.replace(/'/g, "\\'");
                     html += `
                         <div class="word-card">
-                            <div class="english-section" onclick="speak('${cleanEng}')">
-                                <div class="english">${word.english} <span>🔊</span></div>
-                                <div class="pronunciation">${word.pronunciation}</div>
-                            </div>
-                            <div class="korean-section" onclick="toggleKorean(this)">
-                                <span class="hidden-text">${word.korean}</span>
+                            <div class="english" onclick="say('${word}')">${item.english} <span>🔊</span></div>
+                            <div class="pronunciation">${item.pronunciation}</div>
+                            <div class="korean-box" onclick="this.firstElementChild.classList.toggle('hidden')">
+                                <span class="hidden">${item.korean}</span>
                             </div>
                         </div>`;
                 });
-                listDiv.innerHTML = html;
-            } catch (error) {
-                listDiv.innerHTML = '<div style="padding:20px;">데이터 연결 중입니다. <br>3초만 기다려보시거나 새로고침을 해주세요!</div>';
-                // 실패 시 3초 후 자동으로 한 번 더 시도합니다.
-                setTimeout(loadWords, 3000);
+                document.getElementById('displayArea').innerHTML = html;
+            } catch (err) {
+                document.getElementById('displayArea').innerHTML = "데이터 로딩 실패. 잠시 후 다시 시도해 주세요.";
             }
         }
 
-        function toggleKorean(element) {
-            const span = element.querySelector('span');
-            span.classList.toggle('hidden-text');
-            span.classList.toggle('show-text');
-        }
-
-        function speak(text) {
+        function say(txt) {
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.8;
-            window.speechSynthesis.speak(utterance);
+            const msg = new SpeechSynthesisUtterance(txt);
+            msg.lang = 'en-US';
+            window.speechSynthesis.speak(msg);
         }
 
-        loadWords();
+        init();
     </script>
 </body>
 </html>
