@@ -22,7 +22,7 @@
             text-align: center; cursor: pointer; border: 1px dashed #ffc9c9;
             min-height: 30px; display: flex; align-items: center; justify-content: center;
         }
-        /* 한글 숨기기 스타일 */
+        /* 레이아웃 고정을 위해 visibility 사용 */
         .hidden-text { visibility: hidden; }
         .show-text { visibility: visible; }
         .guide-msg { font-size: 13px; color: #999; margin-top: 5px; }
@@ -48,19 +48,23 @@
             try {
                 const response = await fetch(url);
                 const text = await response.text();
-                const json = JSON.parse(text.substr(47).slice(0, -2));
+                // JSON 데이터 파싱
+                const json = JSON.parse(text.substring(47).slice(0, -2));
                 const rows = json.table.rows;
                 
                 let html = '';
-                // i = 1부터 시작하여 첫 행(english, pronunciation, korean)을 건너뜁니다.
+                // 기능 1: 첫 번째 줄(제목행) 제외하고 데이터 가져오기
                 for (let i = 1; i < rows.length; i++) {
-                    const english = rows[i].c[0] ? rows[i].c[0].v : '';
-                    const pronunciation = rows[i].c[1] ? rows[i].c[1].v : '';
-                    const korean = rows[i].c[2] ? rows[i].c[2].v : '';
+                    const row = rows[i].c;
+                    const english = row[0] ? row[0].v : '';
+                    const pronunciation = row[1] ? row[1].v : '';
+                    const korean = row[2] ? row[2].v : '';
+
+                    if (!english) continue; // 영어 단어가 없는 행은 건너뜀
 
                     html += `
                         <div class="word-card">
-                            <div class="english-section" onclick="speak('${english.replace(/'/g, "\\'")}')">
+                            <div class="english-section" onclick="speak('${english.toString().replace(/'/g, "\\'")}')">
                                 <div class="english">${english} <span>🔊</span></div>
                                 <div class="pronunciation">${pronunciation}</div>
                             </div>
@@ -72,11 +76,13 @@
                 }
                 document.getElementById('wordList').innerHTML = html;
             } catch (error) {
-                document.getElementById('wordList').innerHTML = '데이터 로딩 실패. 시트 ID와 공유 설정을 다시 확인해주세요.';
+                console.error(error);
+                document.getElementById('wordList').innerHTML = 
+                    '데이터 로딩 실패. <br>1. 시트 ID 확인 <br>2. 시트 공유 설정(링크가 있는 모든 사용자) 확인';
             }
         }
 
-        // 뜻 보이기/숨기기 토글 함수
+        // 기능 3: 한글 뜻 토글 (레이아웃 유지)
         function toggleKorean(element) {
             const span = element.querySelector('span');
             if (span.classList.contains('hidden-text')) {
@@ -88,9 +94,9 @@
             }
         }
 
-        // 발음 재생 함수
+        // 기능 2: 영어를 누르면 원어민 발음(TTS)
         function speak(text) {
-            window.speechSynthesis.cancel();
+            window.speechSynthesis.cancel(); // 이전 음성 재생 중단
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
             utterance.rate = 0.8;
