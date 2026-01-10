@@ -8,121 +8,99 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
-        .container { max-width: 1000px; margin: 0 auto; }
         
-        /* 헤더 & 도구 */
-        .header-section { background-color: var(--fcl-navy); padding: 15px 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
-        .voca-title { color: white; font-weight: 900; font-size: 20px; white-space: nowrap; }
-        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 15px; height: 36px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; }
-        .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 22px; cursor: pointer; }
-        .tool-row { display: flex; align-items: center; width: 100%; gap: 15px; flex-wrap: wrap; }
-        .search-box { flex: 1; min-width: 180px; } 
-        .search-input { width: 100%; height: 38px; padding: 0 12px; border-radius: 6px; border: none; font-size: 14px; outline: none; }
-        .font-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; }
-        .font-btn { background: white; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: 900; color: var(--fcl-navy); display: flex; align-items: center; justify-content: center; }
-        .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; }
-        .speed-slider { width: 100px; cursor: pointer; accent-color: var(--fcl-orange); }
+        /* [수정] 파란색 헤더 부분만 고정 */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--fcl-navy);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            padding: 12px 20px;
+        }
 
-        /* 단어 아이템 */
-        .word-list { padding: 8px; }
-        .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 12px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
+        .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+        .voca-title { color: white; font-weight: 900; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; flex-shrink: 0; }
+        .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
+        
+        .tool-row { display: flex; align-items: center; width: 100%; gap: 10px; }
+        .search-box { flex: 1; } 
+        .search-input { width: 100%; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; box-sizing: border-box; }
+        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
+        .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-weight: 900; color: var(--fcl-navy); display: flex; align-items: center; justify-content: center; }
+        .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; flex-shrink: 0; }
+        .speed-slider { width: 70px; cursor: pointer; accent-color: var(--fcl-orange); }
+
+        /* [수정] 페이지네이션 영역은 고정하지 않음 (리스트와 같이 올라감) */
+        .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
+        .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
+        .p-btn { min-width: 45px; height: 45px; border: 1px solid #E2E8F0; background: white; color: #475569; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
+        .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 22px; min-width: 50px; }
+
+        /* 리스트 영역 */
+        .word-list { padding: 10px 8px; }
+        .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
+        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
         .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; cursor: pointer; }
         .eng-text { font-weight: 900; color: #0F172A; line-height: 1.1; }
         .btn-pro-pop { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
-        .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 110px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
+        .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px; border-radius: 10px; min-width: 110px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 팝업창 상단 */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: flex-start; padding-top: 40px; }
+        /* 팝업창 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 50px; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); }
         .modal-word { font-size: 26px; font-weight: 900; color: var(--fcl-navy); margin-bottom: 10px; }
         .modal-pro { font-size: 22px; color: #475569; font-weight: 600; margin-bottom: 20px; cursor: pointer; background: #F8FAFC; padding: 12px; border-radius: 10px; border: 2px dashed #CBD5E0; }
         .btn-close-modal { background: var(--fcl-navy); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
-        /* [수정] 페이지네이션 개선 */
-        .page-wrapper { padding: 15px 10px; background: #FFF; border-bottom: 1px solid #E2E8F0; }
-        .page-container { 
-            display: flex; 
-            flex-wrap: wrap; /* 모바일에서 자리가 없으면 다음 줄로 */
-            justify-content: center; 
-            gap: 6px; 
-            width: 100%; 
-        }
-        .p-btn { 
-            min-width: 45px; /* 버튼 크기 확장 */
-            height: 45px; 
-            border: 1px solid #E2E8F0; 
-            background: white; 
-            color: #475569; 
-            border-radius: 8px; 
-            font-size: 18px; /* 숫자 크기 대폭 확장 */
-            font-weight: 900; 
-            cursor: pointer; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); box-shadow: 0 4px 8px rgba(26,35,126,0.3); }
-        .p-btn.nav { 
-            background-color: #F1F5F9; 
-            color: var(--fcl-navy); 
-            font-size: 22px; /* 화살표 크기 확장 */
-            min-width: 50px; 
-        }
-
         /* 관리자 패널 */
-        #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
-        .stat-container { display: flex; gap: 8px; margin-bottom: 20px; }
-        .stat-box { flex: 1; background: #F8FAFC; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
-        .stat-box b { font-size: 16px; color: var(--fcl-navy); display: block; font-weight: 900; }
+        #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: fixed; top: 50px; left: 10px; right: 10px; z-index: 3000; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-section">
+    <div class="sticky-header">
         <div class="top-row">
-            <div class="voca-title" id="mainTitle">📖 FCL_우선순위 영단어</div>
-            <div style="display:flex; gap:10px; align-items:center;">
+            <div class="voca-title" id="mainTitle">📖 FCL_영단어</div>
+            <div style="display:flex; gap:8px; align-items:center;">
                 <button onclick="toggleHide()" class="btn-hide" id="hideBtn">뜻 숨기기</button>
                 <button onclick="askAdmin()" class="btn-admin-gear">⚙️</button>
             </div>
         </div>
         <div class="tool-row">
-            <div class="search-box"><input type="text" id="wordSearch" class="search-input" placeholder="단어 검색..." oninput="searchWord()"></div>
+            <div class="search-box"><input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()"></div>
             <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
             <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8"></div>
         </div>
     </div>
 
-    <div id="proModal" class="modal-overlay" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div id="modalEng" class="modal-word">Word</div>
-            <div id="modalPro" class="modal-pro" onclick="playCurrentWord()">/pronunciation/</div>
-            <div style="font-size: 12px; color: #94A3B8; margin-bottom: 15px;">발음기호를 누르면 소리가 납니다</div>
-            <button class="btn-close-modal" onclick="closeModal()">닫기</button>
-        </div>
-    </div>
-
-    <div id="adminPanel">
-        <div style="text-align:center; font-weight:900; margin-bottom:15px; color:var(--fcl-navy);">[ 관리자 모드 ]</div>
-        <div class="stat-container">
-            <div class="stat-box"><small>조회수</small><b id="totalHits">0</b></div>
-            <div class="stat-box"><small>방문자</small><b id="uniqueUsers">0</b></div>
-        </div>
-        <div style="margin-bottom:15px;">
-            <input type="text" id="editVocaInput" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;" placeholder="단어장 이름">
-            <button onclick="updateTitle()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer;">이름 변경 저장</button>
-        </div>
-        <button onclick="closeAdmin()" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; font-weight:800; cursor:pointer;">관리 창 닫기</button>
-    </div>
-
     <div class="page-wrapper"><div id="pageBtns" class="page-container"></div></div>
+
     <div id="wordDisplay" class="word-list"></div>
+</div>
+
+<div id="proModal" class="modal-overlay" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div id="modalEng" class="modal-word">Word</div>
+        <div id="modalPro" class="modal-pro" onclick="playCurrentWord()">/pronunciation/</div>
+        <button class="btn-close-modal" onclick="closeModal()">닫기</button>
+    </div>
+</div>
+
+<div id="adminPanel">
+    <div style="text-align:center; font-weight:900; margin-bottom:15px; color:var(--fcl-navy);">[ 관리자 ]</div>
+    <div style="display:flex; gap:8px; margin-bottom:15px;">
+        <div style="flex:1; background:#f8fafc; padding:10px; text-align:center; border-radius:8px; border:1px solid #ddd;"><small>조회수</small><br><b id="totalHits">0</b></div>
+        <div style="flex:1; background:#f8fafc; padding:10px; text-align:center; border-radius:8px; border:1px solid #ddd;"><small>방문자</small><br><b id="uniqueUsers">0</b></div>
+    </div>
+    <input type="text" id="editVocaInput" class="search-input" style="border:1px solid #ddd; margin-bottom:10px; width:100%; box-sizing:border-box;" placeholder="이름 변경">
+    <button onclick="updateTitle()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:800; margin-bottom:10px;">저장</button>
+    <button onclick="closeAdmin()" style="width:100%; padding:10px; background:#eee; border:none; border-radius:8px; font-weight:800;">닫기</button>
 </div>
 
 <script>
@@ -138,14 +116,8 @@
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
-            let hits = parseInt(localStorage.getItem('fcl_hits') || "0");
-            hits++; localStorage.setItem('fcl_hits', hits);
-            document.getElementById('totalHits').innerText = hits;
-            let unique = parseInt(localStorage.getItem('fcl_unique') || "0");
-            const lastVisit = localStorage.getItem('fcl_last_visit');
-            const today = new Date().toDateString();
-            if(lastVisit !== today) { unique++; localStorage.setItem('fcl_unique', unique); localStorage.setItem('fcl_last_visit', today); }
-            document.getElementById('uniqueUsers').innerText = unique;
+            document.getElementById('totalHits').innerText = localStorage.getItem('fcl_hits') || 0;
+            document.getElementById('uniqueUsers').innerText = localStorage.getItem('fcl_unique') || 0;
             drawUI();
         } catch (e) { document.getElementById('wordDisplay').innerHTML = "로딩 실패"; }
     }
@@ -182,33 +154,21 @@
         const totalP = Math.ceil(allWords.length / perPage);
         const startP = (Math.ceil(nowPage/groupSize)-1)*groupSize+1;
         const endP = Math.min(totalP, startP + groupSize - 1);
-        
-        // 이전 10페이지 (<<)
         if(startP > 1) container.appendChild(makeBtn("«", startP-1, "nav"));
-        
-        // 페이지 숫자들
         for(let i=startP; i<=endP; i++) {
             const b = makeBtn(i, i); if(i===nowPage) b.classList.add('active');
             container.appendChild(b);
         }
-        
-        // 다음 10페이지 (>>)
         if(endP < totalP) container.appendChild(makeBtn("»", endP+1, "nav"));
     }
 
     function makeBtn(t, p, c) {
         const b = document.createElement('button'); b.className = 'p-btn '+(c||''); b.innerText = t;
-        b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0,0); }; return b;
+        b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0, 0); }; return b;
     }
 
     function changeFontSize(delta) { currentFontSize = Math.min(Math.max(currentFontSize + delta, 14), 36); drawWords(); }
-    function askAdmin() {
-        const pw = prompt("비밀번호를 입력하세요.");
-        if(pw === adminPw) {
-            document.getElementById('editVocaInput').value = document.getElementById('mainTitle').innerText.replace("📖 ", "");
-            document.getElementById('adminPanel').style.display = 'block';
-        }
-    }
+    function askAdmin() { if(prompt("비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
     function updateTitle() {
         const val = document.getElementById('editVocaInput').value.trim();
@@ -217,7 +177,7 @@
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
     function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
     function searchWord() {
-        const val = document.getElementById('wordSearch').value.toLowerCase(); if(!val) return;
+        const val = document.getElementById('wordSearch').value.toLowerCase();
         const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
         if(idx!==-1) { nowPage = Math.floor(idx/perPage)+1; drawUI(); }
     }
