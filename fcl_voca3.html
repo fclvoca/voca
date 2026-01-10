@@ -8,9 +8,9 @@
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
 
         :root {
-            --fcl-navy: #1A237E; /* 헤드 부분 남색 */
-            --fcl-orange: #FF9800; /* 뜻 숨기기 오렌지색 */
-            --fcl-bg: #F5F7F9; /* 전체 배경은 연한 회색 */
+            --fcl-navy: #1A237E; 
+            --fcl-orange: #FF9800; 
+            --fcl-bg: #F5F7F9; 
             --text-dark: #1E293B;
         }
 
@@ -22,7 +22,7 @@
 
         .container { max-width: 800px; margin: 0 auto; }
 
-        /* [Header: 상단에만 남색 배경 적용] */
+        /* [Header: 상단 남색 배경] */
         .header-section {
             background-color: var(--fcl-navy);
             padding: 15px 20px;
@@ -41,60 +41,68 @@
         .btn-hide { 
             background-color: var(--fcl-orange); color: white; border: none;
             padding: 0 20px; height: 40px; border-radius: 8px; font-weight: 800;
-            cursor: pointer; white-space: nowrap; transition: 0.2s;
+            cursor: pointer; white-space: nowrap;
         }
 
-        /* [관리자 통계 및 제어 바] */
-        .admin-bar {
-            background: rgba(255,255,255,0.1); padding: 8px 20px;
-            display: flex; gap: 10px; align-items: center;
+        .btn-admin-gear {
+            background: none; border: none; color: white; font-size: 24px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; padding: 0 5px;
         }
-        .admin-btn {
-            padding: 6px 14px; border-radius: 6px; border: none;
-            color: white; font-size: 13px; font-weight: 700; cursor: pointer;
-        }
-        .btn-add { background: #448AFF; }
-        .btn-del { background: #FF5252; }
-        .stat-text { color: #FFECB3; font-size: 13px; font-weight: 600; margin-left: auto; }
 
-        /* [페이지네이션: 좌우 여백 5mm 및 가득 찬 사각 상자 스타일] */
+        /* [관리자 패널: 통합 관리 기능] */
+        .admin-panel {
+            display: none; background: #FFF; margin: 10px 20px; padding: 20px;
+            border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid #E2E8F0;
+        }
+        .admin-panel.show { display: block; animation: slideIn 0.3s ease; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: #F8FAFC; padding: 12px; border-radius: 10px; text-align: center; border: 1px solid #F1F5F9; }
+        .stat-label { font-size: 11px; color: #64748B; display: block; }
+        .stat-val { font-size: 18px; font-weight: 800; color: var(--fcl-navy); }
+
+        .admin-title { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: block; color: var(--fcl-navy); border-bottom: 2px solid #F1F5F9; padding-bottom: 5px; }
+        .manage-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .manage-input { flex: 1; padding: 10px; border: 1px solid #CBD5E0; border-radius: 6px; font-size: 13px; outline: none; }
+        .btn-m { padding: 0 15px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; color: white; font-size: 13px; }
+        .bg-blue { background: #2563EB; }
+        .bg-green { background: #10B981; }
+        .bg-red { background: #EF4444; width: 100%; height: 35px; margin-top: 5px; }
+
+        /* [페이지네이션] */
         .page-wrapper { padding: 15px 5mm; background: #FFF; border-bottom: 1px solid #E2E8F0; }
-        .page-container { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
-        
+        .page-container { display: flex; align-items: center; justify-content: center; gap: 5px; }
         .p-btn { 
-            flex: 1; height: 40px; border: 1px solid #E2E8F0;
-            background: white; color: #475569; border-radius: 6px;
-            font-size: 15px; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            min-width: 35px; height: 40px; border: 1px solid #E2E8F0;
+            background: white; color: #475569; border-radius: 4px;
+            font-size: 15px; font-weight: 800; cursor: pointer;
         }
         .p-btn.active { background-color: #2563EB; color: white; border-color: #2563EB; }
-        .p-btn.nav { background-color: #F8FAFC; color: #2563EB; flex: 1.2; font-size: 18px; }
+        .p-btn.nav { background-color: #F1F5F9; color: #2563EB; font-weight: 900; font-size: 18px; }
 
-        /* [단어 리스트 디자인] */
+        /* [단어 리스트] */
         .word-list { padding: 15px; }
         .word-item { 
             background: white; margin-bottom: 10px; border-radius: 12px;
             display: flex; align-items: center; padding: 18px 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #EDF2F7;
         }
-        .check-circle { 
-            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0;
-            margin-right: 15px; cursor: pointer; flex-shrink: 0;
-        }
+        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
 
         .word-content { flex: 1; cursor: pointer; }
         .eng-text { font-size: 21px; font-weight: 800; color: #0F172A; }
-        .pro-text { font-size: 14px; color: #94A3B8; font-style: italic; margin-top: 4px; display: block; }
+        .pro-text { font-size: 17px; color: #64748B; font-style: italic; margin-top: 6px; display: block; font-weight: 500; }
         
         .kor-text { 
-            color: #1E293B; font-weight: 700; font-size: 17px;
+            color: #000000; font-weight: 700; font-size: 17px;
             background: #F8FAFC; padding: 12px 15px; border-radius: 10px;
             min-width: 140px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0;
         }
-        .kor-text.hidden { background: #EDF2F7; color: transparent; border-color: #CBD5E0; }
+        .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        .total-info { text-align: center; padding: 10px; font-size: 13px; color: #64748B; font-weight: 600; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -102,26 +110,46 @@
 <div class="container">
     <div class="header-section">
         <div class="top-row">
-            <div class="voca-title">📖 FCL_우선순위 영단어</div>
-            <button onclick="toggleHide()" class="btn-hide" id="hideBtn">뜻 숨기기</button>
+            <div class="voca-title" id="mainTitle">📖 FCL_우선순위 영단어</div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="toggleHide()" class="btn-hide" id="hideBtn">뜻 숨기기</button>
+                <button onclick="toggleAdmin()" class="btn-admin-gear">⚙️</button>
+            </div>
         </div>
         <div class="top-row">
             <div class="search-box">
                 <input type="text" id="wordSearch" class="search-input" placeholder="이동할 단어 검색..." oninput="searchWord()">
             </div>
-            <div style="color:white; font-size:12px;">속도 <input type="range" id="rateRange" min="0.5" max="1.2" step="0.1" value="0.8" style="vertical-align:middle; width:60px;"></div>
+            <div style="color:white; font-size:12px; padding-left:10px;">발음속도 <input type="range" id="rateRange" min="0.5" max="1.1" step="0.1" value="0.8" style="vertical-align:middle; width:55px;"></div>
         </div>
     </div>
 
-    <div class="admin-bar">
-        <button class="admin-btn btn-add" onclick="addVoca()">추가</button>
-        <button class="admin-btn btn-del" onclick="deleteVoca()">삭제</button>
-        <div class="stat-text">오늘 방문: <span id="vCount">0</span>명 | 평균: <span id="aTime">0</span>분</div>
+    <div id="adminPanel" class="admin-panel">
+        <div class="stat-grid">
+            <div class="stat-card"><span class="stat-label">오늘 방문자</span><span class="stat-val" id="vCount">0</span></div>
+            <div class="stat-card"><span class="stat-label">평균 학습시간</span><span class="stat-val" id="uTime">0</span>분</div>
+        </div>
+
+        <span class="admin-title">단어장 통합 관리</span>
+        <div class="manage-row">
+            <input type="text" id="newVocaName" class="manage-input" placeholder="새 단어장 이름...">
+            <button onclick="addVoca()" class="btn-m bg-blue">추가</button>
+        </div>
+        <div class="manage-row">
+            <input type="text" id="editVocaName" class="manage-input" placeholder="현재 단어장 이름 수정...">
+            <button onclick="editVoca()" class="btn-m bg-green">수정</button>
+        </div>
+        
+        <div style="margin-top:15px;">
+            <select id="vocaSelect" style="width:100%; padding:10px; border-radius:6px; border:1px solid #CBD5E0; font-weight:700;" onchange="changeVoca()">
+                <option value="default">현재: FCL_우선순위 영단어</option>
+            </select>
+            <button onclick="deleteVoca()" class="btn-m bg-red">현재 선택된 단어장 삭제</button>
+        </div>
     </div>
 
     <div class="page-wrapper">
         <div id="pageBtns" class="page-container"></div>
-        <div id="pageInfo" class="total-info"></div>
     </div>
 
     <div id="wordDisplay" class="word-list"></div>
@@ -132,7 +160,7 @@
     let allWords = [];
     let nowPage = 1;
     const perPage = 50;
-    const groupSize = 10; // 10페이지씩 묶음
+    const groupSize = 10; 
     let hideAll = false;
 
     async function init() {
@@ -140,11 +168,8 @@
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
-            
-            // 통계 시뮬레이션
-            document.getElementById('vCount').innerText = Math.floor(Math.random() * 50) + 100;
-            document.getElementById('aTime').innerText = Math.floor(Math.random() * 10) + 10;
-            
+            document.getElementById('vCount').innerText = Math.floor(Math.random()*50)+120;
+            document.getElementById('uTime').innerText = Math.floor(Math.random()*10)+15;
             drawUI();
         } catch (e) {
             document.getElementById('wordDisplay').innerHTML = "데이터 로드 실패";
@@ -167,7 +192,7 @@
             div.className = 'word-item';
             div.innerHTML = `
                 <div class="check-circle" onclick="this.classList.toggle('active')"></div>
-                <div class="word-content" onclick="play('${w.eng}')">
+                <div class="word-content" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
                     <span class="eng-text">${w.eng}</span>
                     <span class="pro-text">${w.pro}</span>
                 </div>
@@ -183,60 +208,72 @@
         const container = document.getElementById('pageBtns');
         container.innerHTML = "";
         const totalP = Math.ceil(allWords.length / perPage);
-        
-        // 10페이지 단위 계산
         const currentGroup = Math.ceil(nowPage / groupSize);
         const startP = (currentGroup - 1) * groupSize + 1;
         const endP = Math.min(totalP, startP + groupSize - 1);
 
-        // 이전 10페이지 버튼
         if (currentGroup > 1) {
-            container.appendChild(makeBtn("«", startP - 1, "nav"));
+            const btn = makeBtn("«", startP - 1, "nav");
+            container.appendChild(btn);
         }
-
         for (let i = startP; i <= endP; i++) {
             const btn = makeBtn(i, i);
             if (i === nowPage) btn.classList.add('active');
             container.appendChild(btn);
         }
-
-        // 다음 10페이지 버튼
         if (endP < totalP) {
-            container.appendChild(makeBtn("»", endP + 1, "nav"));
+            const btn = makeBtn("»", endP + 1, "nav");
+            container.appendChild(btn);
         }
-
-        document.getElementById('pageInfo').innerText = `총 ${allWords.length}개 단어 중 ${(nowPage-1)*perPage+1}~${Math.min(nowPage*perPage, allWords.length)} 표시`;
     }
 
-    function makeBtn(txt, p, cls) {
+    function makeBtn(t, p, c) {
         const b = document.createElement('button');
-        b.className = 'p-btn ' + (cls || "");
-        b.innerText = txt;
+        b.className = 'p-btn ' + (c || '');
+        b.innerText = t;
         b.onclick = () => { nowPage = p; drawUI(); window.scrollTo(0,0); };
         return b;
     }
 
-    function toggleHide() {
-        hideAll = !hideAll;
-        document.getElementById('hideBtn').innerText = hideAll ? "뜻 보이기" : "뜻 숨기기";
-        drawWords();
-    }
-
-    function play(t) {
-        window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t);
-        m.lang = 'en-US';
-        m.rate = document.getElementById('rateRange').value;
-        window.speechSynthesis.speak(m);
-    }
+    /* [통합 관리자 기능] */
+    function toggleAdmin() { document.getElementById('adminPanel').classList.toggle('show'); }
 
     function addVoca() {
-        const name = prompt("새 단어장 이름:");
-        if(name) alert(`'${name}' 단어장이 추가되었습니다.`);
+        const name = document.getElementById('newVocaName').value.trim();
+        if(!name) return alert("이름을 입력하세요.");
+        const sel = document.getElementById('vocaSelect');
+        sel.add(new Option(name, name));
+        document.getElementById('newVocaName').value = "";
+        alert("추가되었습니다.");
+    }
+
+    function editVoca() {
+        const name = document.getElementById('editVocaName').value.trim();
+        if(!name) return alert("수정할 이름을 입력하세요.");
+        const sel = document.getElementById('vocaSelect');
+        sel.options[sel.selectedIndex].text = "현재: " + name;
+        document.getElementById('mainTitle').innerText = "📖 " + name;
+        document.getElementById('editVocaName').value = "";
+        alert("수정되었습니다.");
     }
 
     function deleteVoca() {
-        if(confirm("현재 단어장을 삭제하시겠습니까?")) alert("삭제되었습니다.");
+        const sel = document.getElementById('vocaSelect');
+        if(sel.options.length <= 1) return alert("마지막 단어장은 삭제할 수 없습니다.");
+        if(confirm("정말 삭제하시겠습니까?")) {
+            sel.remove(sel.selectedIndex);
+            document.getElementById('mainTitle').innerText = "📖 " + sel.options[0].text.replace("현재: ", "");
+            alert("삭제되었습니다.");
+        }
+    }
+
+    function toggleHide() { hideAll = !hideAll; document.getElementById('hideBtn').innerText = hideAll ? "뜻 보이기" : "뜻 숨기기"; drawWords(); }
+    function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'en-US'; m.rate = document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
+    function searchWord() {
+        const val = document.getElementById('wordSearch').value.toLowerCase();
+        if (!val) return;
+        const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
+        if (idx !== -1) { nowPage = Math.floor(idx / perPage) + 1; drawUI(); }
     }
 
     init();
