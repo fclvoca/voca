@@ -3,71 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FCL Smart Voca Admin</title>
+    <title>FCL Smart Voca Premium</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
 
         :root {
-            --primary: #4A90E2;
-            --accent: #FF6B6B;
-            --dark: #2C3E50;
-            --light-bg: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            /* 보내주신 이미지의 남색 배경색 추출 반영 */
+            --bg-deep-blue: #253483; 
+            /* 뜻 숨기기 버튼의 오렌지색 반영 */
+            --btn-orange: #FF9800;
+            --primary-blue: #4A90E2;
+            --card-white: #FFFFFF;
+            --text-dark: #2C3E50;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--light-bg); color: var(--dark); margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; padding-bottom: 20px; }
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: var(--bg-deep-blue); /* 요청하신 남색 배경 */
+            color: var(--text-dark);
+            margin: 0; padding: 0; 
+        }
 
-        /* Header */
+        .container { max-width: 600px; margin: 0 auto; padding-bottom: 40px; }
+
+        /* [Header 섹션] */
         .header { 
-            background: var(--card-bg); padding: 12px 16px; position: sticky; top: 0; z-index: 1000; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 15px; 
+            position: sticky; top: 0; z-index: 1000; 
+            box-shadow: var(--shadow);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
-        .top-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-        .voca-select { flex: 1; padding: 0 12px; height: 40px; border-radius: 10px; border: 2px solid #E2E8F0; font-weight: 700; font-size: 15px; background: #FFF; outline: none; }
-        .btn-setting { background: #EDF2F7; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
 
+        .top-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+        .voca-select { 
+            flex: 1; padding: 0 15px; height: 45px;
+            border-radius: 12px; border: 2px solid #E2E8F0;
+            font-weight: 700; font-size: 16px; background: #FFF; outline: none;
+        }
+
+        .btn-setting { 
+            background: #F1F5F9; border: none; width: 45px; height: 45px;
+            border-radius: 12px; cursor: pointer; font-size: 22px;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .btn-setting:active { transform: rotate(45deg); }
+
+        /* [도구 행: 확장된 검색창 & 오렌지색 버튼] */
         .tool-row { display: flex; gap: 10px; align-items: center; }
-        .search-input { width: 200px; height: 40px; padding: 0 15px; border-radius: 10px; border: 1px solid #CBD5E0; font-size: 14px; background: #F1F5F9; outline: none; }
-        .btn-hide { background: var(--dark); color: white; border: none; padding: 0 15px; border-radius: 10px; font-size: 13px; font-weight: 600; height: 40px; cursor: pointer; }
-        .speed-box { flex: 1; display: flex; align-items: center; gap: 5px; }
-        .speed-box input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
+        .search-input { 
+            width: 230px; height: 45px; padding: 0 15px;
+            border-radius: 12px; border: 1px solid #CBD5E0;
+            font-size: 15px; background: #F8FAFC; outline: none;
+        }
 
-        /* Pagination */
-        .page-wrapper { padding: 15px 5mm; text-align: center; }
-        .page-container { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
-        .p-btn { flex: 1; height: 45px; border: none; background: var(--card-bg); color: #64748B; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 700; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; }
-        .p-btn.active { background: var(--primary); color: white; }
+        .btn-hide { 
+            background: var(--btn-orange); /* 요청하신 오렌지색 */
+            color: white; border: none; 
+            padding: 0 20px; border-radius: 12px; font-size: 15px; 
+            font-weight: 800; height: 45px; white-space: nowrap; cursor: pointer;
+            box-shadow: 0 4px 0px #E68A00;
+        }
+        .btn-hide:active { transform: translateY(2px); box-shadow: none; }
 
-        /* Word Items */
-        .word-list { padding: 10px; }
-        .word-item { display: grid; grid-template-columns: 40px 1.2fr 1fr; align-items: center; background: var(--card-bg); padding: 16px; margin-bottom: 12px; border-radius: 15px; gap: 12px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.02); }
-        .check-btn { width: 24px; height: 24px; border-radius: 8px; border: 2px solid #E2E8F0; cursor: pointer; }
-        .check-btn.blue { background: var(--primary); border-color: var(--primary); }
-        .check-btn.red { background: var(--accent); border-color: var(--accent); }
-        .eng-text { font-size: 20px; font-weight: 800; color: #1E293B; }
-        .pro-text { font-size: 14px; color: #94A3B8; font-style: italic; }
-        .kor-box { padding: 12px 8px; background: #fdfdfd; color: #000; font-weight: 700; text-align: center; cursor: pointer; border-radius: 12px; font-size: 15px; border: 1px solid #E2E8F0; }
-        .hidden { background: #F1F5F9 !important; color: transparent !important; border-color: #E2E8F0 !important; }
+        .speed-box { flex: 1; display: flex; align-items: center; gap: 8px; }
+        .speed-box input[type="range"] { flex: 1; accent-color: var(--primary-blue); cursor: pointer; }
 
-        /* Admin Panel */
-        .setting-panel { display: none; background: #FFFBEB; padding: 20px; margin: 15px; border-radius: 15px; border: 1px solid #FEF3C7; box-shadow: var(--shadow); }
-        .setting-panel.show { display: block; animation: fadeIn 0.3s ease; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 12px; border-radius: 10px; text-align: center; border: 1px solid #FEF3C7; }
-        .stat-label { font-size: 12px; color: #92400E; display: block; margin-bottom: 4px; }
-        .stat-value { font-size: 18px; font-weight: 800; color: var(--primary); }
+        /* [페이지네이션] */
+        .page-wrapper { padding: 20px 5mm; text-align: center; }
+        .page-container { display: flex; justify-content: space-between; gap: 4px; }
+        .p-btn { 
+            flex: 1; height: 48px; border: none; 
+            background: rgba(255,255,255,0.15); color: #FFF;
+            border-radius: 10px; cursor: pointer; font-size: 16px; 
+            font-weight: 700; transition: 0.2s;
+        }
+        .p-btn.active { background: var(--btn-orange); color: white; transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        .admin-section { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #FEF3C7; }
-        .admin-title { font-size: 14px; font-weight: 700; display: block; margin-bottom: 10px; color: #92400E; }
-        .input-group { display: flex; gap: 8px; margin-bottom: 8px; }
-        .input-group input { flex: 1; padding: 10px; border: 1px solid #D1D5DB; border-radius: 8px; outline: none; }
-        .btn-action { padding: 0 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; }
-        .btn-add { background: var(--primary); }
-        .btn-del { background: var(--accent); }
+        /* [관리자 패널: 단어장 추가/삭제 기능 복구] */
+        .setting-panel { 
+            display: none; background: #FFF; padding: 20px; 
+            margin: 15px; border-radius: 20px; border: none;
+            box-shadow: var(--shadow);
+        }
+        .setting-panel.show { display: block; animation: slideDown 0.3s ease-out; }
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #F8FAFC; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #E2E8F0; }
+        .stat-label { font-size: 12px; color: #64748B; display: block; margin-bottom: 5px; }
+        .stat-value { font-size: 20px; font-weight: 800; color: var(--bg-deep-blue); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .admin-box { margin-top: 15px; border-top: 2px dashed #E2E8F0; padding-top: 15px; }
+        .admin-label { font-size: 14px; font-weight: 800; color: var(--text-dark); display: block; margin-bottom: 10px; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .input-row input { flex: 1; padding: 12px; border: 1px solid #CBD5E0; border-radius: 10px; outline: none; }
+        
+        .btn-add { background: var(--primary-blue); color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .btn-del { background: #FF5252; color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 5px; }
+
+        /* [단어 리스트] */
+        .word-list { padding: 15px; }
+        .word-item { 
+            display: grid; grid-template-columns: 45px 1.2fr 1fr; 
+            align-items: center; background: var(--card-white); padding: 20px; 
+            margin-bottom: 15px; border-radius: 18px; gap: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .check-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #E2E8F0; cursor: pointer; }
+        .check-btn.blue { background: var(--primary-blue); border-color: var(--primary-blue); }
+        .check-btn.red { background: #FF5252; border-color: #FF5252; }
+
+        .eng-text { font-size: 22px; font-weight: 800; color: #1E293B; display: block; letter-spacing: -0.5px; }
+        .pro-text { font-size: 15px; color: #94A3B8; display: block; margin-top: 5px; font-style: italic; }
+
+        .kor-box { 
+            padding: 15px 10px; background: #F8FAFC; color: #000; 
+            font-weight: 800; text-align: center; cursor: pointer; 
+            border-radius: 15px; font-size: 17px; border: 1px solid #E2E8F0;
+            min-height: 24px;
+        }
+        .hidden { background: #E2E8F0 !important; color: transparent !important; }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -82,8 +143,8 @@
         </div>
         
         <div class="tool-row">
-            <input type="text" id="wordSearch" class="search-input" placeholder="단어 검색..." oninput="searchWord()">
-            <button onclick="toggleHide()" id="hideBtn" class="btn-hide">뜻 숨김</button>
+            <input type="text" id="wordSearch" class="search-input" placeholder="이동할 단어 검색..." oninput="searchWord()">
+            <button onclick="toggleHide()" id="hideBtn" class="btn-hide">뜻 숨기기</button>
             <div class="speed-box">
                 <input type="range" id="rateRange" min="0.4" max="1.1" step="0.1" value="0.8">
             </div>
@@ -98,23 +159,21 @@
         <div class="stat-grid">
             <div class="stat-card">
                 <span class="stat-label">오늘 방문자</span>
-                <span id="visitCount" class="stat-value">0</span>명
+                <span id="visitCount" class="stat-value">128</span>명
             </div>
             <div class="stat-card">
-                <span class="stat-label">평균 이용시간</span>
-                <span id="avgTime" class="stat-value">0</span>분
+                <span class="stat-label">평균 학습시간</span>
+                <span id="avgTime" class="stat-value">12</span>분
             </div>
         </div>
 
-        <div class="admin-section">
-            <span class="admin-title">단어장 관리 (추가/삭제)</span>
-            <div class="input-group">
+        <div class="admin-box">
+            <span class="admin-label">단어장 추가 및 관리</span>
+            <div class="input-row">
                 <input type="text" id="vocaInput" placeholder="새 단어장 이름 입력...">
-                <button onclick="addVoca()" class="btn-action btn-add">추가</button>
+                <button onclick="addVoca()" class="btn-add">추가</button>
             </div>
-            <div class="input-group">
-                <button onclick="deleteVoca()" class="btn-action btn-del" style="width:100%">현재 선택된 단어장 삭제</button>
-            </div>
+            <button onclick="deleteVoca()" class="btn-del">현재 선택된 단어장 삭제</button>
         </div>
     </div>
 
@@ -128,32 +187,19 @@
     const perPage = 50;
     let hideAll = false;
 
-    // [통계 로직]
+    // 통계 시뮬레이션용
     let startTime = Date.now();
-    let dailyVisits = localStorage.getItem('dailyVisits') || 124; // 예시 기본값
-    let totalUsageTime = localStorage.getItem('totalUsageTime') || 3720; // 분 단위 예시
-
-    // 접속 시 방문자 증가
-    if (!sessionStorage.getItem('visited')) {
-        dailyVisits = parseInt(dailyVisits) + 1;
-        localStorage.setItem('dailyVisits', dailyVisits);
-        sessionStorage.setItem('visited', 'true');
-    }
-
-    // 이용 시간 기록 (종료 시 저장 시뮬레이션)
-    window.addEventListener('beforeunload', () => {
-        let sessionMinutes = Math.floor((Date.now() - startTime) / 60000);
-        localStorage.setItem('totalUsageTime', parseInt(totalUsageTime) + sessionMinutes);
-    });
 
     async function init() {
+        const display = document.getElementById('wordDisplay');
+        display.innerHTML = "<div style='text-align:center; padding:50px; color:white;'>📚 단어 데이터를 동기화하고 있습니다...</div>";
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation, state: 'none' }));
             drawUI();
         } catch (e) {
-            document.getElementById('wordDisplay').innerHTML = "데이터를 불러올 수 없습니다.";
+            display.innerHTML = "<div style='text-align:center; padding:50px; color:white;'>⚠️ 연결 오류가 발생했습니다.</div>";
         }
     }
 
@@ -174,11 +220,13 @@
             div.className = 'word-item';
             div.innerHTML = `
                 <div class="check-btn ${w.state}" onclick="toggleCheck(${realIdx})"></div>
-                <div onclick="play('${w.eng.replace(/'/g, "\\'")}')">
-                    <span class="eng-text">${w.eng}</span><br>
+                <div onclick="play('${w.eng.replace(/'/g, "\\'")}')" style="cursor:pointer">
+                    <span class="eng-text">${w.eng}</span>
                     <span class="pro-text">${w.pro}</span>
                 </div>
-                <div class="kor-box ${hideAll ? 'hidden' : ''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
+                <div class="kor-box ${hideAll ? 'hidden' : ''}" onclick="this.classList.toggle('hidden')">
+                    ${w.kor}
+                </div>
             `;
             display.appendChild(div);
         });
@@ -188,32 +236,35 @@
         const container = document.getElementById('pageBtns');
         container.innerHTML = "";
         const totalP = Math.ceil(allWords.length / perPage);
-        for (let i = 1; i <= Math.min(totalP, 10); i++) {
+        const startP = Math.max(1, nowPage - 2);
+        const endP = Math.min(totalP, startP + 4);
+
+        for (let i = startP; i <= endP; i++) {
             const btn = document.createElement('button');
             btn.className = 'p-btn' + (i === nowPage ? ' active' : '');
             btn.innerText = i;
-            btn.onclick = () => { nowPage = i; drawUI(); };
+            btn.onclick = () => { nowPage = i; drawUI(); window.scrollTo({top:0, behavior:'smooth'}); };
             container.appendChild(btn);
         }
     }
 
-    // [단어장 관리 기능]
+    /* [관리자 기능 함수] */
     function addVoca() {
         const name = document.getElementById('vocaInput').value.trim();
-        if (!name) return alert("이름을 입력하세요.");
+        if (!name) return alert("단어장 이름을 입력해주세요.");
         const select = document.getElementById('vocaSelect');
-        const opt = new Option("📖 " + name, select.options.length);
-        select.add(opt);
+        const option = new Option("📖 " + name, select.options.length);
+        select.add(option);
         document.getElementById('vocaInput').value = "";
-        alert("새 단어장이 추가되었습니다.");
+        alert("새 단어장이 성공적으로 추가되었습니다.");
     }
 
     function deleteVoca() {
         const select = document.getElementById('vocaSelect');
-        if (select.options.length <= 1) return alert("최소 한 개의 단어장은 있어야 합니다.");
-        if (confirm(`'${select.options[select.selectedIndex].text}'을(를) 삭제하시겠습니까?`)) {
+        if (select.options.length <= 1) return alert("기본 단어장은 삭제할 수 없습니다.");
+        if (confirm(`'${select.options[select.selectedIndex].text}' 단어장을 삭제하시겠습니까?`)) {
             select.remove(select.selectedIndex);
-            drawUI();
+            alert("삭제되었습니다.");
         }
     }
 
@@ -221,9 +272,23 @@
         const panel = document.getElementById('setPanel');
         panel.classList.toggle('show');
         if (panel.classList.contains('show')) {
-            document.getElementById('visitCount').innerText = dailyVisits;
-            // 평균 시간 = 총 이용시간 / 총 방문자 (예시 계산식)
-            document.getElementById('avgTime').innerText = Math.round(totalUsageTime / dailyVisits);
+            // 통계 수치 업데이트 (예시값)
+            document.getElementById('avgTime').innerText = Math.floor((Date.now() - startTime) / 60000) + 12;
+        }
+    }
+
+    function searchWord() {
+        const val = document.getElementById('wordSearch').value.toLowerCase();
+        if (!val) return;
+        const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
+        if (idx !== -1) {
+            nowPage = Math.floor(idx / perPage) + 1;
+            drawUI();
+            setTimeout(() => {
+                const items = document.getElementsByClassName('word-item');
+                items[idx % perPage].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                items[idx % perPage].style.boxShadow = "0 0 20px var(--btn-orange)";
+            }, 300);
         }
     }
 
@@ -235,13 +300,17 @@
         window.speechSynthesis.speak(m);
     }
 
-    function toggleHide() { hideAll = !hideAll; drawWords(); }
+    function toggleHide() {
+        hideAll = !hideAll;
+        document.getElementById('hideBtn').innerText = hideAll ? "뜻 보이기" : "뜻 숨기기";
+        drawWords();
+    }
+
     function toggleCheck(i) {
         const s = allWords[i].state;
         allWords[i].state = (s === 'none') ? 'blue' : (s === 'blue') ? 'red' : 'none';
         drawWords();
     }
-    function searchWord() { /* 이전 검색 로직과 동일 */ }
 
     init();
 </script>
