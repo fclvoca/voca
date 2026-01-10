@@ -14,21 +14,22 @@
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 0 auto; }
 
-        /* [상단 헤더 압축 및 최적화] */
+        /* [상단 헤더: 공간 효율 극대화] */
         .header { background: white; padding: 6px 10px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
         .top-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
         .voca-select { flex: 1; padding: 5px; border-radius: 6px; border: 1px solid #ddd; font-weight: bold; font-size: 13px; height: 32px; }
         
-        /* [도구 행: 검색창 및 슬라이더 길이 확장] */
-        .tool-row { display: flex; gap: 6px; align-items: center; }
-        /* 검색창 길이 약 50% 확장 (기존 85px -> 125px) */
-        .search-input { width: 125px; padding: 7px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; height: 32px; box-sizing: border-box; }
+        /* [도구 행: 검색창 확장 + 슬라이더 가변 길이] */
+        .tool-row { display: flex; gap: 8px; align-items: center; }
+        /* 검색창: 기존 125px에서 약 4글자 분량(40px) 추가하여 165px로 확장 */
+        .search-input { width: 165px; padding: 7px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; height: 32px; box-sizing: border-box; }
+        
         .btn-hide { background: #333; color: white; border: none; padding: 0 8px; border-radius: 6px; font-size: 11px; height: 32px; white-space: nowrap; cursor: pointer; }
         
-        /* 발음 속도 영역: 검색창 확장 후에도 남은 공간을 최대로 활용 */
+        /* 발음 속도 영역: flex-grow(1)로 나머지 모든 공간 점유 */
         .speed-box { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
         .speed-box span { font-size: 10px; color: #777; white-space: nowrap; }
-        .speed-box input[type="range"] { flex: 1; cursor: pointer; height: 25px; }
+        .speed-box input[type="range"] { flex: 1; cursor: pointer; height: 30px; margin: 0; }
 
         /* [페이지네이션: 10개 한 줄] */
         .page-wrapper { background: #fff; padding: 6px 2px; border-bottom: 1px solid #eee; text-align: center; }
@@ -40,7 +41,7 @@
         .p-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
         .p-btn.nav { background: #f0f7ff; color: var(--blue); font-weight: bold; max-width: 32px; }
 
-        /* [단어 리스트 영역] */
+        /* [단어 리스트] */
         .word-list { padding: 5px; }
         .word-item { 
             display: grid; grid-template-columns: 35px 1.2fr 1fr; 
@@ -53,10 +54,9 @@
         .check-btn.blue { background: var(--blue); border-color: var(--blue); }
         .check-btn.red { background: var(--red); border-color: var(--red); }
 
-        .eng-box { cursor: pointer; }
         .eng-text { font-size: 17px; font-weight: bold; color: #333; display: block; }
-        /* 발음기호 크기 확대 (기존 11px -> 14px) */
-        .pro-text { font-size: 14px; color: #777; font-weight: 400; font-family: 'Lucida Sans', sans-serif; display: block; margin-top: 2px; }
+        /* 발음기호: 크게 유지 */
+        .pro-text { font-size: 14px; color: #777; display: block; margin-top: 2px; }
 
         .kor-box { 
             padding: 8px 4px; background: #fff5f5; color: var(--red); 
@@ -188,7 +188,7 @@
         const newName = document.getElementById('newVocaName').value.trim();
         if (newName) {
             document.getElementById('vocaSelect').options[0].text = "📖 " + newName;
-            alert("이름 수정이 완료되었습니다.");
+            alert("이름 수정 완료");
         }
     }
 
