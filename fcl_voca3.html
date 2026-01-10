@@ -24,40 +24,61 @@
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; }
         .speed-slider { width: 100px; cursor: pointer; accent-color: var(--fcl-orange); }
 
-        /* 단어 아이템 구조 수정 */
+        /* 단어 아이템 */
         .word-list { padding: 8px; }
         .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 12px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
-        
-        /* [중요] 단어 정보 영역을 세로로 쌓기 */
         .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; cursor: pointer; }
-        .eng-text { font-weight: 900; color: #0F172A; line-height: 1.1; display: block; }
-        
-        /* 발음 버튼 디자인 */
-        .btn-pro-pop { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: block; }
-
+        .eng-text { font-weight: 900; color: #0F172A; line-height: 1.1; }
+        .btn-pro-pop { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 110px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 팝업창 상단 배치 */
+        /* 팝업창 상단 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: flex-start; padding-top: 40px; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); }
         .modal-word { font-size: 26px; font-weight: 900; color: var(--fcl-navy); margin-bottom: 10px; }
         .modal-pro { font-size: 22px; color: #475569; font-weight: 600; margin-bottom: 20px; cursor: pointer; background: #F8FAFC; padding: 12px; border-radius: 10px; border: 2px dashed #CBD5E0; }
         .btn-close-modal { background: var(--fcl-navy); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
+        /* [수정] 페이지네이션 개선 */
+        .page-wrapper { padding: 15px 10px; background: #FFF; border-bottom: 1px solid #E2E8F0; }
+        .page-container { 
+            display: flex; 
+            flex-wrap: wrap; /* 모바일에서 자리가 없으면 다음 줄로 */
+            justify-content: center; 
+            gap: 6px; 
+            width: 100%; 
+        }
+        .p-btn { 
+            min-width: 45px; /* 버튼 크기 확장 */
+            height: 45px; 
+            border: 1px solid #E2E8F0; 
+            background: white; 
+            color: #475569; 
+            border-radius: 8px; 
+            font-size: 18px; /* 숫자 크기 대폭 확장 */
+            font-weight: 900; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); box-shadow: 0 4px 8px rgba(26,35,126,0.3); }
+        .p-btn.nav { 
+            background-color: #F1F5F9; 
+            color: var(--fcl-navy); 
+            font-size: 22px; /* 화살표 크기 확장 */
+            min-width: 50px; 
+        }
+
         /* 관리자 패널 */
         #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
         .stat-container { display: flex; gap: 8px; margin-bottom: 20px; }
         .stat-box { flex: 1; background: #F8FAFC; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
         .stat-box b { font-size: 16px; color: var(--fcl-navy); display: block; font-weight: 900; }
-
-        /* 페이지네이션 */
-        .page-wrapper { padding: 10px; background: #FFF; border-bottom: 1px solid #E2E8F0; }
-        .page-container { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; overflow-x: auto; padding-bottom: 5px; }
-        .p-btn { min-width: 38px; height: 38px; border: 1px solid #E2E8F0; background: white; color: #475569; border-radius: 6px; font-size: 13px; font-weight: 800; cursor: pointer; flex-shrink: 0; }
-        .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
     </style>
 </head>
 <body>
@@ -113,22 +134,18 @@
     async function init() {
         const savedTitle = localStorage.getItem('fcl_voca_name');
         if(savedTitle) document.getElementById('mainTitle').innerText = "📖 " + savedTitle;
-
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
-            
             let hits = parseInt(localStorage.getItem('fcl_hits') || "0");
             hits++; localStorage.setItem('fcl_hits', hits);
             document.getElementById('totalHits').innerText = hits;
-
             let unique = parseInt(localStorage.getItem('fcl_unique') || "0");
             const lastVisit = localStorage.getItem('fcl_last_visit');
             const today = new Date().toDateString();
             if(lastVisit !== today) { unique++; localStorage.setItem('fcl_unique', unique); localStorage.setItem('fcl_last_visit', today); }
             document.getElementById('uniqueUsers').innerText = unique;
-
             drawUI();
         } catch (e) { document.getElementById('wordDisplay').innerHTML = "로딩 실패"; }
     }
@@ -157,7 +174,6 @@
         document.getElementById('modalPro').innerText = pro;
         document.getElementById('proModal').style.display = 'flex';
     }
-    
     function playCurrentWord() { if(currentModalWord) play(currentModalWord); }
     function closeModal() { document.getElementById('proModal').style.display = 'none'; }
 
@@ -166,11 +182,17 @@
         const totalP = Math.ceil(allWords.length / perPage);
         const startP = (Math.ceil(nowPage/groupSize)-1)*groupSize+1;
         const endP = Math.min(totalP, startP + groupSize - 1);
+        
+        // 이전 10페이지 (<<)
         if(startP > 1) container.appendChild(makeBtn("«", startP-1, "nav"));
+        
+        // 페이지 숫자들
         for(let i=startP; i<=endP; i++) {
             const b = makeBtn(i, i); if(i===nowPage) b.classList.add('active');
             container.appendChild(b);
         }
+        
+        // 다음 10페이지 (>>)
         if(endP < totalP) container.appendChild(makeBtn("»", endP+1, "nav"));
     }
 
