@@ -26,6 +26,8 @@
         
         .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); cursor: pointer; }
+        
+        /* 속도 조절 바 - 선생님께서 적당하다고 하신 사이즈(60px) 유지 */
         .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; }
         .speed-slider { width: 60px; accent-color: var(--fcl-orange); cursor: pointer; }
 
@@ -37,17 +39,25 @@
 
         .word-list { padding: 10px 8px; }
         .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
+        
+        /* 왼쪽 외운단어 체크 버튼 복구 */
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
+        
         .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; cursor: pointer; }
         .eng-text { font-weight: 900; color: #0F172A; line-height: 1.1; }
+        
+        /* 발음기호 버튼 복구 */
         .btn-pro-pop { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px; border-radius: 10px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
+        /* 발음기호 팝업창(모달) 복구 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 50px; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; border: 3px solid var(--fcl-navy); }
         .btn-close-modal { background: var(--fcl-navy); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+
         #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: fixed; top: 50px; left: 10px; right: 10px; z-index: 3000; }
     </style>
 </head>
@@ -119,7 +129,7 @@
         const vSelect = document.getElementById('voiceSelect');
         const enVoices = voices.filter(v => v.lang.startsWith('en'));
         
-        // 발음 품질 좋은 순서로 정렬
+        // 좋은 목소리 정렬
         enVoices.sort((a, b) => {
             const getScore = (v) => {
                 if (v.name.includes('Natural')) return 3;
@@ -197,6 +207,7 @@
     function playCurrentWord() { if(currentModalWord) play(currentModalWord); }
     function closeModal() { document.getElementById('proModal').style.display = 'none'; }
 
+    /* 10개씩 묶음 페이지 버튼 로직 복구 */
     function drawPages() {
         const container = document.getElementById('pageBtns'); container.innerHTML = "";
         const totalP = Math.ceil(allWords.length / perPage);
