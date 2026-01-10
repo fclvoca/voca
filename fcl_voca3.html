@@ -43,10 +43,12 @@
         .word-item { background: white; margin-bottom: 5px; border-radius: 8px; display: flex; align-items: center; padding: 10px 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
-        /* 수정된 부분: flex-direction을 column으로 변경하여 세로 배치 */
-        .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; cursor: pointer; }
-        .eng-text { font-weight: 900; color: #0F172A; } 
-        .pro-text { color: #64748B; font-weight: 500; }
+        
+        /* 발음을 아래로 배치하기 위해 word-info 설정을 유지합니다 */
+        .word-info { flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+        .eng-text { font-weight: 900; color: #0F172A; display: block; line-height: 1.2; } 
+        .pro-text { color: #64748B; font-weight: 500; display: block; line-height: 1.2; margin-top: 2px; }
+        
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 10px 15px; border-radius: 10px; min-width: 150px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
     </style>
@@ -113,12 +115,18 @@
             document.getElementById('uniqueUsers').innerText = unique;
 
             drawUI();
-        } catch (e) { document.getElementById('wordDisplay').innerHTML = "로딩 실패"; }
+        } catch (e) { document.getElementById('wordDisplay').innerHTML = "데이터를 불러오는 중입니다..."; }
     }
     function drawUI() { drawWords(); drawPages(); }
     function drawWords() {
         const display = document.getElementById('wordDisplay'); display.innerHTML = "";
         const slice = allWords.slice((nowPage-1)*perPage, nowPage*perPage);
+        
+        if (slice.length === 0) {
+            display.innerHTML = "<div style='text-align:center; padding:50px;'>표시할 단어가 없습니다.</div>";
+            return;
+        }
+
         slice.forEach((w) => {
             const div = document.createElement('div'); div.className = 'word-item';
             div.innerHTML = `<div class="check-circle" onclick="this.classList.toggle('active')"></div>
@@ -160,4 +168,13 @@
         if(val) { document.getElementById('mainTitle').innerText = "📖 " + val; alert('변경됨'); }
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
-    function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-
+    function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
+    function searchWord() {
+        const val = document.getElementById('wordSearch').value.toLowerCase(); if(!val) { drawUI(); return; }
+        const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
+        if(idx!==-1) { nowPage = Math.floor(idx/perPage)+1; drawUI(); }
+    }
+    init();
+</script>
+</body>
+</html>
