@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FCL Premium Smart Voca</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+        /* 요청하신 이미지와 유사한 고딕체 폰트 적용 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 
         :root {
             --fcl-navy: #1A237E; 
@@ -14,58 +15,50 @@
             --text-dark: #1E293B;
         }
 
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); }
-        .container { max-width: 800px; margin: 0 auto; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
+        .container { max-width: 900px; margin: 0 auto; }
 
         /* [Header] */
-        .header-section { background-color: var(--fcl-navy); padding: 15px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
-        .voca-title { color: white; font-weight: 800; font-size: 18px; white-space: nowrap; }
+        .header-section { background-color: var(--fcl-navy); padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+        .voca-title { color: white; font-weight: 900; font-size: 22px; white-space: nowrap; }
         
-        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 15px; height: 38px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 13px; }
-        .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 22px; cursor: pointer; padding: 5px; }
+        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 20px; height: 42px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
+        .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 24px; cursor: pointer; }
 
-        /* [검색창 4배 확장 및 Speed 간격 조정] */
-        .tool-row { display: flex; align-items: center; gap: 30px; width: 100%; }
-        
-        /* 검색창 너비 대폭 확장 */
-        .search-box { width: 350px; flex-shrink: 0; } 
-        .search-input { width: 100%; height: 38px; padding: 0 15px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
+        /* [검색창 및 Speed 레이아웃] */
+        .tool-row { display: flex; align-items: center; gap: 30px; width: 100%; margin-bottom: 10px; }
+        .search-box { width: 400px; flex-shrink: 0; } 
+        .search-input { width: 100%; height: 42px; padding: 0 15px; border-radius: 8px; border: none; font-size: 15px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .speed-control { flex: 1; display: flex; align-items: center; gap: 15px; color: white; font-size: 14px; white-space: nowrap; }
+        .speed-slider { flex: 1; cursor: pointer; accent-color: var(--fcl-orange); height: 20px; }
 
-        /* Speed 영역 간격 확보 */
-        .speed-control { flex: 1; display: flex; align-items: center; gap: 15px; color: white; font-size: 13px; white-space: nowrap; }
-        .speed-slider { flex: 1; cursor: pointer; accent-color: var(--fcl-orange); height: 18px; max-width: 200px; }
-
-        /* [관리자 패널] */
-        #adminPanel { display: none; background: #FFF; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
+        /* [관리자 패널 및 버튼 그룹] */
+        #adminPanel { display: none; background: white; margin: 15px; padding: 25px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); position: relative; z-index: 9999; }
+        .admin-btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .a-btn { padding: 10px 18px; border-radius: 6px; border: none; color: white; font-weight: 700; cursor: pointer; font-size: 14px; }
+        .btn-add { background-color: #3F51B5; }
+        .btn-edit { background-color: #4CAF50; }
+        .btn-save { background-color: #E91E63; }
+        .btn-del { background-color: #F44336; }
 
         /* [페이지네이션] */
-        .page-wrapper { padding: 12px 2mm; background: #FFF; border-bottom: 1px solid #E2E8F0; }
-        .page-container { display: flex; align-items: center; justify-content: space-between; gap: 2px; width: 100%; }
-        .p-btn { flex: 1; max-width: 60px; height: 42px; border: 1px solid #E2E8F0; background: white; color: #475569; border-radius: 4px; font-size: 14px; font-weight: 800; cursor: pointer; }
-        .p-btn.active { background-color: #2563EB; color: white; border-color: #2563EB; }
-        .p-btn.nav { background-color: #F1F5F9; color: #2563EB; font-weight: 900; font-size: 18px; max-width: 45px; }
+        .page-wrapper { padding: 15px; background: #FFF; border-bottom: 1px solid #E2E8F0; }
+        .page-container { display: flex; align-items: center; justify-content: space-between; gap: 5px; width: 100%; }
+        .p-btn { flex: 1; height: 42px; border: 1px solid #E2E8F0; background: white; color: #475569; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .p-btn.active { background-color: #1A237E; color: white; border-color: #1A237E; }
 
-        /* [단어 리스트] */
-        .word-list { padding: 12px; }
-        .word-item { background: white; margin-bottom: 10px; border-radius: 12px; display: flex; align-items: center; padding: 18px 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 20px; cursor: pointer; flex-shrink: 0; }
+        /* [단어 리스트 디자인] */
+        .word-list { padding: 15px; }
+        .word-item { background: white; margin-bottom: 12px; border-radius: 15px; display: flex; align-items: center; padding: 20px 30px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
+        .check-circle { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 25px; cursor: pointer; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
         
-        /* 단어 정보 가로 배열 */
-        .word-info { flex: 1; display: flex; align-items: center; gap: 15px; cursor: pointer; overflow: hidden; }
-        .eng-text { font-size: 22px; font-weight: 800; color: #0F172A; white-space: nowrap; }
-        
-        /* 발음기호를 영단어 우측 바로 옆에 배치 */
-        .pro-text { 
-            font-size: 16px; 
-            color: #64748B; 
-            font-style: normal; 
-            font-weight: 600;
-            white-space: nowrap;
-        }
+        .word-info { flex: 1; display: flex; align-items: baseline; gap: 15px; cursor: pointer; }
+        .eng-text { font-size: 24px; font-weight: 900; color: #0F172A; }
+        .pro-text { font-size: 17px; color: #64748B; font-weight: 500; font-family: 'Noto Sans KR'; }
 
-        .kor-text { color: #000; font-weight: 700; font-size: 17px; background: #F8FAFC; padding: 12px 15px; border-radius: 10px; min-width: 150px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; margin-left: 10px; }
+        .kor-text { color: #0F172A; font-weight: 700; font-size: 18px; background: #F8FAFC; padding: 14px 20px; border-radius: 12px; min-width: 160px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
     </style>
 </head>
@@ -75,7 +68,7 @@
     <div class="header-section">
         <div class="top-row">
             <div class="voca-title" id="mainTitle">📖 FCL_우선순위 영단어</div>
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div style="display:flex; gap:10px; align-items:center;">
                 <button onclick="toggleHide()" class="btn-hide" id="hideBtn">뜻 숨기기</button>
                 <button onclick="askAdmin()" class="btn-admin-gear">⚙️</button>
             </div>
@@ -92,16 +85,23 @@
     </div>
 
     <div id="adminPanel">
-        <div style="text-align:center; font-weight:800; margin-bottom:15px; color:var(--fcl-navy); font-size:18px;">[ 관리자 설정 ]</div>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <div style="flex:1; background:#F8FAFC; padding:12px; border-radius:8px; text-align:center; border:1px solid #EEE;">
-                <small style="color:#666;">오늘 방문</small><br><b id="vCount" style="font-size:20px; color:var(--fcl-navy);">0</b>
-            </div>
-            <div style="flex:1; background:#F8FAFC; padding:12px; border-radius:8px; text-align:center; border:1px solid #EEE;">
-                <small style="color:#666;">학습 시간</small><br><b style="font-size:20px; color:var(--fcl-navy);">18</b>분
+        <div style="text-align:center; font-weight:900; margin-bottom:20px; color:var(--fcl-navy); font-size:20px;">[ 관리자 모드 ]</div>
+        
+        <div class="admin-btn-group">
+            <button class="a-btn btn-add" onclick="alert('단어 추가 기능을 실행합니다.')">추가</button>
+            <button class="a-btn btn-edit" onclick="alert('일괄 편집 모드로 전환합니다.')">일괄편집</button>
+            <button class="a-btn btn-save" onclick="alert('현재 리스트를 파일로 저장합니다.')">파일저장</button>
+            <button class="a-btn btn-del" onclick="alert('선택한 단어를 삭제합니다.')">삭제</button>
+        </div>
+
+        <div style="border-top:2px solid #F1F5F9; margin-top:20px; padding-top:20px;">
+            <div style="margin-bottom:10px; font-weight:700;">단어장 제목 변경</div>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="editVoca" placeholder="새 제목 입력" style="flex:1; padding:12px; border-radius:8px; border:1px solid #DDD;">
+                <button onclick="editVoca()" style="padding:0 20px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:700;">변경</button>
             </div>
         </div>
-        <button onclick="closeAdmin()" style="width:100%; margin-top:10px; padding:12px; background:#F1F5F9; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:#475569;">관리 창 닫기</button>
+        <button onclick="closeAdmin()" style="width:100%; margin-top:25px; padding:15px; background:#F1F5F9; border:none; border-radius:10px; font-weight:700; cursor:pointer; color:#475569;">관리 창 닫기</button>
     </div>
 
     <div class="page-wrapper"><div id="pageBtns" class="page-container"></div></div>
@@ -122,7 +122,6 @@
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map(v => ({ eng: v.english, kor: v.korean, pro: v.pronunciation }));
-            document.getElementById('vCount').innerText = Math.floor(Math.random()*30)+110;
             drawUI();
         } catch (e) { document.getElementById('wordDisplay').innerHTML = "데이터 로딩 중..."; }
     }
@@ -155,32 +154,40 @@
         const startP = (Math.ceil(nowPage/groupSize)-1)*groupSize+1;
         const endP = Math.min(totalP, startP + groupSize - 1);
 
-        if(startP > 1) container.appendChild(makeBtn("«", startP-1, "nav"));
         for(let i=startP; i<=endP; i++) {
-            const b = makeBtn(i, i);
+            const b = document.createElement('button');
+            b.className = 'p-btn'; b.innerText = i;
             if(i===nowPage) b.classList.add('active');
+            b.onclick = () => { nowPage=i; drawUI(); window.scrollTo(0,0); };
             container.appendChild(b);
         }
-        if(endP < totalP) container.appendChild(makeBtn("»", endP+1, "nav"));
-    }
-
-    function makeBtn(t, p, c) {
-        const b = document.createElement('button');
-        b.className = 'p-btn '+(c||''); b.innerText = t;
-        b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0,0); };
-        return b;
     }
 
     function askAdmin() {
-        const pw = prompt("관리자 비밀번호를 입력하세요.");
+        const pw = prompt("관리자 비밀번호(4자리)를 입력하세요.");
         if(pw === adminPw) {
             document.getElementById('adminPanel').style.display = 'block';
             window.scrollTo({top: 0, behavior: 'smooth'});
-        } else if(pw !== null) alert("비밀번호가 틀렸습니다.");
+        } else if(pw !== null) alert("비밀번호가 일치하지 않습니다.");
     }
+    
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+    
+    function editVoca() {
+        const name = document.getElementById('editVoca').value.trim();
+        if(name) { document.getElementById('mainTitle').innerText = "📖 " + name; alert("제목이 변경되었습니다."); }
+    }
+
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
-    function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
+    
+    function play(t) { 
+        window.speechSynthesis.cancel(); 
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang='en-US'; 
+        m.rate=document.getElementById('rateRange').value; 
+        window.speechSynthesis.speak(m); 
+    }
+
     function searchWord() {
         const val = document.getElementById('wordSearch').value.toLowerCase();
         if(!val) return;
