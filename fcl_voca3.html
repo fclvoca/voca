@@ -9,7 +9,6 @@
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        /* 헤더만 고정 */
         .sticky-header {
             position: sticky;
             top: 0;
@@ -31,14 +30,12 @@
         .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; }
         .speed-slider { width: 70px; cursor: pointer; accent-color: var(--fcl-orange); }
 
-        /* 페이지네이션 (고정 해제) */
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
         .p-btn { min-width: 45px; height: 45px; border: 1px solid #E2E8F0; background: white; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; }
         .p-btn.active { background-color: var(--fcl-navy); color: white; }
         .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 22px; }
 
-        /* 리스트 */
         .word-list { padding: 10px 8px; }
         .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; }
@@ -49,14 +46,12 @@
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px; border-radius: 10px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 팝업창 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 50px; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); }
         .modal-word { font-size: 26px; font-weight: 900; color: var(--fcl-navy); margin-bottom: 10px; }
         .modal-pro { font-size: 22px; color: #475569; font-weight: 600; margin-bottom: 20px; cursor: pointer; background: #F8FAFC; padding: 12px; border-radius: 10px; border: 2px dashed #CBD5E0; }
         .btn-close-modal { background: var(--fcl-navy); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; }
 
-        /* 관리자 패널 */
         #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: fixed; top: 50px; left: 10px; right: 10px; z-index: 3000; }
     </style>
 </head>
@@ -74,7 +69,7 @@
         <div class="tool-row">
             <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
             <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
-            <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8"></div>
+            <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.0" step="0.1" value="0.8"></div>
         </div>
     </div>
 
@@ -144,7 +139,6 @@
         document.getElementById('modalPro').innerText = pro;
         document.getElementById('proModal').style.display = 'flex';
     }
-    
     function playCurrentWord() { if(currentModalWord) play(currentModalWord); }
     function closeModal() { document.getElementById('proModal').style.display = 'none'; }
 
@@ -174,18 +168,34 @@
         if(val) { document.getElementById('mainTitle').innerText = "📖 " + val; localStorage.setItem('fcl_voca_name', val); alert('저장됨'); }
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
-    
-    // 수정된 원어민 음성 재생 함수
+
+    // [강세 최적화 발음 함수]
     function play(t) {
+        // 1. 기존 재생 중지
         window.speechSynthesis.cancel();
-        const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en&client=tw-ob`);
-        audio.playbackRate = document.getElementById('rateRange').value;
-        audio.play().catch(() => {
-            const m = new SpeechSynthesisUtterance(t);
-            m.lang = 'en-US';
-            m.rate = document.getElementById('rateRange').value;
-            window.speechSynthesis.speak(m);
-        });
+        
+        // 2. 고품질 구글 API 음성 (tw-ob 클라이언트 사용하여 더 선명한 원어민 발음 호출)
+        const rate = document.getElementById('rateRange').value;
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-us&total=1&idx=0&textlen=${t.length}&client=tw-ob&prev=input`;
+        
+        const audio = new Audio(url);
+        audio.playbackRate = rate;
+        
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // 구글 API 거부 시 로컬 엔진 중 가장 좋은 목소리 자동 검색
+                const msg = new SpeechSynthesisUtterance(t);
+                const voices = window.speechSynthesis.getVoices();
+                // Google US English 또는 Samantha(iOS), Natural 음성 우선 선택
+                const preferredVoice = voices.find(v => v.name.includes('Google US English') || v.name.includes('Natural')) || voices[0];
+                if(preferredVoice) msg.voice = preferredVoice;
+                msg.lang = 'en-US';
+                msg.rate = rate;
+                window.speechSynthesis.speak(msg);
+            });
+        }
     }
 
     function searchWord() {
