@@ -9,7 +9,7 @@
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        /* [수정] 파란색 헤더 부분만 고정 */
+        /* 헤더만 고정 */
         .sticky-header {
             position: sticky;
             top: 0;
@@ -20,34 +20,33 @@
         }
 
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-        .voca-title { color: white; font-weight: 900; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; flex-shrink: 0; }
+        .voca-title { color: white; font-weight: 900; font-size: 18px; }
+        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         
         .tool-row { display: flex; align-items: center; width: 100%; gap: 10px; }
-        .search-box { flex: 1; } 
-        .search-input { width: 100%; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; box-sizing: border-box; }
-        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; }
-        .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-weight: 900; color: var(--fcl-navy); display: flex; align-items: center; justify-content: center; }
-        .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; flex-shrink: 0; }
+        .search-input { flex: 1; height: 34px; padding: 0 10px; border-radius: 6px; border: none; font-size: 13px; outline: none; }
+        .font-control { display: flex; align-items: center; gap: 5px; color: white; font-size: 12px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
+        .font-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-weight: 900; color: var(--fcl-navy); }
+        .speed-control { display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; }
         .speed-slider { width: 70px; cursor: pointer; accent-color: var(--fcl-orange); }
 
-        /* [수정] 페이지네이션 영역은 고정하지 않음 (리스트와 같이 올라감) */
+        /* 페이지네이션 (고정 해제) */
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
-        .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
-        .p-btn { min-width: 45px; height: 45px; border: 1px solid #E2E8F0; background: white; color: #475569; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
-        .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 22px; min-width: 50px; }
+        .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+        .p-btn { min-width: 45px; height: 45px; border: 1px solid #E2E8F0; background: white; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; }
+        .p-btn.active { background-color: var(--fcl-navy); color: white; }
+        .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 22px; }
 
-        /* 리스트 영역 */
+        /* 리스트 */
         .word-list { padding: 10px 8px; }
         .word-item { background: white; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; flex-shrink: 0; }
+        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; cursor: pointer; }
         .check-circle.active { background: var(--fcl-orange); border-color: var(--fcl-orange); }
-        .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; cursor: pointer; }
-        .eng-text { font-weight: 900; color: #0F172A; line-height: 1.1; }
+        .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+        .eng-text { font-weight: 900; color: #0F172A; line-height: 1.1; cursor: pointer; }
         .btn-pro-pop { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
-        .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px; border-radius: 10px; min-width: 110px; text-align: center; cursor: pointer; border: 1px solid #E2E8F0; }
+        .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 12px; border-radius: 10px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
         /* 팝업창 */
@@ -55,10 +54,10 @@
         .modal-content { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid var(--fcl-navy); }
         .modal-word { font-size: 26px; font-weight: 900; color: var(--fcl-navy); margin-bottom: 10px; }
         .modal-pro { font-size: 22px; color: #475569; font-weight: 600; margin-bottom: 20px; cursor: pointer; background: #F8FAFC; padding: 12px; border-radius: 10px; border: 2px dashed #CBD5E0; }
-        .btn-close-modal { background: var(--fcl-navy); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+        .btn-close-modal { background: var(--fcl-navy); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 800; }
 
         /* 관리자 패널 */
-        #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: fixed; top: 50px; left: 10px; right: 10px; z-index: 3000; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        #adminPanel { display: none; background: white; margin: 10px; padding: 20px; border-radius: 12px; border: 3px solid var(--fcl-navy); position: fixed; top: 50px; left: 10px; right: 10px; z-index: 3000; }
     </style>
 </head>
 <body>
@@ -73,14 +72,13 @@
             </div>
         </div>
         <div class="tool-row">
-            <div class="search-box"><input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()"></div>
+            <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
             <div class="font-control"><span>글자</span><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
             <div class="speed-control"><span>Speed</span><input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8"></div>
         </div>
     </div>
 
     <div class="page-wrapper"><div id="pageBtns" class="page-container"></div></div>
-
     <div id="wordDisplay" class="word-list"></div>
 </div>
 
@@ -98,7 +96,7 @@
         <div style="flex:1; background:#f8fafc; padding:10px; text-align:center; border-radius:8px; border:1px solid #ddd;"><small>조회수</small><br><b id="totalHits">0</b></div>
         <div style="flex:1; background:#f8fafc; padding:10px; text-align:center; border-radius:8px; border:1px solid #ddd;"><small>방문자</small><br><b id="uniqueUsers">0</b></div>
     </div>
-    <input type="text" id="editVocaInput" class="search-input" style="border:1px solid #ddd; margin-bottom:10px; width:100%; box-sizing:border-box;" placeholder="이름 변경">
+    <input type="text" id="editVocaInput" class="search-input" style="border:1px solid #ddd; margin-bottom:10px; width:100%; box-sizing:border-box;">
     <button onclick="updateTitle()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:800; margin-bottom:10px;">저장</button>
     <button onclick="closeAdmin()" style="width:100%; padding:10px; background:#eee; border:none; border-radius:8px; font-weight:800;">닫기</button>
 </div>
@@ -146,6 +144,7 @@
         document.getElementById('modalPro').innerText = pro;
         document.getElementById('proModal').style.display = 'flex';
     }
+    
     function playCurrentWord() { if(currentModalWord) play(currentModalWord); }
     function closeModal() { document.getElementById('proModal').style.display = 'none'; }
 
@@ -175,7 +174,20 @@
         if(val) { document.getElementById('mainTitle').innerText = "📖 " + val; localStorage.setItem('fcl_voca_name', val); alert('저장됨'); }
     }
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawWords(); }
-    function play(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=document.getElementById('rateRange').value; window.speechSynthesis.speak(m); }
+    
+    // 수정된 원어민 음성 재생 함수
+    function play(t) {
+        window.speechSynthesis.cancel();
+        const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en&client=tw-ob`);
+        audio.playbackRate = document.getElementById('rateRange').value;
+        audio.play().catch(() => {
+            const m = new SpeechSynthesisUtterance(t);
+            m.lang = 'en-US';
+            m.rate = document.getElementById('rateRange').value;
+            window.speechSynthesis.speak(m);
+        });
+    }
+
     function searchWord() {
         const val = document.getElementById('wordSearch').value.toLowerCase();
         const idx = allWords.findIndex(v => v.eng.toLowerCase().includes(val));
