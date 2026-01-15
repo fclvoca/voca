@@ -6,7 +6,15 @@
     <title>FCL Premium Smart Voca</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
-        :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-bg: #F5F7F9; --text-dark: #1E293B; --naver-green: #03c75a; }
+        :root { 
+            --fcl-navy: #1A237E; 
+            --fcl-orange: #FF9800; 
+            --fcl-red: #EF4444; 
+            --fcl-green: #22C55E; /* 정렬 버튼용 초록색 추가 */
+            --fcl-bg: #F5F7F9; 
+            --text-dark: #1E293B; 
+            --naver-green: #03c75a; 
+        }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
@@ -29,10 +37,10 @@
         .search-input { flex: 1; height: calc(36px - 2mm); padding: 0 12px; border: none; font-size: 14px; outline: none; }
         .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 12px; font-weight: 800; cursor: pointer; }
 
-        /* [수정] 정렬 버튼과 집중 암기 버튼의 사이즈를 동일하게 설정 */
+        /* 정렬 버튼과 집중 암기 버튼 공통 스타일 */
         .btn-shuffle, .head-focus-btn { 
-            width: 85px;             /* 두 버튼의 너비를 동일하게 고정 */
-            height: 36px;            /* 높이 동일 설정 */
+            width: 85px; 
+            height: 36px; 
             border-radius: 8px; 
             font-weight: 800; 
             font-size: 12px; 
@@ -42,9 +50,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s; /* 부드러운 색상 전환 */
         }
 
-        .btn-shuffle { background: white; color: var(--fcl-navy); }
+        /* [수정] 정렬 버튼: 기본은 초록색, 랜덤(active)일 때는 주황색 */
+        .btn-shuffle { background: var(--fcl-green); color: white; }
         .btn-shuffle.active { background: var(--fcl-orange); color: white; }
 
         .head-focus-btn { background-color: var(--fcl-red); color: white; }
