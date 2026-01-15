@@ -9,35 +9,29 @@
         :root { 
             --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; 
             --fcl-green: #22C55E; --fcl-bg: #F5F7F9; --text-dark: #1E293B; --naver-green: #03c75a; 
-            --base-font-size: 18px;
+            --base-font-size: 19px;
         }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        /* 헤더 설정 */
+        /* 헤더 고정 */
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
         .voca-selector { position: relative; flex: 1; cursor: pointer; color: white; }
         .voca-title-text { font-weight: 900; font-size: 18px; display: flex; align-items: center; gap: 5px; }
         .voca-title-text::after { content: ' ▼'; font-size: 10px; opacity: 0.8; }
         
-        .voca-dropdown { display: none; position: absolute; top: 35px; left: 0; background: white; min-width: 240px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 2000; border: 1px solid #ddd; overflow: hidden; }
-        .voca-dropdown.show { display: block; }
-        .voca-opt { padding: 15px; color: var(--text-dark); font-weight: 700; border-bottom: 1px solid #eee; }
-        
-        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
+        .header-btns { display: flex; gap: 6px; align-items: center; }
+        .btn-font { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; width: 34px; height: 34px; font-weight: 800; cursor: pointer; }
+        .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 10px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
-        .search-container { width: 140px; display: flex; background: white; border-radius: 8px; overflow: hidden; }
-        .search-input { flex: 1; height: 30px; padding: 0 8px; border: none; font-size: 13px; outline: none; width: 60px; }
-        .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
+        .search-container { width: 145px; display: flex; background: white; border-radius: 8px; overflow: hidden; }
+        .search-input { flex: 1; height: 32px; padding: 0 10px; border: none; font-size: 13px; outline: none; }
+        .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 11px; font-weight: 800; cursor: pointer; }
         
-        /* 글자 크기 조절 버튼 */
-        .font-btns { display: flex; gap: 4px; }
-        .btn-font { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; width: 34px; height: 34px; font-weight: 700; cursor: pointer; }
-
-        .btn-shuffle, .head-focus-btn { padding: 0 12px; height: 36px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; border: none; color: white; }
+        .btn-shuffle, .head-focus-btn { flex: 1; height: 36px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; border: none; color: white; }
         .btn-shuffle { background: var(--fcl-green); }
         .head-focus-btn { background-color: var(--fcl-red); }
         
@@ -49,17 +43,17 @@
         .page-container { 
             display: flex; flex-wrap: nowrap; overflow-x: auto; 
             -webkit-overflow-scrolling: touch; padding: 0 15px; gap: 8px; 
-            scroll-behavior: smooth; scrollbar-width: none;
+            scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
         }
         .page-container::-webkit-scrollbar { display: none; }
         .p-btn { 
-            flex: 0 0 auto; min-width: 42px; height: 42px; 
+            flex: 0 0 auto; min-width: 44px; height: 44px; 
             border: 1px solid #E2E8F0; background: white; border-radius: 10px; 
             font-size: 16px; font-weight: 900; cursor: pointer; 
         }
         .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
 
-        /* 단어 리스트 레이아웃 */
+        /* 단어 리스트 한 줄 레이아웃 */
         .word-list { padding: 12px 10px; }
         .word-item { 
             background: white; margin-bottom: 10px; border-radius: 15px; 
@@ -70,9 +64,12 @@
         .check-circle.active { background: var(--fcl-red); border-color: var(--fcl-red); }
         
         .word-content { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 10px; }
-        .eng-box { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .eng-side { display: flex; flex-direction: column; cursor: pointer; flex: 1; }
+        .eng-main { display: flex; align-items: center; gap: 8px; }
         .eng-text { font-weight: 900; color: #0F172A; font-size: var(--base-font-size); }
-        .speaker-btn { font-size: 18px; opacity: 0.6; }
+        /* 발음 기호 스타일 */
+        .phonetic { font-size: 0.8em; color: #64748B; font-weight: 400; font-family: sans-serif; }
+        .speaker-icon { font-size: 16px; color: var(--fcl-navy); opacity: 0.5; }
         
         .kor-text { 
             color: #1E293B; font-weight: 700; background: #F8FAFC; 
@@ -93,11 +90,9 @@
             <div class="voca-title-text" id="currentBookTitle">서버 연동 중...</div>
             <div id="vocaDropdown" class="voca-dropdown"></div>
         </div>
-        <div style="display:flex; gap:8px; align-items: center;">
-            <div class="font-btns">
-                <button class="btn-font" onclick="changeFontSize(-2)">A-</button>
-                <button class="btn-font" onclick="changeFontSize(2)">A+</button>
-            </div>
+        <div class="header-btns">
+            <button class="btn-font" onclick="changeFontSize(-2)">A-</button>
+            <button class="btn-font" onclick="changeFontSize(2)">A+</button>
             <button onclick="toggleHide()" class="btn-hide" id="hideBtn">뜻 숨기기</button>
             <button onclick="askAdmin()" class="btn-admin-gear">⚙️</button>
         </div>
@@ -105,7 +100,7 @@
     <div class="tool-row">
         <div class="tool-line">
             <div class="search-container">
-                <input type="text" id="wordSearch" class="search-input" placeholder="검색..." onkeypress="if(event.keyCode==13) searchNaver()">
+                <input type="text" id="wordSearch" class="search-input" placeholder="사전 검색..." onkeypress="if(event.keyCode==13) searchNaver()">
                 <button class="naver-btn" onclick="searchNaver()">N사전</button>
             </div>
             <button class="btn-shuffle" onclick="toggleShuffle()">정렬</button>
@@ -119,7 +114,6 @@
 <div id="wordDisplay" class="word-list"></div>
 
 <div id="adminPanel" onclick="event.stopPropagation()">
-    <h3 style="margin-top:0;">📊 관리자 패널</h3>
     <div id="adminBookList"></div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800; margin-top:20px;">닫기</button>
 </div>
@@ -132,7 +126,7 @@
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
     let allWords = []; let nowPage = 1; const perPage = 50;
     let hideAll = false; let focusMode = false; let isShuffled = false;
-    let currentFontSize = 18;
+    let currentFontSize = 19;
     let synth = window.speechSynthesis;
 
     window.onload = loadMasterList;
@@ -156,10 +150,15 @@
         try {
             const res = await fetch(target.url + "?v=" + Date.now());
             const data = await res.json();
-            allWords = data.map((v, i) => ({ id: `${id}_${i}`, eng: v.english, kor: v.korean }));
-            nowPage = 1;
-            drawUI();
-        } catch(e) { document.getElementById('wordDisplay').innerHTML = "로딩 실패"; }
+            // 데이터 매핑 시 phonetic(발음기호)이 있다면 가져오고, 없으면 공백 처리
+            allWords = data.map((v, i) => ({ 
+                id: `${id}_${i}`, 
+                eng: v.english, 
+                kor: v.korean,
+                pho: v.phonetic || "" 
+            }));
+            nowPage = 1; drawUI();
+        } catch(e) { document.getElementById('wordDisplay').innerHTML = "데이터를 불러올 수 없습니다."; }
     }
 
     function drawUI() {
@@ -172,9 +171,12 @@
             div.innerHTML = `
                 <div class="check-circle ${checkedWords[w.id]?'active':''}" onclick="toggleCheck('${w.id}')"></div>
                 <div class="word-content">
-                    <div class="eng-box" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
-                        <span class="eng-text">${w.eng}</span>
-                        <span class="speaker-btn">🔊</span>
+                    <div class="eng-side" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
+                        <div class="eng-main">
+                            <span class="eng-text">${w.eng}</span>
+                            <span class="speaker-icon">🔊</span>
+                        </div>
+                        ${w.pho ? `<span class="phonetic">${w.pho}</span>` : ''}
                     </div>
                     <div class="kor-text ${hideAll?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
                 </div>`;
@@ -202,8 +204,8 @@
 
     function changeFontSize(delta) {
         currentFontSize += delta;
-        if(currentFontSize < 12) currentFontSize = 12;
-        if(currentFontSize > 32) currentFontSize = 32;
+        if(currentFontSize < 14) currentFontSize = 14;
+        if(currentFontSize > 36) currentFontSize = 36;
         document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
     }
 
