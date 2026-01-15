@@ -6,7 +6,7 @@
     <title>FCL Premium Smart Voca</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
-        :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
+        :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-bg: #F5F7F9; --text-dark: #1E293B; --naver-green: #03c75a; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
@@ -24,8 +24,17 @@
         
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
-        .search-input { flex: 1; height: 36px; padding: 0 12px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
-        .voice-select { flex: 1.5; height: 36px; border-radius: 8px; border: none; font-size: 12px; font-weight: 800; color: var(--fcl-navy); }
+        
+        /* 검색창 및 네이버 버튼 스타일 */
+        .search-container { flex: 1; display: flex; background: white; border-radius: 8px; overflow: hidden; }
+        .search-input { flex: 1; height: 36px; padding: 0 12px; border: none; font-size: 14px; outline: none; }
+        .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 12px; font-weight: 800; cursor: pointer; }
+
+        /* 셔플 버튼 스타일 */
+        .btn-shuffle { background: white; color: var(--fcl-navy); border: none; height: 36px; padding: 0 10px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .btn-shuffle.active { background: var(--fcl-orange); color: white; }
+
+        .voice-select { flex: 1; height: 36px; border-radius: 8px; border: none; font-size: 12px; font-weight: 800; color: var(--fcl-navy); }
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 10px; }
         .speed-slider { flex: 1; height: 10px; accent-color: var(--fcl-red); cursor: pointer; }
         .btn-focus { background-color: var(--fcl-red); color: white; border: none; padding: 8px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer; white-space: nowrap; }
@@ -75,14 +84,23 @@
     </div>
     <div class="tool-row">
         <div class="tool-line">
-            <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
+            <div class="search-container">
+                <input type="text" id="wordSearch" class="search-input" placeholder="사전 검색 (Enter)..." onkeypress="if(event.keyCode==13) searchNaver()">
+                <button class="naver-btn" onclick="searchNaver()">N사전</button>
+            </div>
+            
+            <button id="shuffleBtn" class="btn-shuffle" onclick="toggleShuffle()">정렬</button>
+            
             <select id="voiceSelect" class="voice-select"></select>
         </div>
         <div class="speed-control">
             <span>속도</span>
             <input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8">
             <button id="focusModeBtn" class="btn-focus" onclick="toggleFocusMode()">집중 암기</button>
-            <div class="font-control"><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
+            <div class="font-control">
+                <button class="font-btn" onclick="changeFontSize(-2)">-</button>
+                <button class="font-btn" onclick="changeFontSize(2)">+</button>
+            </div>
         </div>
     </div>
 </div>
@@ -126,12 +144,38 @@
     let currentBookId = vocaBooks[0].id;
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
     
-    let allWords = []; let nowPage = 1; const perPage = 50; const groupSize = 10;
-    let hideAll = false; let currentFontSize = 22; let focusMode = false;
+    let allWords = []; 
+    let shuffledWords = []; // 섞인 배열 저장용
+    let nowPage = 1; const perPage = 50; const groupSize = 10;
+    let hideAll = false; let currentFontSize = 22; let focusMode = false; let isShuffled = false;
     let synth = window.speechSynthesis; let voices = []; let audioUnlocked = false;
 
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
+
+    // 네이버 사전 검색 함수
+    function searchNaver() {
+        const query = document.getElementById('wordSearch').value.trim();
+        if (query) {
+            window.open(`https://en.dict.naver.com/#/search?query=${encodeURIComponent(query)}`, '_blank');
+        }
+    }
+
+    // 단어 순서 무작위 섞기 기능
+    function toggleShuffle() {
+        isShuffled = !isShuffled;
+        const btn = document.getElementById('shuffleBtn');
+        if (isShuffled) {
+            btn.innerText = "랜덤";
+            btn.classList.add('active');
+            // 현재 배열을 복사하여 무작위로 섞음
+            shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
+        } else {
+            btn.innerText = "정렬";
+            btn.classList.remove('active');
+        }
+        drawUI();
+    }
 
     function drawDropdowns() {
         const dd = document.getElementById('vocaDropdown'); const adminDd = document.getElementById('adminBookDropdown');
@@ -153,6 +197,9 @@
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map((v, i) => ({ id: i, eng: v.english, kor: v.korean, pro: v.pronunciation || "" }));
+            isShuffled = false; // 단어장 변경 시 정렬 초기화
+            document.getElementById('shuffleBtn').innerText = "정렬";
+            document.getElementById('shuffleBtn').classList.remove('active');
             drawUI(); 
             loadVoices();
         } catch (e) { document.getElementById('wordDisplay').innerHTML = "연결 실패"; }
@@ -175,7 +222,13 @@
 
     function drawUI() {
         const disp = document.getElementById('wordDisplay'); disp.innerHTML = "";
-        let targetWords = focusMode ? allWords.filter(w => checkedWords[w.id]) : allWords.slice((nowPage-1)*perPage, nowPage*perPage);
+        
+        // 섞기 모드 여부에 따라 소스 배열 선택
+        let sourceArray = isShuffled ? shuffledWords : allWords;
+        
+        let targetWords = focusMode 
+            ? sourceArray.filter(w => checkedWords[w.id]) 
+            : sourceArray.slice((nowPage-1)*perPage, nowPage*perPage);
         
         targetWords.forEach(w => {
             const isChecked = checkedWords[w.id] ? 'active' : '';
@@ -237,11 +290,10 @@
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
 
-    // [핵심] 모바일 오디오 시스템 강제 활성화
     function unlockAudio() {
         if (!audioUnlocked) {
             const ut = new SpeechSynthesisUtterance("");
-            synth.speak(ut); // 빈 소리를 한 번 재생하여 브라우저 오디오 잠금 해제
+            synth.speak(ut);
             audioUnlocked = true;
         }
     }
@@ -249,7 +301,6 @@
     function loadVoices() {
         voices = synth.getVoices();
         const vs = document.getElementById('voiceSelect');
-        // 미국 영어(en-US) 음성만 선별
         const usVoices = voices.filter(v => v.lang === 'en-US' || v.lang === 'en_US' || v.name.includes('Samantha') || v.name.includes('Google US English'));
         
         vs.innerHTML = "";
@@ -268,25 +319,16 @@
     }
 
     function play(t) {
-        // 재생 중인 모든 음성 취소 (모바일 렉 방지)
         synth.cancel();
-
         const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'en-US'; // 미국 영어 강제 설정
-
+        msg.lang = 'en-US';
         const selectedVoiceName = document.getElementById('voiceSelect').value;
         const selectedVoice = voices.find(v => v.name === selectedVoiceName);
         if (selectedVoice) msg.voice = selectedVoice;
-
         msg.rate = document.getElementById('rateRange').value;
-        
-        // iOS 버그 대응: 약간의 딜레이 후 재생
-        setTimeout(() => {
-            synth.speak(msg);
-        }, 50);
+        setTimeout(() => { synth.speak(msg); }, 50);
     }
 
-    // 목소리 목록 로드 이벤트 등록
     if (speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = loadVoices;
     }
