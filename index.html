@@ -11,59 +11,70 @@
             --fcl-green: #22C55E; --fcl-bg: #F5F7F9; --text-dark: #1E293B; --naver-green: #03c75a; 
         }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
+        
+        /* 헤더 영역 */
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
         .voca-selector { position: relative; flex: 1; cursor: pointer; color: white; }
         .voca-title-text { font-weight: 900; font-size: 18px; display: flex; align-items: center; gap: 5px; }
         .voca-title-text::after { content: ' ▼'; font-size: 10px; opacity: 0.8; }
+        
         .voca-dropdown { display: none; position: absolute; top: 35px; left: 0; background: white; min-width: 240px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 2000; border: 1px solid #ddd; overflow: hidden; }
         .voca-dropdown.show { display: block; }
         .voca-opt { padding: 15px; color: var(--text-dark); font-weight: 700; border-bottom: 1px solid #eee; }
+        
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
+        
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
         .search-container { width: 185px; display: flex; background: white; border-radius: 8px; overflow: hidden; }
         .search-input { flex: 1; height: 24px; padding: 0 12px; border: none; font-size: 13px; outline: none; }
         .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 11px; font-weight: 800; cursor: pointer; height: 24px; }
+        
         .btn-shuffle, .head-focus-btn { width: 85px; height: 36px; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; }
         .btn-shuffle { background: var(--fcl-green); color: white; }
         .head-focus-btn { background-color: var(--fcl-red); color: white; }
+        
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 10px; }
         .speed-slider { flex: 1; height: 10px; accent-color: var(--fcl-red); }
-        
-        /* 페이지네이션 가로 스크롤 스타일 수정 */
-        .page-wrapper { padding: 12px 0; background: white; border-bottom: 1px solid #E2E8F0; overflow: hidden; }
+
+        /* 페이지네이션 (가로 스크롤) */
+        .page-wrapper { padding: 12px 0; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { 
-            display: flex; 
-            flex-wrap: nowrap; 
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
-            padding: 0 15px;
-            gap: 10px;
-            scroll-behavior: smooth;
+            display: flex; flex-wrap: nowrap; overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; padding: 0 15px; gap: 10px; 
+            scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
         }
-        /* 스크롤바 숨기기 (선택사항) */
         .page-container::-webkit-scrollbar { display: none; }
-        .page-container { -ms-overflow-style: none; scrollbar-width: none; }
-        
         .p-btn { 
-            flex: 0 0 auto; /* 가로 길이 고정 및 줄바꿈 방지 */
-            min-width: 45px; height: 45px; 
-            border: 1px solid #E2E8F0; background: white; 
-            border-radius: 12px; font-size: 16px; font-weight: 900; 
+            flex: 0 0 auto; min-width: 45px; height: 45px; 
+            border: 1px solid #E2E8F0; background: white; border-radius: 12px; 
+            font-size: 16px; font-weight: 900; cursor: pointer; 
+        }
+        .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
+
+        /* 단어 리스트 레이아웃 수정 */
+        .word-list { padding: 12px 10px; }
+        .word-item { 
+            background: white; margin-bottom: 10px; border-radius: 15px; 
+            display: flex; align-items: center; padding: 15px; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05); border: 1px solid #EDF2F7;
+        }
+        .check-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 12px; flex-shrink: 0; }
+        .check-circle.active { background: var(--fcl-red); border-color: var(--fcl-red); }
+        
+        .word-content { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 10px; }
+        .eng-text { font-weight: 900; color: #0F172A; font-size: 20px; word-break: break-all; cursor: pointer; }
+        .kor-text { 
+            color: #1E293B; font-weight: 700; background: #F8FAFC; 
+            padding: 10px 15px; border-radius: 10px; min-width: 100px; 
+            text-align: center; border: 1px solid #E2E8F0; font-size: 15px;
             cursor: pointer; transition: all 0.2s;
         }
-        .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); box-shadow: 0 4px 8px rgba(26, 35, 126, 0.3); }
-        
-        .word-list { padding: 12px 10px; }
-        .word-item { background: white; margin-bottom: 10px; border-radius: 15px; display: flex; align-items: center; padding: 18px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
-        .check-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; flex-shrink: 0; }
-        .check-circle.active { background: var(--fcl-red); border-color: var(--fcl-red); }
-        .word-info { flex: 1; }
-        .eng-text { font-weight: 900; color: #0F172A; font-size: 22px; }
-        .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 14px; border-radius: 12px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
+
+        /* 관리자 패널 */
         #adminPanel { display: none; background: white; padding: 25px; position: fixed; top: 15px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 20px; max-height: 85vh; overflow-y: auto; }
         .admin-section { border-bottom: 1px solid #eee; padding-bottom: 18px; margin-bottom: 18px; }
         .admin-title { font-weight: 900; font-size: 16px; color: var(--fcl-navy); margin-bottom: 12px; }
@@ -144,7 +155,7 @@
             const res = await fetch(target.url + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map((v, i) => ({ id: `${id}_${i}`, eng: v.english, kor: v.korean }));
-            nowPage = 1; // 단어장 변경 시 첫 페이지로 이동
+            nowPage = 1;
             drawUI();
         } catch(e) { document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>단어장 로딩 실패</div>"; }
     }
@@ -154,15 +165,15 @@
         let target = focusMode ? allWords.filter(w => checkedWords[w.id]) : allWords.slice((nowPage-1)*perPage, nowPage*perPage);
         if(isShuffled) target = [...target].sort(() => Math.random()-0.5);
         
-        if(target.length === 0) {
-            disp.innerHTML = "<div style='text-align:center; padding:50px; color:#94a3b8;'>표시할 단어가 없습니다.</div>";
-        }
-
         target.forEach(w => {
             const div = document.createElement('div'); div.className = 'word-item';
-            div.innerHTML = `<div class="check-circle ${checkedWords[w.id]?'active':''}" onclick="toggleCheck('${w.id}')"></div>
-                <div class="word-info"><span class="eng-text" onclick="play('${w.eng}')">${w.eng}</span></div>
-                <div class="kor-text ${hideAll?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>`;
+            // 레이아웃 핵심: 체크박스 / 영어 / 뜻 순서로 배치
+            div.innerHTML = `
+                <div class="check-circle ${checkedWords[w.id]?'active':''}" onclick="toggleCheck('${w.id}')"></div>
+                <div class="word-content">
+                    <div class="eng-text" onclick="play('${w.eng}')">${w.eng}</div>
+                    <div class="kor-text ${hideAll?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
+                </div>`;
             disp.appendChild(div);
         });
         drawPages();
@@ -183,14 +194,10 @@
                 nowPage=i; 
                 drawUI(); 
                 window.scrollTo(0,0);
-                // 선택된 버튼이 가운데 오도록 스크롤 정렬
                 b.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             };
             cont.appendChild(b);
-            // 초기 로딩 시 활성화된 페이지 중앙 정렬
-            if(i === nowPage) {
-                setTimeout(() => b.scrollIntoView({ inline: 'center' }), 100);
-            }
+            if(i === nowPage) setTimeout(() => b.scrollIntoView({ inline: 'center' }), 100);
         }
     }
 
