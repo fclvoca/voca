@@ -27,6 +27,7 @@
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
         .search-input { flex: 1; height: 36px; padding: 0 12px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
+        /* 발음 엔진 교체로 인한 보이스 선택 숨김 처리 가능 (필요시 display:none) */
         .voice-select { flex: 1.5; height: 36px; border-radius: 8px; border: none; font-size: 12px; font-weight: 800; color: var(--fcl-navy); }
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 10px; }
         .speed-slider { flex: 1; height: 10px; accent-color: var(--fcl-red); cursor: pointer; }
@@ -81,11 +82,13 @@
     <div class="tool-row">
         <div class="tool-line">
             <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
-            <select id="voiceSelect" class="voice-select"></select>
+            <select id="voiceSelect" class="voice-select">
+                <option value="us">미국식 고품질 발음</option>
+            </select>
         </div>
         <div class="speed-control">
             <span>속도</span>
-            <input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8">
+            <input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.0" step="0.1" value="1.0">
             <button id="focusModeBtn" class="btn-focus" onclick="toggleFocusMode()">집중 암기</button>
             <div class="font-control"><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
         </div>
@@ -133,7 +136,8 @@
     
     let allWords = []; let nowPage = 1; const perPage = 50; const groupSize = 10;
     let hideAll = false; let currentFontSize = 22; let focusMode = false;
-    let synth = window.speechSynthesis; let voices = []; let audioUnlocked = false;
+    let audioUnlocked = false;
+    let currentAudio = null;
 
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
@@ -159,7 +163,6 @@
             const data = await res.json();
             allWords = data.map((v, i) => ({ id: i, eng: v.english, kor: v.korean, pro: v.pronunciation || "" }));
             drawUI(); 
-            loadVoices();
         } catch (e) { document.getElementById('wordDisplay').innerHTML = "연결 실패"; }
     }
 
@@ -248,44 +251,19 @@
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
     function unlockAudio() { if(!audioUnlocked){ new Audio().play(); audioUnlocked=true; } }
 
-    function loadVoices() {
-        voices = synth.getVoices();
-        const vs = document.getElementById('voiceSelect');
-        // 미국식 영어(en-US) 음성을 먼저 필터링
-        const usVoices = voices.filter(v => v.lang === 'en-US' || v.lang === 'en_US');
-        const otherEn = voices.filter(v => v.lang.startsWith('en') && v.lang !== 'en-US' && v.lang !== 'en_US');
-        const allEn = [...usVoices, ...otherEn];
-
-        vs.innerHTML = "";
-        allEn.forEach((v) => {
-            const o = document.createElement('option');
-            o.value = v.name;
-            o.innerText = v.name + (v.lang.includes('US') ? " (미국식)" : "");
-            vs.appendChild(o);
-        });
-
-        // 기본적으로 미국식 음성이 있다면 첫 번째 미국식 음성을 선택
-        if (usVoices.length > 0) {
-            vs.value = usVoices[0].name;
-        }
-    }
-
+    /* 수정된 발음 재생 함수: 구글 TTS 엔진 (미국식) 활용 */
     function play(t) {
-        synth.cancel();
-        const msg = new SpeechSynthesisUtterance(t);
-        const selectedVoiceName = document.getElementById('voiceSelect').value;
-        const selectedVoice = voices.find(v => v.name === selectedVoiceName);
-        
-        if (selectedVoice) {
-            msg.voice = selectedVoice;
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
         }
         
-        msg.rate = document.getElementById('rateRange').value;
-        synth.speak(msg);
-    }
-
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = loadVoices;
+        // 구글 번역 TTS URL (tl=en-US: 미국 영어)
+        const speed = document.getElementById('rateRange').value >= 0.8 ? 1 : 0.5; // 구글 TTS는 속도가 1 혹은 느리게만 지원됨
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-US&client=tw-ob`;
+        
+        currentAudio = new Audio(url);
+        currentAudio.play().catch(e => console.log("발음 재생 실패:", e));
     }
 
     drawDropdowns();
