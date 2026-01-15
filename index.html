@@ -9,10 +9,11 @@
         :root { 
             --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; 
             --fcl-green: #22C55E; --fcl-bg: #F5F7F9; --text-dark: #1E293B; --naver-green: #03c75a; 
+            --base-font-size: 18px;
         }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        /* 헤더 고정 */
+        /* 헤더 설정 */
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
         .voca-selector { position: relative; flex: 1; cursor: pointer; color: white; }
@@ -28,60 +29,60 @@
         
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
-        .search-container { width: 185px; display: flex; background: white; border-radius: 8px; overflow: hidden; }
-        .search-input { flex: 1; height: 24px; padding: 0 12px; border: none; font-size: 13px; outline: none; }
-        .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 11px; font-weight: 800; cursor: pointer; height: 24px; }
+        .search-container { width: 140px; display: flex; background: white; border-radius: 8px; overflow: hidden; }
+        .search-input { flex: 1; height: 30px; padding: 0 8px; border: none; font-size: 13px; outline: none; width: 60px; }
+        .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
         
-        .btn-shuffle, .head-focus-btn { width: 85px; height: 36px; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; }
-        .btn-shuffle { background: var(--fcl-green); color: white; }
-        .head-focus-btn { background-color: var(--fcl-red); color: white; }
+        /* 글자 크기 조절 버튼 */
+        .font-btns { display: flex; gap: 4px; }
+        .btn-font { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; width: 34px; height: 34px; font-weight: 700; cursor: pointer; }
+
+        .btn-shuffle, .head-focus-btn { padding: 0 12px; height: 36px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; border: none; color: white; }
+        .btn-shuffle { background: var(--fcl-green); }
+        .head-focus-btn { background-color: var(--fcl-red); }
         
-        .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 10px; }
+        .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 10px; }
         .speed-slider { flex: 1; height: 10px; accent-color: var(--fcl-red); }
 
-        /* 페이지네이션 (가로 한 줄 스크롤) */
+        /* 페이지네이션 (가로 스크롤) */
         .page-wrapper { padding: 12px 0; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { 
             display: flex; flex-wrap: nowrap; overflow-x: auto; 
             -webkit-overflow-scrolling: touch; padding: 0 15px; gap: 8px; 
-            scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
+            scroll-behavior: smooth; scrollbar-width: none;
         }
         .page-container::-webkit-scrollbar { display: none; }
         .p-btn { 
             flex: 0 0 auto; min-width: 42px; height: 42px; 
             border: 1px solid #E2E8F0; background: white; border-radius: 10px; 
-            font-size: 15px; font-weight: 900; cursor: pointer; 
+            font-size: 16px; font-weight: 900; cursor: pointer; 
         }
         .p-btn.active { background-color: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
 
-        /* 단어 리스트 한 줄 레이아웃 */
+        /* 단어 리스트 레이아웃 */
         .word-list { padding: 12px 10px; }
         .word-item { 
-            background: white; margin-bottom: 8px; border-radius: 12px; 
-            display: flex; align-items: center; padding: 12px 15px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03); border: 1px solid #EDF2F7;
+            background: white; margin-bottom: 10px; border-radius: 15px; 
+            display: flex; align-items: center; padding: 15px; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05); border: 1px solid #EDF2F7;
         }
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 12px; flex-shrink: 0; cursor: pointer; }
+        .check-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
         .check-circle.active { background: var(--fcl-red); border-color: var(--fcl-red); }
         
         .word-content { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 10px; }
-        .eng-box { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-        .eng-text { font-weight: 900; color: #0F172A; font-size: 18px; }
-        .speaker-icon { color: var(--fcl-navy); font-size: 16px; opacity: 0.6; }
+        .eng-box { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .eng-text { font-weight: 900; color: #0F172A; font-size: var(--base-font-size); }
+        .speaker-btn { font-size: 18px; opacity: 0.6; }
         
         .kor-text { 
-            color: #1E293B; font-weight: 700; background: #F1F5F9; 
-            padding: 8px 12px; border-radius: 8px; min-width: 90px; 
-            text-align: center; border: 1px solid #E2E8F0; font-size: 14px;
+            color: #1E293B; font-weight: 700; background: #F8FAFC; 
+            padding: 10px 15px; border-radius: 10px; min-width: 100px; 
+            text-align: center; border: 1px solid #E2E8F0; font-size: calc(var(--base-font-size) - 2px);
             cursor: pointer;
         }
-        .kor-text.hidden { background: #E2E8F0 !important; color: transparent !important; }
+        .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 관리자 패널 */
         #adminPanel { display: none; background: white; padding: 25px; position: fixed; top: 15px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 20px; max-height: 85vh; overflow-y: auto; }
-        .admin-section { border-bottom: 1px solid #eee; padding-bottom: 18px; margin-bottom: 18px; }
-        .admin-title { font-weight: 900; font-size: 16px; color: var(--fcl-navy); margin-bottom: 12px; }
-        .admin-book-item { padding: 10px; background: #f1f5f9; border-radius: 6px; margin-bottom: 5px; font-weight: 700; font-size: 14px; }
     </style>
 </head>
 <body onclick="unlockAudio(); closeDropdowns();">
@@ -92,7 +93,11 @@
             <div class="voca-title-text" id="currentBookTitle">서버 연동 중...</div>
             <div id="vocaDropdown" class="voca-dropdown"></div>
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; align-items: center;">
+            <div class="font-btns">
+                <button class="btn-font" onclick="changeFontSize(-2)">A-</button>
+                <button class="btn-font" onclick="changeFontSize(2)">A+</button>
+            </div>
             <button onclick="toggleHide()" class="btn-hide" id="hideBtn">뜻 숨기기</button>
             <button onclick="askAdmin()" class="btn-admin-gear">⚙️</button>
         </div>
@@ -100,7 +105,7 @@
     <div class="tool-row">
         <div class="tool-line">
             <div class="search-container">
-                <input type="text" id="wordSearch" class="search-input" placeholder="사전 검색..." onkeypress="if(event.keyCode==13) searchNaver()">
+                <input type="text" id="wordSearch" class="search-input" placeholder="검색..." onkeypress="if(event.keyCode==13) searchNaver()">
                 <button class="naver-btn" onclick="searchNaver()">N사전</button>
             </div>
             <button class="btn-shuffle" onclick="toggleShuffle()">정렬</button>
@@ -114,12 +119,9 @@
 <div id="wordDisplay" class="word-list"></div>
 
 <div id="adminPanel" onclick="event.stopPropagation()">
-    <div class="admin-section">
-        <div class="admin-title">📊 클라우드 마스터 시스템</div>
-        <div class="admin-title">현재 등록된 단어장</div>
-        <div id="adminBookList"></div>
-    </div>
-    <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800;">관리자 창 닫기</button>
+    <h3 style="margin-top:0;">📊 관리자 패널</h3>
+    <div id="adminBookList"></div>
+    <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800; margin-top:20px;">닫기</button>
 </div>
 
 <script>
@@ -130,6 +132,7 @@
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
     let allWords = []; let nowPage = 1; const perPage = 50;
     let hideAll = false; let focusMode = false; let isShuffled = false;
+    let currentFontSize = 18;
     let synth = window.speechSynthesis;
 
     window.onload = loadMasterList;
@@ -142,15 +145,13 @@
                 currentBookId = vocaBooks[0].id;
                 drawDropdowns(); selectBook(currentBookId);
             }
-        } catch(e) { 
-            document.getElementById('currentBookTitle').innerText = "서버 연결 실패";
-        }
+        } catch(e) { document.getElementById('currentBookTitle').innerText = "연결 실패"; }
     }
 
     async function selectBook(id) {
         currentBookId = id; drawDropdowns();
         const target = vocaBooks.find(b => b.id == id);
-        if(!target || !target.url) return;
+        if(!target) return;
         document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>로딩 중...</div>";
         try {
             const res = await fetch(target.url + "?v=" + Date.now());
@@ -171,9 +172,9 @@
             div.innerHTML = `
                 <div class="check-circle ${checkedWords[w.id]?'active':''}" onclick="toggleCheck('${w.id}')"></div>
                 <div class="word-content">
-                    <div class="eng-box" onclick="play('${w.eng}')">
+                    <div class="eng-box" onclick="play('${w.eng.replace(/'/g, "\\'")}')">
                         <span class="eng-text">${w.eng}</span>
-                        <span class="speaker-icon">🔊</span>
+                        <span class="speaker-btn">🔊</span>
                     </div>
                     <div class="kor-text ${hideAll?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
                 </div>`;
@@ -192,11 +193,26 @@
             const b = document.createElement('button'); b.className = `p-btn ${i===nowPage?'active':''}`;
             b.innerText = i; b.onclick = () => { 
                 nowPage=i; drawUI(); window.scrollTo(0,0);
-                b.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                b.scrollIntoView({ behavior: 'smooth', inline: 'center' });
             };
             cont.appendChild(b);
             if(i === nowPage) setTimeout(() => b.scrollIntoView({ inline: 'center' }), 100);
         }
+    }
+
+    function changeFontSize(delta) {
+        currentFontSize += delta;
+        if(currentFontSize < 12) currentFontSize = 12;
+        if(currentFontSize > 32) currentFontSize = 32;
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+    }
+
+    function play(t) {
+        synth.cancel();
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'en-US';
+        m.rate = parseFloat(document.getElementById('rateRange').value);
+        synth.speak(m);
     }
 
     function drawDropdowns() {
@@ -209,12 +225,7 @@
         document.getElementById('currentBookTitle').innerText = curr ? curr.name : "선택";
     }
 
-    function askAdmin() { 
-        if(prompt("관리자 비밀번호를 입력하세요.") === adminPw) { 
-            document.getElementById('adminPanel').style.display='block'; 
-            document.getElementById('adminBookList').innerHTML = vocaBooks.map(b => `<div class="admin-book-item">${b.name}</div>`).join('');
-        } 
-    }
+    function askAdmin() { if(prompt("비밀번호") === adminPw) document.getElementById('adminPanel').style.display='block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display='none'; }
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
@@ -222,15 +233,6 @@
     function toggleHide() { hideAll=!hideAll; drawUI(); }
     function toggleShuffle() { isShuffled=!isShuffled; drawUI(); }
     function toggleFocusMode() { focusMode=!focusMode; nowPage=1; drawUI(); }
-    
-    function play(t) { 
-        synth.cancel(); 
-        const m = new SpeechSynthesisUtterance(t); 
-        m.lang = 'en-US'; 
-        m.rate = parseFloat(document.getElementById('rateRange').value); 
-        synth.speak(m); 
-    }
-    
     function unlockAudio() { synth.speak(new SpeechSynthesisUtterance("")); }
     function searchNaver() { const q=document.getElementById('wordSearch').value; if(q) window.open(`https://en.dict.naver.com/#/search?query=${q}`); }
 </script>
