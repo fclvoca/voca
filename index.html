@@ -10,7 +10,7 @@
             --fcl-navy: #1A237E; 
             --fcl-orange: #FF9800; 
             --fcl-red: #EF4444; 
-            --fcl-green: #22C55E; /* 정렬 버튼용 초록색 추가 */
+            --fcl-green: #22C55E; 
             --fcl-bg: #F5F7F9; 
             --text-dark: #1E293B; 
             --naver-green: #03c75a; 
@@ -34,16 +34,18 @@
         .tool-line { display: flex; align-items: center; gap: 8px; }
         
         .search-container { width: calc(180px + 5mm); display: flex; background: white; border-radius: 8px; overflow: hidden; }
-        .search-input { flex: 1; height: calc(36px - 2mm); padding: 0 12px; border: none; font-size: 14px; outline: none; }
-        .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 12px; font-weight: 800; cursor: pointer; }
+        
+        /* [수정] 사전 검색창: 세로 사이즈를 기존의 2/3인 24px로 축소 */
+        .search-input { flex: 1; height: 24px; padding: 0 12px; border: none; font-size: 13px; outline: none; }
+        .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 11px; font-weight: 800; cursor: pointer; height: 24px; }
 
-        /* 정렬 버튼과 집중 암기 버튼 공통 스타일 */
+        /* [수정] 정렬/집중암기 버튼: 사이즈는 유지하고 글자 크기를 12px -> 16px로 키움 */
         .btn-shuffle, .head-focus-btn { 
             width: 85px; 
             height: 36px; 
             border-radius: 8px; 
-            font-weight: 800; 
-            font-size: 12px; 
+            font-weight: 900; 
+            font-size: 16px; /* 기존 12px 대비 약 33% 확대 */
             cursor: pointer; 
             border: none;
             white-space: nowrap; 
@@ -51,10 +53,8 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: background 0.2s; /* 부드러운 색상 전환 */
         }
 
-        /* [수정] 정렬 버튼: 기본은 초록색, 랜덤(active)일 때는 주황색 */
         .btn-shuffle { background: var(--fcl-green); color: white; }
         .btn-shuffle.active { background: var(--fcl-orange); color: white; }
 
