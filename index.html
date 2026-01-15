@@ -120,37 +120,50 @@
         </div>
     </div>
     <div class="admin-section">
-        <div class="admin-title">⚙️ 이름 수정 / 삭제</div>
-        <input type="text" id="editBookName" class="admin-input" placeholder="수정할 이름 입력">
-        <div style="display:flex; gap:5px; margin-bottom:10px;">
-            <button onclick="saveBookName()" style="flex:1; padding:10px; background:var(--fcl-orange); color:white; border:none; border-radius:6px; font-weight:800;">이름 저장</button>
-            <button onclick="deleteBook()" style="flex:1; padding:10px; background:var(--fcl-red); color:white; border:none; border-radius:6px; font-weight:800;">단어장 삭제</button>
-        </div>
-        <hr>
-        <div class="admin-title">✨ 새 단어장 추가 연동</div>
-        <input type="text" id="newBookName" class="admin-input" placeholder="새 단어장 이름 (예: 중등 필수)">
-        <input type="text" id="newBookUrl" class="admin-input" placeholder="Google API 주소 (https://...)">
-        <button onclick="addBook()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:800;">새 단어장 등록</button>
+        <div class="admin-title">⚙️ 마스터 시트 관리 동기화</div>
+        <p style="font-size: 13px; color: #64748B; line-height: 1.5; margin-bottom: 15px;">
+            단어장 목록(추가/삭제/이름수정)은 마스터 구글 시트에서 통합 관리됩니다. 시트에서 수정 후 앱을 새로고침하면 모든 기기에 반영됩니다.
+        </p>
+        <button onclick="window.open('https://docs.google.com/spreadsheets/d/1v9K-3mPjEofw67OaAnp29pXFmD7hWwX-S1qD1N5D-3E/edit')" style="width:100%; padding:15px; background:var(--fcl-orange); color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">마스터 시트 바로가기</button>
     </div>
-    <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800;">관리자 종료</button>
+    <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800; cursor:pointer;">관리자 종료</button>
 </div>
 
 <script>
     const adminPw = "5857";
+    // 마스터 시트 API 주소 적용 완료
+    const MASTER_API_URL = "https://script.google.com/macros/s/AKfycbxUK5Tu8pTpKEwddPT2gMxgY95wGLbTl_GsVeaZgH1eRH5jVSYBgS7qrbHnawsl4gzY/exec";
     
-    // 초기 데이터 설정 (새로운 API 주소 적용)
-    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v6')) || [
-        { id: 1001, name: "고등학교 필수 영단어", url: "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec" },
-        { id: 1002, name: "새 단어장", url: "https://script.google.com/macros/s/AKfycbyhNq4imaOh5XNTDp0jugUFWwt62tGGPWqlB3cehLY1ylNDDOPdHPvUh9DW-4MEOt1O/exec" }
-    ];
-    
-    let currentBookId = vocaBooks[0].id;
+    let vocaBooks = [];
+    let currentBookId = null;
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
     
     let allWords = []; 
     let nowPage = 1; const perPage = 50; const groupSize = 10;
     let hideAll = false; let currentFontSize = 22; let focusMode = false; let isPageShuffled = false;
     let synth = window.speechSynthesis; let audioUnlocked = false;
+
+    // 초기화: 마스터 시트에서 단어장 목록을 가장 먼저 가져옴
+    async function initApp() {
+        try {
+            const res = await fetch(MASTER_API_URL + "?v=" + Date.now());
+            vocaBooks = await res.json();
+            
+            if (vocaBooks.length > 0) {
+                // 마지막으로 공부하던 단어장 기억
+                const lastId = localStorage.getItem('fcl_last_book_id');
+                currentBookId = (lastId && vocaBooks.find(b => b.id == lastId)) ? lastId : vocaBooks[0].id;
+                
+                drawDropdowns();
+                selectBook(currentBookId);
+            } else {
+                document.getElementById('currentBookTitle').innerText = "등록된 단어장 없음";
+            }
+        } catch (e) {
+            document.getElementById('currentBookTitle').innerText = "연동 실패";
+            console.error(e);
+        }
+    }
 
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
@@ -174,26 +187,26 @@
             const opt = document.createElement('div'); opt.className = 'voca-opt'; opt.innerText = b.name;
             opt.onclick = () => { focusMode = false; selectBook(b.id); }; dd.appendChild(opt);
         });
-        const currentBook = vocaBooks.find(b => b.id === currentBookId);
-        document.getElementById('currentBookTitle').innerText = currentBook ? currentBook.name : "선택된 단어장 없음";
+        const currentBook = vocaBooks.find(b => b.id == currentBookId);
+        document.getElementById('currentBookTitle').innerText = currentBook ? currentBook.name : "단어장 선택";
     }
 
     async function selectBook(id) { 
-        currentBookId = id; 
+        currentBookId = id;
+        localStorage.setItem('fcl_last_book_id', id);
         drawDropdowns(); 
         nowPage = 1;
         loadData(); 
     }
 
     async function loadData() {
-        const targetBook = vocaBooks.find(b => b.id === currentBookId);
+        const targetBook = vocaBooks.find(b => b.id == currentBookId);
         if(!targetBook) return;
 
         document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터 동기화 중...</div>";
         try {
             const res = await fetch(targetBook.url + "?v=" + Date.now());
             const data = await res.json();
-            // ID 생성 방식을 북 ID와 인덱스 조합으로 변경하여 중복 방지
             allWords = data.map((v, i) => ({ 
                 id: `${currentBookId}_${i}`, 
                 eng: v.english, 
@@ -202,7 +215,7 @@
             }));
             drawUI(); 
         } catch (e) { 
-            document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터를 불러올 수 없습니다.<br>API 주소와 권한 설정을 확인해주세요.</div>"; 
+            document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>단어장을 불러올 수 없습니다.</div>"; 
         }
     }
 
@@ -270,42 +283,6 @@
         document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 단어 암기 중`;
     }
 
-    function saveBookName() { 
-        const n = document.getElementById('editBookName').value.trim(); 
-        if(n) { 
-            const book = vocaBooks.find(b => b.id === currentBookId);
-            if(book) { book.name = n; saveAll(); }
-        } 
-    }
-
-    function addBook() { 
-        const n = document.getElementById('newBookName').value.trim(); 
-        const u = document.getElementById('newBookUrl').value.trim(); 
-        if(n && u) { 
-            vocaBooks.push({id: Date.now(), name: n, url: u}); 
-            saveAll(); 
-            document.getElementById('newBookName').value = "";
-            document.getElementById('newBookUrl').value = "";
-            alert("새 단어장이 추가되었습니다.");
-        } else {
-            alert("이름과 API 주소를 모두 입력해주세요.");
-        }
-    }
-
-    function deleteBook() { 
-        if(vocaBooks.length > 1 && confirm("현재 단어장을 삭제하시겠습니까?")) { 
-            vocaBooks = vocaBooks.filter(b => b.id !== currentBookId); 
-            currentBookId = vocaBooks[0].id; 
-            saveAll(); 
-            selectBook(currentBookId); 
-        } 
-    }
-
-    function saveAll() { 
-        localStorage.setItem('fcl_books_v6', JSON.stringify(vocaBooks)); 
-        drawDropdowns(); 
-    }
-
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
 
@@ -319,8 +296,8 @@
         setTimeout(() => { synth.speak(msg); }, 50);
     }
 
-    drawDropdowns();
-    selectBook(currentBookId);
+    // 앱 실행
+    initApp();
 </script>
 </body>
 </html>
