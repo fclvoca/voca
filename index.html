@@ -25,15 +25,16 @@
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
         
-        .search-container { flex: 1; display: flex; background: white; border-radius: 8px; overflow: hidden; }
+        /* [수정] 사전 검색 컨테이너: 가로 길이를 5mm 늘림 */
+        .search-container { width: calc(180px + 5mm); display: flex; background: white; border-radius: 8px; overflow: hidden; }
         .search-input { flex: 1; height: 36px; padding: 0 12px; border: none; font-size: 14px; outline: none; }
         .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 12px; font-weight: 800; cursor: pointer; }
 
         .btn-shuffle { background: white; color: var(--fcl-navy); border: none; height: 36px; padding: 0 10px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap; }
         .btn-shuffle.active { background: var(--fcl-orange); color: white; }
 
-        /* 음성선택 삭제 후 배치된 집중암기 버튼 */
-        .head-focus-btn { flex: 1; height: 36px; background-color: var(--fcl-red); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
+        /* [수정] 집중암기 버튼: 가로 길이를 5mm 줄임 */
+        .head-focus-btn { width: calc(100px - 5mm); height: 36px; background-color: var(--fcl-red); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-align: center; }
         .head-focus-btn.active { background-color: white; color: var(--fcl-red); }
 
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 10px; }
@@ -244,7 +245,7 @@
     function play(t) {
         synth.cancel();
         const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'en-US'; // 기본 미국식 음성 고정
+        msg.lang = 'en-US';
         msg.rate = document.getElementById('rateRange').value;
         setTimeout(() => { synth.speak(msg); }, 50);
     }
