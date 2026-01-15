@@ -32,11 +32,12 @@
         .btn-shuffle { background: white; color: var(--fcl-navy); border: none; height: 36px; padding: 0 10px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap; }
         .btn-shuffle.active { background: var(--fcl-orange); color: white; }
 
-        .voice-select { flex: 1; height: 36px; border-radius: 8px; border: none; font-size: 12px; font-weight: 800; color: var(--fcl-navy); }
+        /* 음성선택 삭제 후 배치된 집중암기 버튼 */
+        .head-focus-btn { flex: 1; height: 36px; background-color: var(--fcl-red); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
+        .head-focus-btn.active { background-color: white; color: var(--fcl-red); }
+
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 10px; }
         .speed-slider { flex: 1; height: 10px; accent-color: var(--fcl-red); cursor: pointer; }
-        .btn-focus { background-color: var(--fcl-red); color: white; border: none; padding: 8px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer; white-space: nowrap; }
-        .btn-focus.active { background-color: white; color: var(--fcl-red); }
         .font-control { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); }
 
@@ -52,23 +53,15 @@
         .check-circle.active { background: var(--fcl-red); border-color: var(--fcl-red); }
         .word-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
         .eng-text { font-weight: 900; color: #0F172A; font-size: 22px; cursor: pointer; }
-        
-        /* 발음 칸 대체 버튼 스타일 */
-        .btn-item-focus { background: var(--fcl-bg); border: 1px solid #ddd; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--fcl-navy); cursor: pointer; }
-        .btn-item-focus.active { background: var(--fcl-red); color: white; border-color: var(--fcl-red); }
-
+        .pro-text { font-size: 14px; color: #64748B; font-weight: 500; }
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 14px; border-radius: 12px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
         #adminPanel { display: none; background: white; padding: 25px; position: fixed; top: 15px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 20px; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.6); }
         .admin-section { border-bottom: 1px solid #eee; padding-bottom: 18px; margin-bottom: 18px; }
         .admin-title { font-weight: 900; font-size: 16px; color: var(--fcl-navy); margin-bottom: 12px; }
-        .stat-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
-        .stat-tab-btn { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 800; cursor: pointer; }
-        .stat-tab-btn.active { background: var(--fcl-navy); color: white; }
         .stat-display { background: #f8fafc; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0; }
         .admin-input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; }
-        .admin-select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--fcl-navy); margin-bottom: 15px; font-weight: 900; }
     </style>
 </head>
 <body onclick="unlockAudio(); closeDropdowns();">
@@ -91,12 +84,11 @@
                 <button class="naver-btn" onclick="searchNaver()">N사전</button>
             </div>
             <button id="shuffleBtn" class="btn-shuffle" onclick="toggleShuffle()">정렬</button>
-            <select id="voiceSelect" class="voice-select"></select>
+            <button id="focusModeBtn" class="head-focus-btn" onclick="toggleFocusMode()">집중 암기</button>
         </div>
         <div class="speed-control">
             <span>속도</span>
             <input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8">
-            <button id="focusModeBtn" class="btn-focus" onclick="toggleFocusMode()">집중 암기</button>
             <div class="font-control">
                 <button class="font-btn" onclick="changeFontSize(-2)">-</button>
                 <button class="font-btn" onclick="changeFontSize(2)">+</button>
@@ -110,26 +102,20 @@
 
 <div id="adminPanel" onclick="event.stopPropagation()">
     <div class="admin-section">
-        <div class="admin-title">📂 단어장 선택 및 통계</div>
-        <select id="adminBookDropdown" class="admin-select" onchange="switchAdminView(this.value)"></select>
-        <div class="stat-tabs">
-            <button class="stat-tab-btn active" onclick="changeStatTab('day', this)">일간</button>
-            <button class="stat-tab-btn" onclick="changeStatTab('week', this)">주간</button>
-            <button class="stat-tab-btn" onclick="changeStatTab('month', this)">월간</button>
-        </div>
+        <div class="admin-title">📂 단어장 관리 및 통계</div>
         <div class="stat-display">
-            <small id="statLabel">학습 통계</small><br>
+            <small>오늘의 학습량</small><br>
             <b id="statValue" style="font-size:20px; color:var(--fcl-navy);">0 / 0</b>
         </div>
     </div>
     <div class="admin-section">
-        <div class="admin-title">⚙️ 단어장 관리 (이름 수정/삭제/추가)</div>
-        <input type="text" id="editBookName" class="admin-input" placeholder="현재 단어장 이름 수정">
+        <div class="admin-title">⚙️ 이름 수정 / 삭제 / 추가</div>
+        <input type="text" id="editBookName" class="admin-input" placeholder="수정할 이름 입력">
         <div style="display:flex; gap:5px; margin-bottom:10px;">
             <button onclick="saveBookName()" style="flex:1; padding:10px; background:var(--fcl-orange); color:white; border:none; border-radius:6px; font-weight:800;">이름 저장</button>
             <button onclick="deleteBook()" style="flex:1; padding:10px; background:var(--fcl-red); color:white; border:none; border-radius:6px; font-weight:800;">단어장 삭제</button>
         </div>
-        <input type="text" id="newBookName" class="admin-input" placeholder="새 단어장 이름 입력">
+        <input type="text" id="newBookName" class="admin-input" placeholder="새 단어장 이름">
         <button onclick="addBook()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:800;">새 단어장 생성</button>
     </div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800;">관리자 종료</button>
@@ -139,23 +125,21 @@
     const API = "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec";
     const adminPw = "5857";
     
-    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v5')) || [{ id: 1001, name: "고등학교 필수 영단어" }, { id: 1002, name: "수능 1등급 심화 어휘" }];
+    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v5')) || [{ id: 1001, name: "고등학교 필수 영단어" }];
     let currentBookId = vocaBooks[0].id;
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
     
     let allWords = []; 
     let nowPage = 1; const perPage = 50; const groupSize = 10;
     let hideAll = false; let currentFontSize = 22; let focusMode = false; let isPageShuffled = false;
-    let synth = window.speechSynthesis; let voices = []; let audioUnlocked = false;
+    let synth = window.speechSynthesis; let audioUnlocked = false;
 
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
 
     function searchNaver() {
         const query = document.getElementById('wordSearch').value.trim();
-        if (query) {
-            window.open(`https://en.dict.naver.com/#/search?query=${encodeURIComponent(query)}`, '_blank');
-        }
+        if (query) window.open(`https://en.dict.naver.com/#/search?query=${encodeURIComponent(query)}`, '_blank');
     }
 
     function toggleShuffle() {
@@ -167,33 +151,24 @@
     }
 
     function drawDropdowns() {
-        const dd = document.getElementById('vocaDropdown'); const adminDd = document.getElementById('adminBookDropdown');
-        dd.innerHTML = ""; adminDd.innerHTML = "";
+        const dd = document.getElementById('vocaDropdown'); dd.innerHTML = "";
         vocaBooks.forEach(b => {
             const opt = document.createElement('div'); opt.className = 'voca-opt'; opt.innerText = b.name;
             opt.onclick = () => { focusMode = false; selectBook(b.id); }; dd.appendChild(opt);
-            const aOpt = document.createElement('option'); aOpt.value = b.id; aOpt.innerText = b.name;
-            if(b.id === currentBookId) aOpt.selected = true; adminDd.appendChild(aOpt);
         });
-        const current = vocaBooks.find(b => b.id === currentBookId);
-        document.getElementById('currentBookTitle').innerText = current ? current.name : "단어장 선택";
+        document.getElementById('currentBookTitle').innerText = vocaBooks.find(b => b.id === currentBookId).name;
     }
 
-    async function selectBook(id) { currentBookId = id; drawDropdowns(); trackVisit(id); loadData(); }
+    async function selectBook(id) { currentBookId = id; drawDropdowns(); loadData(); }
 
     async function loadData() {
-        const disp = document.getElementById('wordDisplay');
-        disp.innerHTML = "<div style='text-align:center; padding:50px;'>동기화 중...</div>";
+        document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>동기화 중...</div>";
         try {
             const res = await fetch(API + "?v=" + Date.now());
             const data = await res.json();
-            allWords = data.map((v, i) => ({ id: i, eng: v.english, kor: v.korean }));
-            isPageShuffled = false;
-            document.getElementById('shuffleBtn').innerText = "정렬";
-            document.getElementById('shuffleBtn').classList.remove('active');
+            allWords = data.map((v, i) => ({ id: i, eng: v.english, kor: v.korean, pro: v.pronunciation || "" }));
             drawUI(); 
-            loadVoices();
-        } catch (e) { disp.innerHTML = "데이터 연동 실패. 시트 연결을 확인하세요."; }
+        } catch (e) { document.getElementById('wordDisplay').innerHTML = "연결 실패"; }
     }
 
     function toggleCheck(id) {
@@ -213,18 +188,9 @@
 
     function drawUI() {
         const disp = document.getElementById('wordDisplay'); disp.innerHTML = "";
-        let targetWords = [];
+        let targetWords = focusMode ? allWords.filter(w => checkedWords[w.id]) : allWords.slice((nowPage-1)*perPage, nowPage*perPage);
         
-        if (focusMode) {
-            targetWords = allWords.filter(w => checkedWords[w.id]);
-        } else {
-            const startIdx = (nowPage - 1) * perPage;
-            targetWords = allWords.slice(startIdx, startIdx + perPage);
-        }
-        
-        if (isPageShuffled) {
-            targetWords = [...targetWords].sort(() => Math.random() - 0.5);
-        }
+        if (isPageShuffled) targetWords = [...targetWords].sort(() => Math.random() - 0.5);
         
         targetWords.forEach(w => {
             const isChecked = checkedWords[w.id] ? 'active' : '';
@@ -233,8 +199,7 @@
                 <div class="check-circle ${isChecked}" onclick="toggleCheck(${w.id})"></div>
                 <div class="word-info">
                     <span class="eng-text" style="font-size:${currentFontSize}px" onclick="play('${w.eng.replace(/'/g,"\\'")}')">${w.eng}</span>
-                    <button class="btn-item-focus ${isChecked}" onclick="toggleCheck(${w.id})">집중암기</button>
-                </div>
+                    <span class="pro-text">${w.pro}</span> </div>
                 <div class="kor-text ${hideAll?'hidden':''}" style="font-size:${currentFontSize-4}px" onclick="this.classList.toggle('hidden')">${w.kor}</div>`;
             disp.appendChild(div);
         });
@@ -258,88 +223,30 @@
         b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0,0); }; return b;
     }
 
-    function askAdmin() { if(prompt("비밀번호를 입력하세요") === adminPw) { updateStatDisplay(); document.getElementById('adminPanel').style.display = 'block'; } else { alert("비밀번호가 틀립니다."); } }
+    function askAdmin() { if(prompt("비밀번호") === adminPw) { document.getElementById('adminPanel').style.display = 'block'; updateStatDisplay(); } }
     function closeAdmin() { document.getElementById('adminPanel').style.display='none'; }
-    function switchAdminView(id) { currentBookId = parseInt(id); updateStatDisplay(); }
     
-    function changeStatTab(period, btn) {
-        document.querySelectorAll('.stat-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active'); updateStatDisplay();
-    }
-
-    function trackVisit(id) {
-        const d = new Date().toISOString().split('T')[0];
-        let s = JSON.parse(localStorage.getItem(`fcl_stats_${id}`) || '{"day":{}}');
-        s.day[d] = (s.day[d] || 0) + 1;
-        localStorage.setItem(`fcl_stats_${id}`, JSON.stringify(s));
-    }
-
     function updateStatDisplay() {
-        let s = JSON.parse(localStorage.getItem(`fcl_stats_${currentBookId}`) || '{"day":{}}');
-        const hits = s.day[new Date().toISOString().split('T')[0]] || 1;
-        document.getElementById('statValue').innerText = `${Math.ceil(hits*0.7)} 명 / ${hits} 회 학습`;
+        const hits = Object.keys(checkedWords).filter(k => checkedWords[k]).length;
+        document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 단어 암기 중`;
     }
 
-    function saveBookName() { 
-        const n = document.getElementById('editBookName').value.trim(); 
-        if(n) { 
-            const book = vocaBooks.find(b => b.id === currentBookId);
-            if(book) { book.name = n; saveAll(); alert("이름이 수정되었습니다."); }
-        } 
-    }
-    
-    function addBook() { 
-        const n = document.getElementById('newBookName').value.trim(); 
-        if(n) { vocaBooks.push({id: Date.now(), name: n}); saveAll(); alert("새 단어장이 생성되었습니다."); } 
-    }
-    
-    function deleteBook() { 
-        if(vocaBooks.length > 1 && confirm("정말 이 단어장을 삭제하시겠습니까?")) { 
-            vocaBooks = vocaBooks.filter(b => b.id !== currentBookId); 
-            currentBookId = vocaBooks[0].id; 
-            saveAll(); selectBook(currentBookId); 
-        } 
-    }
-    
+    function saveBookName() { const n = document.getElementById('editBookName').value.trim(); if(n) { vocaBooks.find(b => b.id === currentBookId).name = n; saveAll(); } }
+    function addBook() { const n = document.getElementById('newBookName').value.trim(); if(n) { vocaBooks.push({id: Date.now(), name: n}); saveAll(); } }
+    function deleteBook() { if(vocaBooks.length > 1 && confirm("삭제?")) { vocaBooks = vocaBooks.filter(b => b.id !== currentBookId); currentBookId = vocaBooks[0].id; saveAll(); selectBook(currentBookId); } }
     function saveAll() { localStorage.setItem('fcl_books_v5', JSON.stringify(vocaBooks)); drawDropdowns(); }
 
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
 
-    function unlockAudio() {
-        if (!audioUnlocked) {
-            const ut = new SpeechSynthesisUtterance("");
-            synth.speak(ut);
-            audioUnlocked = true;
-        }
-    }
-
-    function loadVoices() {
-        voices = synth.getVoices();
-        const vs = document.getElementById('voiceSelect');
-        const usVoices = voices.filter(v => v.lang.includes('en-US') || v.name.includes('US English'));
-        vs.innerHTML = "";
-        if (usVoices.length === 0) {
-            const o = document.createElement('option'); o.innerText = "기본 음성"; vs.appendChild(o);
-        } else {
-            usVoices.forEach(v => {
-                const o = document.createElement('option'); o.value = v.name; o.innerText = v.name; vs.appendChild(o);
-            });
-        }
-    }
+    function unlockAudio() { if (!audioUnlocked) { synth.speak(new SpeechSynthesisUtterance("")); audioUnlocked = true; } }
 
     function play(t) {
         synth.cancel();
         const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'en-US';
-        const selectedVoice = voices.find(v => v.name === document.getElementById('voiceSelect').value);
-        if (selectedVoice) msg.voice = selectedVoice;
+        msg.lang = 'en-US'; // 기본 미국식 음성 고정
         msg.rate = document.getElementById('rateRange').value;
         setTimeout(() => { synth.speak(msg); }, 50);
-    }
-
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = loadVoices;
     }
 
     drawDropdowns();
