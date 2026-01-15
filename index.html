@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FCL Premium Smart Voca</title>
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=3775V88S"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        /* 헤더 & 드롭다운 */
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
         .voca-selector { position: relative; flex: 1; cursor: pointer; color: white; }
@@ -24,7 +22,6 @@
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         
-        /* 도구 */
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
         .search-input { flex: 1; height: 36px; padding: 0 12px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
@@ -36,14 +33,12 @@
         .font-control { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); }
 
-        /* 페이지네이션 */
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
         .p-btn { min-width: 48px; height: 48px; border: 1px solid #E2E8F0; background: white; border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; }
         .p-btn.active { background-color: var(--fcl-navy); color: white; }
         .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 24px; }
 
-        /* 단어 리스트 */
         .word-list { padding: 12px 10px; }
         .word-item { background: white; margin-bottom: 10px; border-radius: 15px; display: flex; align-items: center; padding: 18px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
@@ -54,7 +49,6 @@
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 14px; border-radius: 12px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 관리자 패널 */
         #adminPanel { display: none; background: white; padding: 25px; position: fixed; top: 15px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 20px; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.6); }
         .admin-section { border-bottom: 1px solid #eee; padding-bottom: 18px; margin-bottom: 18px; }
         .admin-title { font-weight: 900; font-size: 16px; color: var(--fcl-navy); margin-bottom: 12px; }
@@ -66,7 +60,7 @@
         .admin-select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--fcl-navy); margin-bottom: 15px; font-weight: 900; }
     </style>
 </head>
-<body onclick="closeDropdowns();">
+<body onclick="unlockAudio(); closeDropdowns();">
 
 <div class="sticky-header">
     <div class="top-row">
@@ -82,13 +76,11 @@
     <div class="tool-row">
         <div class="tool-line">
             <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
-            <select id="voiceSelect" class="voice-select">
-                <option value="US English Female">미국식 고품질 발음</option>
-            </select>
+            <select id="voiceSelect" class="voice-select"></select>
         </div>
         <div class="speed-control">
             <span>속도</span>
-            <input type="range" id="rateRange" class="speed-slider" min="0.5" max="1.5" step="0.1" value="1.0">
+            <input type="range" id="rateRange" class="speed-slider" min="0.4" max="1.2" step="0.1" value="0.8">
             <button id="focusModeBtn" class="btn-focus" onclick="toggleFocusMode()">집중 암기</button>
             <div class="font-control"><button class="font-btn" onclick="changeFontSize(-2)">-</button><button class="font-btn" onclick="changeFontSize(2)">+</button></div>
         </div>
@@ -136,6 +128,7 @@
     
     let allWords = []; let nowPage = 1; const perPage = 50; const groupSize = 10;
     let hideAll = false; let currentFontSize = 22; let focusMode = false;
+    let synth = window.speechSynthesis; let voices = []; let audioUnlocked = false;
 
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
@@ -161,6 +154,7 @@
             const data = await res.json();
             allWords = data.map((v, i) => ({ id: i, eng: v.english, kor: v.korean, pro: v.pronunciation || "" }));
             drawUI(); 
+            loadVoices();
         } catch (e) { document.getElementById('wordDisplay').innerHTML = "연결 실패"; }
     }
 
@@ -183,11 +177,6 @@
         const disp = document.getElementById('wordDisplay'); disp.innerHTML = "";
         let targetWords = focusMode ? allWords.filter(w => checkedWords[w.id]) : allWords.slice((nowPage-1)*perPage, nowPage*perPage);
         
-        if (focusMode && targetWords.length === 0) {
-            disp.innerHTML = "<div style='text-align:center; padding:50px; color:#64748B;'>빨간색 체크된 단어가 없습니다.</div>";
-            return;
-        }
-
         targetWords.forEach(w => {
             const isChecked = checkedWords[w.id] ? 'active' : '';
             const div = document.createElement('div'); div.className = 'word-item';
@@ -248,15 +237,58 @@
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
 
-    /**
-     * 최종 수정된 발음 재생 함수
-     * ResponsiveVoice를 사용하여 모바일 브라우저 차단을 우회하고
-     * 미국식 고품질 발음을 재생합니다.
-     */
+    // [핵심] 모바일 오디오 시스템 강제 활성화
+    function unlockAudio() {
+        if (!audioUnlocked) {
+            const ut = new SpeechSynthesisUtterance("");
+            synth.speak(ut); // 빈 소리를 한 번 재생하여 브라우저 오디오 잠금 해제
+            audioUnlocked = true;
+        }
+    }
+
+    function loadVoices() {
+        voices = synth.getVoices();
+        const vs = document.getElementById('voiceSelect');
+        // 미국 영어(en-US) 음성만 선별
+        const usVoices = voices.filter(v => v.lang === 'en-US' || v.lang === 'en_US' || v.name.includes('Samantha') || v.name.includes('Google US English'));
+        
+        vs.innerHTML = "";
+        if (usVoices.length === 0) {
+            const o = document.createElement('option');
+            o.innerText = "기본 미국식 음성 사용";
+            vs.appendChild(o);
+        } else {
+            usVoices.forEach(v => {
+                const o = document.createElement('option');
+                o.value = v.name;
+                o.innerText = v.name;
+                vs.appendChild(o);
+            });
+        }
+    }
+
     function play(t) {
-        const speed = document.getElementById('rateRange').value;
-        // 속도 보정 (ResponsiveVoice는 0.5~2 사이 값 권장)
-        responsiveVoice.speak(t, "US English Female", {rate: speed});
+        // 재생 중인 모든 음성 취소 (모바일 렉 방지)
+        synth.cancel();
+
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'en-US'; // 미국 영어 강제 설정
+
+        const selectedVoiceName = document.getElementById('voiceSelect').value;
+        const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+        if (selectedVoice) msg.voice = selectedVoice;
+
+        msg.rate = document.getElementById('rateRange').value;
+        
+        // iOS 버그 대응: 약간의 딜레이 후 재생
+        setTimeout(() => {
+            synth.speak(msg);
+        }, 50);
+    }
+
+    // 목소리 목록 로드 이벤트 등록
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = loadVoices;
     }
 
     drawDropdowns();
