@@ -81,10 +81,6 @@
 <div id="adminPanel" onclick="event.stopPropagation()">
     <div class="admin-section">
         <div class="admin-title">📊 클라우드 마스터 시스템</div>
-        <p style="font-size:13px; color:#666; line-height:1.6;">
-            [Voca_Master_List] 구글 시트에서 목록을 관리합니다.<br>
-            시트 수정 후 <b>[배포] > [업데이트]</b>를 하면 즉시 반영됩니다.
-        </p>
         <div class="admin-title">현재 등록된 단어장</div>
         <div id="adminBookList"></div>
     </div>
@@ -93,9 +89,7 @@
 
 <script>
     const adminPw = "5857";
-    
-    // 선생님의 마스터 배포 URL 적용 완료
-    const MASTER_API_URL = "https://script.google.com/macros/s/AKfycbx6tDxM5YiYaae6Ts_6n-te9TVM1W7nEiy_Oo7I65uopBm1c4Fc6LqFGCtcUIu8VJgi/exec";
+    const MASTER_API_URL = "https://script.google.com/macros/s/AKfycbxUK5Tu8pTpKEwddPT2gMxgY95wGLbTl_GsVeaZgH1eRH5jVSYBgS7qrbHnawsl4gzY/exec";
 
     let vocaBooks = []; let currentBookId = null;
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
@@ -113,7 +107,7 @@
                 currentBookId = vocaBooks[0].id;
                 drawDropdowns(); selectBook(currentBookId);
             } else {
-                document.getElementById('currentBookTitle').innerText = "시트 데이터 없음";
+                document.getElementById('currentBookTitle').innerText = "데이터 로딩 중...";
             }
         } catch(e) { 
             document.getElementById('currentBookTitle').innerText = "서버 연결 실패";
@@ -124,13 +118,13 @@
         currentBookId = id; drawDropdowns();
         const target = vocaBooks.find(b => b.id == id);
         if(!target || !target.url) return;
-        document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>단어 데이터를 가져오는 중...</div>";
+        document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>단어를 불러오는 중...</div>";
         try {
             const res = await fetch(target.url + "?v=" + Date.now());
             const data = await res.json();
             allWords = data.map((v, i) => ({ id: `${id}_${i}`, eng: v.english, kor: v.korean }));
             drawUI();
-        } catch(e) { document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터 로딩 실패</div>"; }
+        } catch(e) { document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>단어장 로딩 실패</div>"; }
     }
 
     function drawUI() {
@@ -164,7 +158,7 @@
             opt.onclick=()=> { focusMode=false; selectBook(b.id); }; dd.appendChild(opt);
         });
         const curr = vocaBooks.find(b => b.id == currentBookId);
-        document.getElementById('currentBookTitle').innerText = curr ? curr.name : "단어장 선택";
+        document.getElementById('currentBookTitle').innerText = curr ? curr.name : "목록 선택";
     }
 
     function askAdmin() { 
