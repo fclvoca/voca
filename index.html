@@ -34,30 +34,16 @@
         .tool-line { display: flex; align-items: center; gap: 8px; }
         
         .search-container { width: calc(180px + 5mm); display: flex; background: white; border-radius: 8px; overflow: hidden; }
-        
-        /* [수정] 사전 검색창: 세로 사이즈를 기존의 2/3인 24px로 축소 */
         .search-input { flex: 1; height: 24px; padding: 0 12px; border: none; font-size: 13px; outline: none; }
         .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 11px; font-weight: 800; cursor: pointer; height: 24px; }
 
-        /* [수정] 정렬/집중암기 버튼: 사이즈는 유지하고 글자 크기를 12px -> 16px로 키움 */
         .btn-shuffle, .head-focus-btn { 
-            width: 85px; 
-            height: 36px; 
-            border-radius: 8px; 
-            font-weight: 900; 
-            font-size: 16px; /* 기존 12px 대비 약 33% 확대 */
-            cursor: pointer; 
-            border: none;
-            white-space: nowrap; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            width: 85px; height: 36px; border-radius: 8px; font-weight: 900; font-size: 16px; 
+            cursor: pointer; border: none; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
         .btn-shuffle { background: var(--fcl-green); color: white; }
         .btn-shuffle.active { background: var(--fcl-orange); color: white; }
-
         .head-focus-btn { background-color: var(--fcl-red); color: white; }
         .head-focus-btn.active { background-color: white; color: var(--fcl-red); }
 
@@ -134,23 +120,30 @@
         </div>
     </div>
     <div class="admin-section">
-        <div class="admin-title">⚙️ 이름 수정 / 삭제 / 추가</div>
+        <div class="admin-title">⚙️ 이름 수정 / 삭제</div>
         <input type="text" id="editBookName" class="admin-input" placeholder="수정할 이름 입력">
         <div style="display:flex; gap:5px; margin-bottom:10px;">
             <button onclick="saveBookName()" style="flex:1; padding:10px; background:var(--fcl-orange); color:white; border:none; border-radius:6px; font-weight:800;">이름 저장</button>
             <button onclick="deleteBook()" style="flex:1; padding:10px; background:var(--fcl-red); color:white; border:none; border-radius:6px; font-weight:800;">단어장 삭제</button>
         </div>
-        <input type="text" id="newBookName" class="admin-input" placeholder="새 단어장 이름">
-        <button onclick="addBook()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:800;">새 단어장 생성</button>
+        <hr>
+        <div class="admin-title">✨ 새 단어장 추가 연동</div>
+        <input type="text" id="newBookName" class="admin-input" placeholder="새 단어장 이름 (예: 중등 필수)">
+        <input type="text" id="newBookUrl" class="admin-input" placeholder="Google API 주소 (https://...)">
+        <button onclick="addBook()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:800;">새 단어장 등록</button>
     </div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800;">관리자 종료</button>
 </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec";
     const adminPw = "5857";
     
-    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v5')) || [{ id: 1001, name: "고등학교 필수 영단어" }];
+    // 초기 데이터 설정 (새로운 API 주소 적용)
+    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v6')) || [
+        { id: 1001, name: "고등학교 필수 영단어", url: "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec" },
+        { id: 1002, name: "새 단어장", url: "https://script.google.com/macros/s/AKfycbyhNq4imaOh5XNTDp0jugUFWwt62tGGPWqlB3cehLY1ylNDDOPdHPvUh9DW-4MEOt1O/exec" }
+    ];
+    
     let currentBookId = vocaBooks[0].id;
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
     
@@ -181,19 +174,36 @@
             const opt = document.createElement('div'); opt.className = 'voca-opt'; opt.innerText = b.name;
             opt.onclick = () => { focusMode = false; selectBook(b.id); }; dd.appendChild(opt);
         });
-        document.getElementById('currentBookTitle').innerText = vocaBooks.find(b => b.id === currentBookId).name;
+        const currentBook = vocaBooks.find(b => b.id === currentBookId);
+        document.getElementById('currentBookTitle').innerText = currentBook ? currentBook.name : "선택된 단어장 없음";
     }
 
-    async function selectBook(id) { currentBookId = id; drawDropdowns(); loadData(); }
+    async function selectBook(id) { 
+        currentBookId = id; 
+        drawDropdowns(); 
+        nowPage = 1;
+        loadData(); 
+    }
 
     async function loadData() {
-        document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>동기화 중...</div>";
+        const targetBook = vocaBooks.find(b => b.id === currentBookId);
+        if(!targetBook) return;
+
+        document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터 동기화 중...</div>";
         try {
-            const res = await fetch(API + "?v=" + Date.now());
+            const res = await fetch(targetBook.url + "?v=" + Date.now());
             const data = await res.json();
-            allWords = data.map((v, i) => ({ id: i, eng: v.english, kor: v.korean, pro: v.pronunciation || "" }));
+            // ID 생성 방식을 북 ID와 인덱스 조합으로 변경하여 중복 방지
+            allWords = data.map((v, i) => ({ 
+                id: `${currentBookId}_${i}`, 
+                eng: v.english, 
+                kor: v.korean, 
+                pro: v.pronunciation || "" 
+            }));
             drawUI(); 
-        } catch (e) { document.getElementById('wordDisplay').innerHTML = "연결 실패"; }
+        } catch (e) { 
+            document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터를 불러올 수 없습니다.<br>API 주소와 권한 설정을 확인해주세요.</div>"; 
+        }
     }
 
     function toggleCheck(id) {
@@ -221,7 +231,7 @@
             const isChecked = checkedWords[w.id] ? 'active' : '';
             const div = document.createElement('div'); div.className = 'word-item';
             div.innerHTML = `
-                <div class="check-circle ${isChecked}" onclick="toggleCheck(${w.id})"></div>
+                <div class="check-circle ${isChecked}" onclick="toggleCheck('${w.id}')"></div>
                 <div class="word-info">
                     <span class="eng-text" style="font-size:${currentFontSize}px" onclick="play('${w.eng.replace(/'/g,"\\'")}')">${w.eng}</span>
                     <span class="pro-text">${w.pro}</span> </div>
@@ -234,8 +244,11 @@
     function drawPages() {
         const cont = document.getElementById('pageBtns'); cont.innerHTML = "";
         const total = Math.ceil(allWords.length / perPage);
+        if(total <= 1) return;
+        
         const start = (Math.ceil(nowPage/groupSize)-1)*groupSize+1;
         const end = Math.min(total, start + groupSize - 1);
+        
         if(start > 1) cont.appendChild(createPBtn("«", start-1, "nav"));
         for(let i=start; i<=end; i++) {
             const b = createPBtn(i, i); if(i===nowPage) b.classList.add('active'); cont.appendChild(b);
@@ -252,14 +265,46 @@
     function closeAdmin() { document.getElementById('adminPanel').style.display='none'; }
     
     function updateStatDisplay() {
-        const hits = Object.keys(checkedWords).filter(k => checkedWords[k]).length;
+        const currentBookWords = allWords.map(w => w.id);
+        const hits = Object.keys(checkedWords).filter(k => checkedWords[k] && currentBookWords.includes(k)).length;
         document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 단어 암기 중`;
     }
 
-    function saveBookName() { const n = document.getElementById('editBookName').value.trim(); if(n) { vocaBooks.find(b => b.id === currentBookId).name = n; saveAll(); } }
-    function addBook() { const n = document.getElementById('newBookName').value.trim(); if(n) { vocaBooks.push({id: Date.now(), name: n}); saveAll(); } }
-    function deleteBook() { if(vocaBooks.length > 1 && confirm("삭제?")) { vocaBooks = vocaBooks.filter(b => b.id !== currentBookId); currentBookId = vocaBooks[0].id; saveAll(); selectBook(currentBookId); } }
-    function saveAll() { localStorage.setItem('fcl_books_v5', JSON.stringify(vocaBooks)); drawDropdowns(); }
+    function saveBookName() { 
+        const n = document.getElementById('editBookName').value.trim(); 
+        if(n) { 
+            const book = vocaBooks.find(b => b.id === currentBookId);
+            if(book) { book.name = n; saveAll(); }
+        } 
+    }
+
+    function addBook() { 
+        const n = document.getElementById('newBookName').value.trim(); 
+        const u = document.getElementById('newBookUrl').value.trim(); 
+        if(n && u) { 
+            vocaBooks.push({id: Date.now(), name: n, url: u}); 
+            saveAll(); 
+            document.getElementById('newBookName').value = "";
+            document.getElementById('newBookUrl').value = "";
+            alert("새 단어장이 추가되었습니다.");
+        } else {
+            alert("이름과 API 주소를 모두 입력해주세요.");
+        }
+    }
+
+    function deleteBook() { 
+        if(vocaBooks.length > 1 && confirm("현재 단어장을 삭제하시겠습니까?")) { 
+            vocaBooks = vocaBooks.filter(b => b.id !== currentBookId); 
+            currentBookId = vocaBooks[0].id; 
+            saveAll(); 
+            selectBook(currentBookId); 
+        } 
+    }
+
+    function saveAll() { 
+        localStorage.setItem('fcl_books_v6', JSON.stringify(vocaBooks)); 
+        drawDropdowns(); 
+    }
 
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
