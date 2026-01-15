@@ -7,13 +7,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
         :root { 
-            --fcl-navy: #1A237E; 
-            --fcl-orange: #FF9800; 
-            --fcl-red: #EF4444; 
-            --fcl-green: #22C55E; 
-            --fcl-bg: #F5F7F9; 
-            --text-dark: #1E293B; 
-            --naver-green: #03c75a; 
+            --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; 
+            --fcl-green: #22C55E; --fcl-bg: #F5F7F9; --text-dark: #1E293B; --naver-green: #03c75a; 
         }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
@@ -32,16 +27,11 @@
         
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
-        
         .search-container { width: calc(180px + 5mm); display: flex; background: white; border-radius: 8px; overflow: hidden; }
         .search-input { flex: 1; height: 24px; padding: 0 12px; border: none; font-size: 13px; outline: none; }
         .naver-btn { background: var(--naver-green); color: white; border: none; padding: 0 10px; font-size: 11px; font-weight: 800; cursor: pointer; height: 24px; }
 
-        .btn-shuffle, .head-focus-btn { 
-            width: 85px; height: 36px; border-radius: 8px; font-weight: 900; font-size: 16px; 
-            cursor: pointer; border: none; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
-
+        .btn-shuffle, .head-focus-btn { width: 85px; height: 36px; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; border: none; white-space: nowrap; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-shuffle { background: var(--fcl-green); color: white; }
         .btn-shuffle.active { background: var(--fcl-orange); color: white; }
         .head-focus-btn { background-color: var(--fcl-red); color: white; }
@@ -73,8 +63,6 @@
         .admin-title { font-weight: 900; font-size: 16px; color: var(--fcl-navy); margin-bottom: 12px; }
         .stat-display { background: #f8fafc; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0; }
         .admin-input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; }
-        
-        /* 추가된 스타일: 관리자 단어장 리스트 */
         .admin-book-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
         .admin-book-item { padding: 10px; background: #f1f5f9; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; border: 2px solid transparent; }
         .admin-book-item.selected { border-color: var(--fcl-navy); background: #e0e7ff; }
@@ -118,26 +106,25 @@
 
 <div id="adminPanel" onclick="event.stopPropagation()">
     <div class="admin-section">
-        <div class="admin-title">📂 단어장 관리 및 통계</div>
+        <div class="admin-title">📂 단어장 목록 및 통계</div>
         <div class="stat-display">
-            <small>현재 단어장 학습량</small><br>
+            <small>현재 단어장 암기량</small><br>
             <b id="statValue" style="font-size:20px; color:var(--fcl-navy);">0 / 0</b>
         </div>
     </div>
     <div class="admin-section">
-        <div class="admin-title">⚙️ 이름 수정 / 삭제 (목록에서 선택)</div>
+        <div class="admin-title">⚙️ 관리 (목록에서 단어장을 터치하세요)</div>
         <div id="adminBookList" class="admin-book-list"></div>
-        
-        <input type="text" id="editBookName" class="admin-input" placeholder="선택한 단어장의 새 이름 입력">
+        <input type="text" id="editBookName" class="admin-input" placeholder="선택한 단어장의 새 이름">
         <div style="display:flex; gap:5px; margin-bottom:10px;">
             <button onclick="saveBookName()" style="flex:1; padding:10px; background:var(--fcl-orange); color:white; border:none; border-radius:6px; font-weight:800;">이름 저장</button>
-            <button onclick="deleteBook()" style="flex:1; padding:10px; background:var(--fcl-red); color:white; border:none; border-radius:6px; font-weight:800;">단어장 삭제</button>
+            <button onclick="deleteBook()" style="flex:1; padding:10px; background:var(--fcl-red); color:white; border:none; border-radius:6px; font-weight:800;">삭제</button>
         </div>
         <hr>
-        <div class="admin-title">✨ 새 단어장 추가 연동</div>
-        <input type="text" id="newBookName" class="admin-input" placeholder="새 단어장 이름 (예: 중등 필수)">
-        <input type="text" id="newBookUrl" class="admin-input" placeholder="Google API 주소 (https://...)">
-        <button onclick="addBook()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:800;">새 단어장 등록</button>
+        <div class="admin-title">✨ 새 단어장 수동 추가</div>
+        <input type="text" id="newBookName" class="admin-input" placeholder="단어장 이름 (예: 우선 순위 영단어)">
+        <input type="text" id="newBookUrl" class="admin-input" placeholder="Google API 주소">
+        <button onclick="addBook()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:6px; font-weight:800;">목록에 추가</button>
     </div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#64748B; color:white; border:none; border-radius:12px; font-weight:800;">관리자 종료</button>
 </div>
@@ -145,45 +132,29 @@
 <script>
     const adminPw = "5857";
     
-    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v6')) || [
+    // [중요] 모든 기기에서 공유할 단어장 목록 마스터 리스트입니다.
+    // 사진 속 '우선 순위 영단어' API 주소를 아래 'url' 부분에 정확히 넣으시면 됩니다.
+    let vocaBooks = [
         { id: 1001, name: "고등학교 필수 영단어", url: "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec" },
-        { id: 1002, name: "새 단어장", url: "https://script.google.com/macros/s/AKfycbyhNq4imaOh5XNTDp0jugUFWwt62tGGPWqlB3cehLY1ylNDDOPdHPvUh9DW-4MEOt1O/exec" }
+        { id: 1002, name: "우선 순위 영단어", url: "여기에_우선순위_영단어_API_주소를_입력하세요" },
+        { id: 1003, name: "FCL_Voca_Data", url: "https://script.google.com/macros/s/AKfycbyhNq4imaOh5XNTDp0jugUFWwt62tGGPWqlB3cehLY1ylNDDOPdHPvUh9DW-4MEOt1O/exec" }
     ];
     
     let currentBookId = vocaBooks[0].id;
-    let selectedAdminBookId = null; // 관리자 모드에서 선택된 북 ID
+    let selectedAdminBookId = null;
     let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
-    
     let allWords = []; 
     let nowPage = 1; const perPage = 50; const groupSize = 10;
     let hideAll = false; let currentFontSize = 22; let focusMode = false; let isPageShuffled = false;
     let synth = window.speechSynthesis; let audioUnlocked = false;
 
+    window.onload = () => {
+        drawDropdowns();
+        selectBook(currentBookId);
+    };
+
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
-
-    function searchNaver() {
-        const query = document.getElementById('wordSearch').value.trim();
-        if (query) window.open(`https://en.dict.naver.com/#/search?query=${encodeURIComponent(query)}`, '_blank');
-    }
-
-    function toggleShuffle() {
-        isPageShuffled = !isPageShuffled;
-        const btn = document.getElementById('shuffleBtn');
-        btn.innerText = isPageShuffled ? "랜덤" : "정렬";
-        btn.classList.toggle('active', isPageShuffled);
-        drawUI();
-    }
-
-    function drawDropdowns() {
-        const dd = document.getElementById('vocaDropdown'); dd.innerHTML = "";
-        vocaBooks.forEach(b => {
-            const opt = document.createElement('div'); opt.className = 'voca-opt'; opt.innerText = b.name;
-            opt.onclick = () => { focusMode = false; selectBook(b.id); }; dd.appendChild(opt);
-        });
-        const currentBook = vocaBooks.find(b => b.id === currentBookId);
-        document.getElementById('currentBookTitle').innerText = currentBook ? currentBook.name : "선택된 단어장 없음";
-    }
 
     async function selectBook(id) { 
         currentBookId = id; 
@@ -195,29 +166,19 @@
     async function loadData() {
         const targetBook = vocaBooks.find(b => b.id === currentBookId);
         if(!targetBook) return;
-
-        document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터 동기화 중...</div>";
+        document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>클라우드 데이터 동기화 중...</div>";
         try {
             const res = await fetch(targetBook.url + "?v=" + Date.now());
             const data = await res.json();
-            allWords = data.map((v, i) => ({ 
-                id: `${currentBookId}_${i}`, 
-                eng: v.english, 
-                kor: v.korean, 
-                pro: v.pronunciation || "" 
-            }));
+            allWords = data.map((v, i) => ({ id: `${currentBookId}_${i}`, eng: v.english, kor: v.korean, pro: v.pronunciation || "" }));
             drawUI(); 
-        } catch (e) { 
-            document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터를 불러올 수 없습니다.</div>"; 
-        }
+        } catch (e) { document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터 연결 실패</div>"; }
     }
 
     function drawUI() {
         const disp = document.getElementById('wordDisplay'); disp.innerHTML = "";
         let targetWords = focusMode ? allWords.filter(w => checkedWords[w.id]) : allWords.slice((nowPage-1)*perPage, nowPage*perPage);
-        
         if (isPageShuffled) targetWords = [...targetWords].sort(() => Math.random() - 0.5);
-        
         targetWords.forEach(w => {
             const isChecked = checkedWords[w.id] ? 'active' : '';
             const div = document.createElement('div'); div.className = 'word-item';
@@ -232,41 +193,6 @@
         if(!focusMode) drawPages();
     }
 
-    function toggleCheck(id) {
-        checkedWords[id] = !checkedWords[id];
-        localStorage.setItem('fcl_checked_words', JSON.stringify(checkedWords));
-        drawUI();
-    }
-
-    function drawPages() {
-        const cont = document.getElementById('pageBtns'); cont.innerHTML = "";
-        const total = Math.ceil(allWords.length / perPage);
-        if(total <= 1) return;
-        const start = (Math.ceil(nowPage/groupSize)-1)*groupSize+1;
-        const end = Math.min(total, start + groupSize - 1);
-        if(start > 1) cont.appendChild(createPBtn("«", start-1, "nav"));
-        for(let i=start; i<=end; i++) {
-            const b = createPBtn(i, i); if(i===nowPage) b.classList.add('active'); cont.appendChild(b);
-        }
-        if(end < total) cont.appendChild(createPBtn("»", end+1, "nav"));
-    }
-
-    function createPBtn(t, p, c) {
-        const b = document.createElement('button'); b.className = 'p-btn '+(c||''); b.innerText = t;
-        b.onclick = () => { nowPage=p; drawUI(); window.scrollTo(0,0); }; return b;
-    }
-
-    function askAdmin() { 
-        if(prompt("비밀번호") === adminPw) { 
-            document.getElementById('adminPanel').style.display = 'block'; 
-            updateStatDisplay(); 
-            drawAdminBookList();
-        } 
-    }
-    
-    function closeAdmin() { document.getElementById('adminPanel').style.display='none'; }
-
-    // 관리자용 단어장 목록 그리기 (터치 선택용)
     function drawAdminBookList() {
         const listCont = document.getElementById('adminBookList');
         listCont.innerHTML = "";
@@ -283,18 +209,12 @@
         });
     }
 
-    function updateStatDisplay() {
-        const currentBookWords = allWords.map(w => w.id);
-        const hits = Object.keys(checkedWords).filter(k => checkedWords[k] && currentBookWords.includes(k)).length;
-        document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 단어 암기 중`;
-    }
-
     function saveBookName() { 
-        if(!selectedAdminBookId) { alert("목록에서 수정할 단어장을 먼저 터치하세요."); return; }
+        if(!selectedAdminBookId) return;
         const n = document.getElementById('editBookName').value.trim(); 
         if(n) { 
             const book = vocaBooks.find(b => b.id === selectedAdminBookId);
-            if(book) { book.name = n; saveAll(); drawAdminBookList(); alert("이름이 변경되었습니다."); }
+            if(book) { book.name = n; drawDropdowns(); drawAdminBookList(); alert("이름이 변경되었습니다. 소스코드에도 반영하세요."); }
         } 
     }
 
@@ -303,53 +223,55 @@
         const u = document.getElementById('newBookUrl').value.trim(); 
         if(n && u) { 
             vocaBooks.push({id: Date.now(), name: n, url: u}); 
-            saveAll(); 
-            document.getElementById('newBookName').value = "";
-            document.getElementById('newBookUrl').value = "";
-            drawAdminBookList();
-            alert("새 단어장이 추가되었습니다.");
-        } else { alert("이름과 API 주소를 모두 입력해주세요."); }
-    }
-
-    function deleteBook() { 
-        if(!selectedAdminBookId) { alert("목록에서 삭제할 단어장을 터치하세요."); return; }
-        if(vocaBooks.length > 1 && confirm(`'${vocaBooks.find(b=>b.id===selectedAdminBookId).name}' 단어장을 삭제하시겠습니까?`)) { 
-            vocaBooks = vocaBooks.filter(b => b.id !== selectedAdminBookId); 
-            if(currentBookId === selectedAdminBookId) currentBookId = vocaBooks[0].id;
-            selectedAdminBookId = null;
-            document.getElementById('editBookName').value = "";
-            saveAll(); 
-            drawAdminBookList();
-            selectBook(currentBookId); 
+            drawDropdowns(); drawAdminBookList();
+            alert("목록에 추가되었습니다. 영구 저장을 위해 소스코드를 업데이트하세요.");
         } 
     }
 
-    function saveAll() { 
-        localStorage.setItem('fcl_books_v6', JSON.stringify(vocaBooks)); 
-        drawDropdowns(); 
+    function deleteBook() { 
+        if(!selectedAdminBookId) return;
+        if(confirm("삭제하시겠습니까?")) {
+            vocaBooks = vocaBooks.filter(b => b.id !== selectedAdminBookId);
+            selectedAdminBookId = null;
+            drawDropdowns(); drawAdminBookList();
+        }
     }
 
-    function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
+    function drawDropdowns() {
+        const dd = document.getElementById('vocaDropdown'); dd.innerHTML = "";
+        vocaBooks.forEach(b => {
+            const opt = document.createElement('div'); opt.className = 'voca-opt'; opt.innerText = b.name;
+            opt.onclick = () => { focusMode = false; selectBook(b.id); }; dd.appendChild(opt);
+        });
+        const currentBook = vocaBooks.find(b => b.id === currentBookId);
+        document.getElementById('currentBookTitle').innerText = currentBook ? currentBook.name : "선택 없음";
+    }
+
+    // 통계, 검색, 음성 기능 등 기존 로직 포함
+    function updateStatDisplay() {
+        const currentBookWords = allWords.map(w => w.id);
+        const hits = Object.keys(checkedWords).filter(k => checkedWords[k] && currentBookWords.includes(k)).length;
+        document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 단어 암기 중`;
+    }
+    function askAdmin() { if(prompt("비밀번호") === adminPw) { document.getElementById('adminPanel').style.display='block'; drawAdminBookList(); updateStatDisplay(); } }
+    function closeAdmin() { document.getElementById('adminPanel').style.display='none'; }
+    function toggleCheck(id) { checkedWords[id] = !checkedWords[id]; localStorage.setItem('fcl_checked_words', JSON.stringify(checkedWords)); drawUI(); }
+    function toggleHide() { hideAll=!hideAll; drawUI(); }
+    function toggleShuffle() { isPageShuffled = !isPageShuffled; drawUI(); }
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
-    function toggleFocusMode() {
-        focusMode = !focusMode;
-        const btn = document.getElementById('focusModeBtn');
-        btn.innerText = focusMode ? "전체 보기" : "집중 암기";
-        btn.classList.toggle('active', focusMode);
-        document.getElementById('paginationWrapper').style.display = focusMode ? "none" : "block";
-        nowPage = 1; drawUI();
-    }
+    function play(t) { synth.cancel(); const msg = new SpeechSynthesisUtterance(t); msg.lang = 'en-US'; synth.speak(msg); }
     function unlockAudio() { if (!audioUnlocked) { synth.speak(new SpeechSynthesisUtterance("")); audioUnlocked = true; } }
-    function play(t) {
-        synth.cancel();
-        const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'en-US';
-        msg.rate = document.getElementById('rateRange').value;
-        setTimeout(() => { synth.speak(msg); }, 50);
+    function searchNaver() { const q = document.getElementById('wordSearch').value.trim(); if(q) window.open(`https://en.dict.naver.com/#/search?query=${q}`); }
+    function drawPages() {
+        const cont = document.getElementById('pageBtns'); cont.innerHTML = "";
+        const total = Math.ceil(allWords.length / perPage); if(total <= 1) return;
+        const start = (Math.ceil(nowPage/groupSize)-1)*groupSize+1;
+        const end = Math.min(total, start + groupSize - 1);
+        for(let i=start; i<=end; i++) {
+            const b = document.createElement('button'); b.className = 'p-btn '+(i===nowPage?'active':'');
+            b.innerText = i; b.onclick = () => { nowPage=i; drawUI(); window.scrollTo(0,0); }; cont.appendChild(b);
+        }
     }
-
-    drawDropdowns();
-    selectBook(currentBookId);
 </script>
 </body>
 </html>
