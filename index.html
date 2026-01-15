@@ -9,7 +9,6 @@
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-bg: #F5F7F9; --text-dark: #1E293B; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        /* 헤더 & 드롭다운 */
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
         .voca-selector { position: relative; flex: 1; cursor: pointer; color: white; }
@@ -23,11 +22,9 @@
         .btn-hide { background-color: var(--fcl-orange); color: white; border: none; padding: 0 12px; height: 34px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         
-        /* 도구 (속도 조절 바 & 집중 암기 버튼) */
         .tool-row { display: flex; flex-direction: column; gap: 12px; }
         .tool-line { display: flex; align-items: center; gap: 8px; }
         .search-input { flex: 1; height: 36px; padding: 0 12px; border-radius: 8px; border: none; font-size: 14px; outline: none; }
-        /* 발음 엔진 교체로 인한 보이스 선택 숨김 처리 가능 (필요시 display:none) */
         .voice-select { flex: 1.5; height: 36px; border-radius: 8px; border: none; font-size: 12px; font-weight: 800; color: var(--fcl-navy); }
         .speed-control { display: flex; align-items: center; gap: 10px; color: white; font-size: 13px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 10px; }
         .speed-slider { flex: 1; height: 10px; accent-color: var(--fcl-red); cursor: pointer; }
@@ -36,14 +33,12 @@
         .font-control { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
         .font-btn { background: white; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; color: var(--fcl-navy); }
 
-        /* 페이지네이션 */
         .page-wrapper { padding: 15px 10px; background: white; border-bottom: 1px solid #E2E8F0; }
         .page-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
         .p-btn { min-width: 48px; height: 48px; border: 1px solid #E2E8F0; background: white; border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; }
         .p-btn.active { background-color: var(--fcl-navy); color: white; }
         .p-btn.nav { background-color: #F1F5F9; color: var(--fcl-navy); font-size: 24px; }
 
-        /* 단어 리스트 */
         .word-list { padding: 12px 10px; }
         .word-item { background: white; margin-bottom: 10px; border-radius: 15px; display: flex; align-items: center; padding: 18px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
@@ -54,7 +49,6 @@
         .kor-text { color: #0F172A; font-weight: 700; background: #F8FAFC; padding: 14px; border-radius: 12px; min-width: 110px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
         .kor-text.hidden { background: #EDF2F7 !important; color: transparent !important; }
 
-        /* 관리자 패널 */
         #adminPanel { display: none; background: white; padding: 25px; position: fixed; top: 15px; left: 10px; right: 10px; z-index: 3000; border: 3px solid var(--fcl-navy); border-radius: 20px; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.6); }
         .admin-section { border-bottom: 1px solid #eee; padding-bottom: 18px; margin-bottom: 18px; }
         .admin-title { font-weight: 900; font-size: 16px; color: var(--fcl-navy); margin-bottom: 12px; }
@@ -67,6 +61,8 @@
     </style>
 </head>
 <body onclick="closeDropdowns(); unlockAudio();">
+
+<audio id="ttsAudio" style="display:none;"></audio>
 
 <div class="sticky-header">
     <div class="top-row">
@@ -83,7 +79,7 @@
         <div class="tool-line">
             <input type="text" id="wordSearch" class="search-input" placeholder="검색..." oninput="searchWord()">
             <select id="voiceSelect" class="voice-select">
-                <option value="us">미국식 고품질 발음</option>
+                <option value="en-US">미국 고품질 발음</option>
             </select>
         </div>
         <div class="speed-control">
@@ -137,7 +133,6 @@
     let allWords = []; let nowPage = 1; const perPage = 50; const groupSize = 10;
     let hideAll = false; let currentFontSize = 22; let focusMode = false;
     let audioUnlocked = false;
-    let currentAudio = null;
 
     function toggleDropdown() { document.getElementById('vocaDropdown').classList.toggle('show'); }
     function closeDropdowns() { document.getElementById('vocaDropdown').classList.remove('show'); }
@@ -249,21 +244,36 @@
 
     function toggleHide() { hideAll=!hideAll; document.getElementById('hideBtn').innerText = hideAll?"뜻 보이기":"뜻 숨기기"; drawUI(); }
     function changeFontSize(d) { currentFontSize = Math.min(Math.max(currentFontSize+d,14),36); drawUI(); }
-    function unlockAudio() { if(!audioUnlocked){ new Audio().play(); audioUnlocked=true; } }
 
-    /* 수정된 발음 재생 함수: 구글 TTS 엔진 (미국식) 활용 */
-    function play(t) {
-        if (currentAudio) {
-            currentAudio.pause();
-            currentAudio = null;
+    // 모바일 오디오 잠금 해제 (최초 터치 시 빈 소리 재생)
+    function unlockAudio() {
+        if(!audioUnlocked){
+            const audio = document.getElementById('ttsAudio');
+            audio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="; // 0.1초 무음
+            audio.play().then(() => {
+                audioUnlocked = true;
+            }).catch(e => console.log('Unlock failed', e));
         }
+    }
+
+    // 발음 재생 함수 (모바일 호환성 강화 버전)
+    function play(t) {
+        const audio = document.getElementById('ttsAudio');
+        const lang = "en-US";
         
-        // 구글 번역 TTS URL (tl=en-US: 미국 영어)
-        const speed = document.getElementById('rateRange').value >= 0.8 ? 1 : 0.5; // 구글 TTS는 속도가 1 혹은 느리게만 지원됨
-        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=en-US&client=tw-ob`;
+        // 구글 TTS는 속도를 직접적인 파라미터로 제공하지 않지만, 브라우저 속도를 조절할 수 있습니다.
+        const speed = document.getElementById('rateRange').value;
         
-        currentAudio = new Audio(url);
-        currentAudio.play().catch(e => console.log("발음 재생 실패:", e));
+        // 네이버와 유사한 고품질 TTS URL
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(t)}&tl=${lang}&client=tw-ob`;
+        
+        audio.src = url;
+        audio.playbackRate = speed; // 사용자가 설정한 속도 반영
+        audio.play().catch(e => {
+            console.error("재생 오류:", e);
+            // 만약 차단되면 새 창으로라도 소리를 들려주는 대안 (선택 사항)
+            // window.open(url, '_blank');
+        });
     }
 
     drawDropdowns();
