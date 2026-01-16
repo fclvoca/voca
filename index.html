@@ -48,7 +48,7 @@
     <h2 style="margin-top:0;">⚙️ 관리자 모드</h2>
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:5px;">📊 암기 통계</div>
-        <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">0 / 0 완료</div>
+        <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">0 / 0 완료 (0%)</div>
     </div>
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:10px;">✏️ 단어장 이름 수정 / 삭제</div>
@@ -87,34 +87,48 @@
         try {
             const res = await fetch(book.url + "?v=" + Date.now());
             const data = await res.json();
-            words = data.map((v, i) => ({
-                uid: `${currentId}_${i}`,
-                eng: v.english || v.word || v.단어 || "",
-                kor: v.korean || v.meaning || v.뜻 || "",
-                pro: v.pronunciation || v.pron || ""
-            })).filter(w => w.eng);
+            
+            // [정렬 보장 로직] 데이터 가공 시 filter 전 index를 활용하거나, 제목행(english)을 명시적으로 제거
+            words = data.filter(v => (v.english || v.word || v.단어) && (v.english !== 'english'))
+                        .map((v, i) => ({
+                            uid: `${currentId}_${i}`, // 시트 순서대로 생성된 인덱스 기반 ID
+                            eng: v.english || v.word || v.단어 || "",
+                            kor: v.korean || v.meaning || v.뜻 || "",
+                            pro: v.pronunciation || v.pron || ""
+                        }));
             render();
-        } catch(e) { document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 연결 실패</p>"; }
+        } catch(e) { 
+            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 연결 실패</p>"; 
+        }
     }
 
     function render() {
         const disp = document.getElementById('display');
+        // page 기반 슬라이싱 전 정렬 상태가 words에 이미 저장되어 있음
         let target = isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50);
-        disp.innerHTML = target.map(w => `
-            <div class="word-item">
-                <div class="check ${checked[w.uid]?'active':''}" onclick="toggleCheck('${w.uid}')"></div>
-                <div class="eng" onclick="play('${w.eng.replace(/'/g,"")}')">${w.eng}<br><small style="color:#888; font-weight:normal;">${w.pro}</small></div>
-                <div class="kor ${isHidden?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
-            </div>
-        `).join('');
+        
+        if (target.length === 0 && isFocus) {
+            disp.innerHTML = "<p style='text-align:center; padding:50px;'>체크된 단어가 없습니다.</p>";
+        } else {
+            disp.innerHTML = target.map(w => `
+                <div class="word-item">
+                    <div class="check ${checked[w.uid]?'active':''}" onclick="toggleCheck('${w.uid}')"></div>
+                    <div class="eng" onclick="play('${w.eng.replace(/'/g,"")}')">${w.eng}<br><small style="color:#888; font-weight:normal;">${w.pro}</small></div>
+                    <div class="kor ${isHidden?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
+                </div>
+            `).join('');
+        }
+
+        // 통계 업데이트
         const hits = words.filter(w => checked[w.uid]).length;
-        document.getElementById('statBox').innerText = `${hits} / ${words.length} 완료`;
+        const percent = words.length > 0 ? Math.round((hits / words.length) * 100) : 0;
+        document.getElementById('statBox').innerText = `${hits} / ${words.length} 완료 (${percent}%)`;
         renderPages();
     }
 
     function renderPages() {
         const nav = document.getElementById('pageNav');
-        if(isFocus) { nav.style.display = 'none'; return; }
+        if(isFocus || words.length <= 50) { nav.style.display = 'none'; return; }
         nav.style.display = 'flex';
         const total = Math.ceil(words.length / 50);
         nav.innerHTML = Array.from({length: total}, (_, i) => i+1).map(p => 
@@ -128,16 +142,41 @@
     function askAdmin() { if(prompt("관리자 비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
     function changeBook(id) { currentId = Number(id); localStorage.setItem('fcl_last_id', currentId); page=1; isFocus=false; load(); }
+    
     function addBook() {
-        const n = document.getElementById('newName').value; const u = document.getElementById('newUrl').value;
-        if(n && u) { vocaBooks.push({id: Date.now(), name: n, url: u.trim()}); saveAll(); }
+        const n = document.getElementById('newName').value; 
+        const u = document.getElementById('newUrl').value;
+        if(n && u) { 
+            vocaBooks.push({id: Date.now(), name: n, url: u.trim()}); 
+            saveAll(); 
+        } else {
+            alert("이름과 URL을 모두 입력해주세요.");
+        }
     }
+    
     function saveName() {
         const b = vocaBooks.find(x => x.id === currentId);
-        if(b) { b.name = document.getElementById('editName').value; saveAll(); }
+        if(b) { 
+            b.name = document.getElementById('editName').value; 
+            saveAll(); 
+        }
     }
-    function deleteBook() { if(confirm("삭제할까요?")) { vocaBooks = vocaBooks.filter(x => x.id !== currentId); saveAll(); } }
-    function saveAll() { localStorage.setItem('fcl_voca_v15', JSON.stringify(vocaBooks)); location.reload(); }
+    
+    function deleteBook() { 
+        if(vocaBooks.length <= 1) return alert("최소 하나의 단어장은 유지해야 합니다.");
+        if(confirm("정말 삭제할까요?")) { 
+            vocaBooks = vocaBooks.filter(x => x.id !== currentId); 
+            currentId = vocaBooks[0].id;
+            saveAll(); 
+        } 
+    }
+    
+    function saveAll() { 
+        localStorage.setItem('fcl_voca_v15', JSON.stringify(vocaBooks)); 
+        localStorage.setItem('fcl_last_id', currentId);
+        location.reload(); 
+    }
+    
     function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
     function play(t) { synth.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; synth.speak(m); }
 
