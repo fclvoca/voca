@@ -27,7 +27,7 @@
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         .delete-target { color: var(--fcl-red); font-weight: bold; margin-bottom: 10px; font-size: 15px; }
-        .visitor-count { font-size: 18px; font-weight: 700; color: var(--fcl-navy); margin: 10px 0; text-align: center; }
+        .visitor-count { font-size: 28px; font-weight: 900; color: var(--fcl-navy); margin: 10px 0; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -51,13 +51,9 @@
     <h2 style="margin-top:0;">⚙️ 관리자 설정</h2>
     
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">👥 접속자 통계 (실시간)</div>
-        <div class="visitor-count">
-            <a href="https://info.flagcounter.com/8uE2">
-                <img src="https://s11.flagcounter.com/count2/8uE2/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_3/labels_0/pageviews_1/flags_0/percent_0/" alt="Flag Counter" border="0">
-            </a>
-        </div>
-        <div style="font-size: 11px; color: #888; text-align:center;">※ 위 이미지는 실시간 방문자 수를 나타냅니다. [cite: 2026-01-10]</div>
+        <div style="font-weight:bold; margin-bottom:5px;">📊 오늘 누적 학습자 수</div>
+        <div id="visitorBox" class="visitor-count">확인 중...</div>
+        <div style="font-size: 12px; color: #666;">※ 오늘 하루 동안 발생한 총 접속 횟수입니다. [cite: 2026-01-10]</div>
     </div>
 
     <div class="admin-box">
@@ -83,7 +79,8 @@
 
 <script>
     const adminPw = "5857"; 
-    const MASTER_URL = "https://script.google.com/macros/s/AKfycbyle04Cnb8H2zkJH6FtnS-ixPQxgiRSYLHX6YYgB5joitYouYWMSy0jfmMSBgrQ8gbo/exec";
+    // 선생님의 새 배포 주소가 적용되었습니다. [cite: 2026-01-10]
+    const MASTER_URL = "https://script.google.com/macros/s/AKfycbwJnhWQb_AAg1u1F031gY-zaEFOJ2dtGABOejeDcElsQmCoQD5bCggWtq5XOBiXl9vF/exec";
 
     let vocaBooks = [];
     let currentBook = null;
@@ -94,6 +91,7 @@
     let synth = window.speechSynthesis; let unlocked = false;
 
     async function initApp() {
+        trackVisitor(); 
         try {
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
             vocaBooks = await res.json();
@@ -106,6 +104,30 @@
             }
         } catch(e) {
             document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>연결 실패</p>";
+        }
+    }
+
+    async function trackVisitor() {
+        const today = new Date().toLocaleDateString('ko-KR', {timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'}).replace(/\. /g, '-').replace('.','');
+        try {
+            await fetch(MASTER_URL, {
+                method: "POST",
+                mode: 'no-cors',
+                body: JSON.stringify({ action: "visit", date: today })
+            });
+        } catch(e) { console.log("Track Error"); }
+    }
+
+    async function getVisitorStats() {
+        const today = new Date().toLocaleDateString('ko-KR', {timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'}).replace(/\. /g, '-').replace('.','');
+        const visitorBox = document.getElementById('visitorBox');
+        try {
+            const res = await fetch(`${MASTER_URL}?action=getVisit&date=${today}`);
+            const count = await res.text();
+            // 응답 데이터가 숫자인지 검증하여 출력 [cite: 2026-01-10]
+            visitorBox.innerText = (isNaN(count) || count.length > 10) ? "0 명" : count + " 명";
+        } catch(e) {
+            visitorBox.innerText = "데이터 로딩 중...";
         }
     }
 
@@ -209,6 +231,7 @@
     function askAdmin() { 
         if(prompt("관리자 비밀번호") === adminPw) {
             updateAdminDeleteText();
+            getVisitorStats(); 
             document.getElementById('adminPanel').style.display = 'block'; 
         }
     }
