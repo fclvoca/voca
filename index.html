@@ -27,10 +27,6 @@
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         .delete-target { color: var(--fcl-red); font-weight: bold; margin-bottom: 10px; font-size: 15px; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; text-align: center; }
-        .stat-item { background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
-        .stat-val { display: block; font-size: 18px; font-weight: bold; color: var(--fcl-navy); }
-        .stat-lbl { font-size: 11px; color: #666; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -52,39 +48,30 @@
 
 <div id="adminPanel">
     <h2 style="margin-top:0;">⚙️ 관리자 설정</h2>
-    
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">👤 실시간 접속자 통계 (명수)</div>
-        <div class="stat-grid">
-            <div class="stat-item"><span id="statDay" class="stat-val">-</span><span class="stat-lbl">오늘</span></div>
-            <div class="stat-item"><span id="statMonth" class="stat-val">-</span><span class="stat-lbl">이번 달</span></div>
-            <div class="stat-item"><span id="statYear" class="stat-val">-</span><span class="stat-lbl">올해</span></div>
-        </div>
+        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 데이터 통계 [cite: 2026-01-10]</div>
+        <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">로딩 중...</div>
     </div>
-
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:10px;">🔄 데이터 업데이트</div>
         <button onclick="refreshCurrentBook()" style="width:100%; padding:15px; background:var(--fcl-orange); color:white; border:none; border-radius:8px; font-weight:bold;">서버 데이터 다시 받기</button>
     </div>
-
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 등록</div>
+        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 등록 [cite: 2026-01-10]</div>
         <input type="text" id="newName" class="admin-input" placeholder="단어장 이름">
         <input type="text" id="newUrl" class="admin-input" placeholder="Google API 주소">
         <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장</button>
     </div>
-
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">🗑️ 단어장 삭제</div>
+        <div style="font-weight:bold; margin-bottom:5px;">🗑️ 단어장 삭제 [cite: 2026-01-10]</div>
         <div id="deleteTargetName" class="delete-target">선택된 단어장 없음</div>
         <button onclick="deleteBookFromServer()" style="width:100%; padding:15px; background:var(--fcl-red); color:white; border:none; border-radius:8px; font-weight:bold;">목록에서 영구 삭제</button>
     </div>
-
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:8px; font-weight:bold;">닫기</button>
 </div>
 
 <script>
-    const adminPw = "5857"; [cite: 2026-01-10]
+    const adminPw = "5857"; // [cite: 2026-01-10]
     const MASTER_URL = "https://script.google.com/macros/s/AKfycbyle04Cnb8H2zkJH6FtnS-ixPQxgiRSYLHX6YYgB5joitYouYWMSy0jfmMSBgrQ8gbo/exec";
 
     let vocaBooks = [];
@@ -95,22 +82,14 @@
     let page = 1; let isHidden = false; let isFocus = false;
     let synth = window.speechSynthesis; let unlocked = false;
 
-    // 접속자 ID 생성
-    let visitorId = localStorage.getItem('fcl_visitor_id');
-    if (!visitorId) {
-        visitorId = 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('fcl_visitor_id', visitorId);
-    }
-
     async function initApp() {
-        logVisit(); // 접속 기록
         try {
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
             vocaBooks = await res.json();
             if(vocaBooks.length > 0) {
                 const lastId = localStorage.getItem('fcl_last_id');
                 currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
-                updateAdminDeleteText();
+                updateAdminDeleteText(); // 관리자 페이지 텍스트 업데이트
                 renderMenu();
                 loadWords();
             }
@@ -119,29 +98,10 @@
         }
     }
 
-    async function logVisit() {
-        fetch(MASTER_URL, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({ action: "logVisit", uid: visitorId })
-        });
-    }
-
-    async function fetchVisitorStats() {
-        try {
-            const res = await fetch(MASTER_URL + "?action=getStats");
-            const stats = await res.json();
-            document.getElementById('statDay').innerText = stats.day;
-            document.getElementById('statMonth').innerText = stats.month;
-            document.getElementById('statYear').innerText = stats.year;
-        } catch(e) {
-            console.log("통계 로드 실패");
-        }
-    }
-
+    // 관리자 페이지 내 삭제 대상 텍스트를 업데이트하는 함수
     function updateAdminDeleteText() {
         if(currentBook) {
-            document.getElementById('deleteTargetName').innerText = `현재 삭제 대상: ${currentBook.name}`; [cite: 2026-01-10]
+            document.getElementById('deleteTargetName').innerText = `현재 삭제 대상: ${currentBook.name}`;
         }
     }
 
@@ -198,6 +158,7 @@
     function render(isShuffleMode = false) {
         const disp = document.getElementById('display');
         let target;
+
         if (isShuffleMode && shuffledWords) {
             target = shuffledWords;
         } else {
@@ -212,6 +173,10 @@
                 <div class="kor ${isHidden?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
             </div>
         `).join('');
+
+        const hits = words.filter(w => checked[w.uid]).length;
+        const percent = words.length > 0 ? Math.round((hits / words.length) * 100) : 0;
+        document.getElementById('statBox').innerText = `${hits} / ${words.length} 완료 (${percent}%)`;
         renderPages();
     }
 
@@ -225,21 +190,34 @@
         ).join('');
     }
 
-    function changePage(p) { page = p; shuffledWords = null; render(); window.scrollTo(0,0); }
+    function changePage(p) {
+        page = p;
+        shuffledWords = null;
+        render();
+        window.scrollTo(0,0);
+    }
+
     function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_chk_v15', JSON.stringify(checked)); render(!!shuffledWords); }
     function toggleHide() { isHidden = !isHidden; render(!!shuffledWords); }
     function toggleFocus() { isFocus = !isFocus; page=1; shuffledWords=null; document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
     
     function askAdmin() { 
-        if(prompt("관리자 비밀번호") === adminPw) { [cite: 2026-01-10]
-            updateAdminDeleteText();
-            fetchVisitorStats(); // 접속자 수 업데이트
+        if(prompt("관리자 비밀번호") === adminPw) {
+            updateAdminDeleteText(); // 패널 열 때 대상 이름 갱신
             document.getElementById('adminPanel').style.display = 'block'; 
         }
     }
     
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-    function changeBook(val) { currentBook = vocaBooks.find(b => b.name === val); localStorage.setItem('fcl_last_id', val); page=1; isFocus=false; shuffledWords=null; updateAdminDeleteText(); loadWords(); }
+    
+    function changeBook(val) { 
+        currentBook = vocaBooks.find(b => b.name === val); 
+        localStorage.setItem('fcl_last_id', val); 
+        page=1; isFocus=false; shuffledWords=null; 
+        updateAdminDeleteText(); // 단어장 변경 시 삭제 대상 텍스트 즉시 갱신
+        loadWords(); 
+    }
+    
     async function refreshCurrentBook() { if(confirm("데이터를 새로 고침하시겠습니까?")) { await loadWords(true); alert("완료!"); closeAdmin(); } }
     
     async function addBookToServer() {
@@ -251,9 +229,13 @@
     }
     
     async function deleteBookFromServer() {
-        if(!confirm(`'${currentBook.name}' 단어장을 삭제할까요?`)) return;
+        if(!confirm(`'${currentBook.name}' 단어장을 정말 삭제하시겠습니까?`)) return;
         const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name }) });
-        if(await res.text() === "Success") { localStorage.removeItem(`voca_data_${currentBook.name}`); location.reload(); }
+        if(await res.text() === "Success") { 
+            localStorage.removeItem(`voca_data_${currentBook.name}`); 
+            alert("삭제 완료");
+            location.reload(); 
+        }
     }
 
     function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
