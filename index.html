@@ -45,16 +45,16 @@
 <div id="display"></div>
 
 <div id="adminPanel">
-    <h2 style="margin-top:0;">⚙️ 관리자 패널</h2>
+    <h2 style="margin-top:0;">⚙️ 관리자 설정</h2>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 통계 (현재 단어장)</div>
-        <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">0 / 0 완료 (0%)</div>
+        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 데이터 통계</div>
+        <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">로딩 중...</div>
     </div>
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 파일 등록</div>
-        <input type="text" id="newName" class="admin-input" placeholder="단어장 이름 입력">
-        <input type="text" id="newUrl" class="admin-input" placeholder="Google API URL 입력">
-        <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">서버 시트에 저장</button>
+        <input type="text" id="newName" class="admin-input" placeholder="단어장 이름 (예: 수능특강)">
+        <input type="text" id="newUrl" class="admin-input" placeholder="Google API 웹앱 주소">
+        <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장</button>
     </div>
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:10px;">🗑️ 현재 단어장 삭제</div>
@@ -65,7 +65,8 @@
 
 <script>
     const adminPw = "5857";
-    const MASTER_URL = "https://script.google.com/macros/s/AKfycbwYOhSJkDqBR7K9iRVPP5eKYbSFS8JOBAHFDTTLcmm7_bNfaloajZe1UxcM1eg_OC1A/exec";
+    // 선생님께서 새로 주신 마스터 웹앱 주소입니다.
+    const MASTER_URL = "https://script.google.com/macros/s/AKfycbyle04Cnb8H2zkJH6FtnS-ixPQxgiRSYLHX6YYgB5joitYouYWMSy0jfmMSBgrQ8gbo/exec";
 
     let vocaBooks = [];
     let currentBook = null;
@@ -73,9 +74,9 @@
     let words = []; let page = 1; let isHidden = false; let isFocus = false;
     let synth = window.speechSynthesis; let unlocked = false;
 
+    // 앱 초기화: 마스터 시트에서 단어장 목록을 가져옴
     async function initApp() {
         try {
-            // 캐시 방지를 위해 타임스탬프 추가
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
             vocaBooks = await res.json();
             
@@ -84,9 +85,11 @@
                 currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
                 renderMenu();
                 loadWords();
+            } else {
+                document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>등록된 단어장이 없습니다. 관리자 모드에서 추가해주세요.</p>";
             }
         } catch(e) {
-            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>서버 데이터 연결 실패</p>";
+            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>서버 연결 실패. 마스터 주소를 확인하세요.</p>";
         }
     }
 
@@ -112,14 +115,15 @@
                         }));
             render();
         } catch(e) {
-            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>해당 단어장 파일을 열 수 없습니다.</p>";
+            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>단어장 파일 연결 실패 (API 주소 확인 필요)</p>";
         }
     }
 
+    // 마스터 시트에 새 단어장 추가
     async function addBookToServer() {
         const n = document.getElementById('newName').value;
         const u = document.getElementById('newUrl').value;
-        if(!n || !u) return alert("정보를 모두 입력하세요.");
+        if(!n || !u) return alert("이름과 주소를 모두 입력하세요.");
 
         const res = await fetch(MASTER_URL, {
             method: "POST",
@@ -127,19 +131,26 @@
         });
         const result = await res.text();
         if(result === "Success") {
-            alert("서버에 등록되었습니다. 모든 기기에 반영됩니다.");
+            alert("마스터 시트에 등록되었습니다. 모든 사용자의 목록에 나타납니다.");
             location.reload();
+        } else {
+            alert("등록 실패: " + result);
         }
     }
 
+    // 마스터 시트에서 단어장 삭제
     async function deleteBookFromServer() {
-        if(!confirm(`'${currentBook.name}' 단어장을 삭제할까요?`)) return;
-        await fetch(MASTER_URL, {
+        if(!confirm(`'${currentBook.name}' 단어장을 마스터 목록에서 영구 삭제할까요?`)) return;
+        const res = await fetch(MASTER_URL, {
             method: "POST",
             body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name })
         });
-        localStorage.removeItem('fcl_last_id');
-        location.reload();
+        const result = await res.text();
+        if(result === "Success") {
+            alert("삭제되었습니다.");
+            localStorage.removeItem('fcl_last_id');
+            location.reload();
+        }
     }
 
     function render() {
@@ -175,7 +186,7 @@
     function toggleFocus() { isFocus = !isFocus; page=1; document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
     function askAdmin() { if(prompt("관리자 비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-    function changeBook(val) { currentBook = vocaBooks.find(b => b.name === val); localStorage.setItem('fcl_last_id', val); page=1; loadWords(); }
+    function changeBook(val) { currentBook = vocaBooks.find(b => b.name === val); localStorage.setItem('fcl_last_id', val); page=1; isFocus=false; loadWords(); }
     function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
     function play(t) { synth.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; synth.speak(m); }
 
