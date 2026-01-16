@@ -7,7 +7,16 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-green: #2ECC71; --fcl-bg: #F5F7F9; }
-        body { font-family: 'Noto Sans KR', sans-serif; background: var(--fcl-bg); margin: 0; padding: 0; }
+        
+        /* 당겨서 새로고침 방지 핵심 코드 */
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background: var(--fcl-bg); 
+            margin: 0; 
+            padding: 0; 
+            overscroll-behavior-y: contain; 
+        }
+
         .header { position: sticky; top: 0; z-index: 1000; background: var(--fcl-navy); padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
         .voca-select { flex: 1; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 16px; border: none; height: 45px; }
@@ -79,7 +88,6 @@
 
 <script>
     const adminPw = "5857"; 
-    // 선생님의 최신 배포 주소로 업데이트되었습니다. [cite: 2026-01-10]
     const MASTER_URL = "https://script.google.com/macros/s/AKfycbwELdEsrM1oxvusuwbVxwWrd3cvJ-pSoyVJ_BnbQYOX4ixUt-orUnLJw8ra8MEjOddY/exec";
 
     let vocaBooks = [];
@@ -126,7 +134,6 @@
         try {
             const res = await fetch(`${MASTER_URL}?action=getVisit&date=${today}`);
             const count = await res.text();
-            // 서버 응답이 단어장 목록(JSON)일 경우를 대비한 방어 코드 [cite: 2026-01-10]
             visitorBox.innerText = (count.includes('[') || count.includes('{') || isNaN(count)) ? "0 명" : count + " 명";
         } catch(e) {
             visitorBox.innerText = "데이터 확인 불가";
