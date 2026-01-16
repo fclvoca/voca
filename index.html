@@ -53,7 +53,7 @@
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:5px;">📊 오늘 누적 학습자 수</div>
         <div id="visitorBox" class="visitor-count">확인 중...</div>
-        <div style="font-size: 12px; color: #666;">※ 오늘 하루 동안 발생한 총 접속 횟수입니다. [cite: 2026-01-10]</div>
+        <div style="font-size: 12px; color: #666;">※ 오늘 하루 동안 발생한 총 접속 횟수입니다.</div>
     </div>
 
     <div class="admin-box">
@@ -79,8 +79,8 @@
 
 <script>
     const adminPw = "5857"; 
-    // 선생님의 새 배포 주소가 적용되었습니다. [cite: 2026-01-10]
-    const MASTER_URL = "https://script.google.com/macros/s/AKfycbwJnhWQb_AAg1u1F031gY-zaEFOJ2dtGABOejeDcElsQmCoQD5bCggWtq5XOBiXl9vF/exec";
+    // 선생님의 최신 배포 주소로 업데이트되었습니다. [cite: 2026-01-10]
+    const MASTER_URL = "https://script.google.com/macros/s/AKfycbwELdEsrM1oxvusuwbVxwWrd3cvJ-pSoyVJ_BnbQYOX4ixUt-orUnLJw8ra8MEjOddY/exec";
 
     let vocaBooks = [];
     let currentBook = null;
@@ -108,7 +108,8 @@
     }
 
     async function trackVisitor() {
-        const today = new Date().toLocaleDateString('ko-KR', {timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'}).replace(/\. /g, '-').replace('.','');
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         try {
             await fetch(MASTER_URL, {
                 method: "POST",
@@ -119,15 +120,16 @@
     }
 
     async function getVisitorStats() {
-        const today = new Date().toLocaleDateString('ko-KR', {timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'}).replace(/\. /g, '-').replace('.','');
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const visitorBox = document.getElementById('visitorBox');
         try {
             const res = await fetch(`${MASTER_URL}?action=getVisit&date=${today}`);
             const count = await res.text();
-            // 응답 데이터가 숫자인지 검증하여 출력 [cite: 2026-01-10]
-            visitorBox.innerText = (isNaN(count) || count.length > 10) ? "0 명" : count + " 명";
+            // 서버 응답이 단어장 목록(JSON)일 경우를 대비한 방어 코드 [cite: 2026-01-10]
+            visitorBox.innerText = (count.includes('[') || count.includes('{') || isNaN(count)) ? "0 명" : count + " 명";
         } catch(e) {
-            visitorBox.innerText = "데이터 로딩 중...";
+            visitorBox.innerText = "데이터 확인 불가";
         }
     }
 
