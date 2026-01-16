@@ -10,7 +10,7 @@
         body { font-family: 'Noto Sans KR', sans-serif; background: var(--fcl-bg); margin: 0; padding: 0; }
         .header { position: sticky; top: 0; z-index: 1000; background: var(--fcl-navy); padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-        .voca-select { flex: 1; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 16px; border: none; }
+        .voca-select { flex: 1; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 16px; border: none; height: 45px; }
         .btn-gear { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; }
         .btn-row { display: flex; gap: 10px; }
         .btn-main { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
@@ -32,7 +32,9 @@
 
 <div class="header">
     <div class="top-row">
-        <select id="vocaMenu" class="voca-select" onchange="changeBook(this.value)"></select>
+        <select id="vocaMenu" class="voca-select" onchange="changeBook(this.value)">
+            <option>단어장 불러오는 중...</option>
+        </select>
         <button onclick="askAdmin()" class="btn-gear">⚙️</button>
     </div>
     <div class="btn-row">
@@ -47,64 +49,97 @@
 <div id="adminPanel">
     <h2 style="margin-top:0;">⚙️ 관리자 모드</h2>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">📊 암기 통계</div>
+        <div style="font-weight:bold; margin-bottom:5px;">📊 암기 통계 (현재 단어장)</div>
         <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">0 / 0 완료 (0%)</div>
     </div>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">✏️ 단어장 이름 수정 / 삭제</div>
+        <div style="font-weight:bold; margin-bottom:10px;">✏️ 현재 단어장 이름 수정 / 삭제</div>
         <input type="text" id="editName" class="admin-input">
         <div style="display:flex; gap:10px;">
-            <button onclick="saveName()" style="flex:1; padding:12px; background:var(--fcl-orange); border:none; color:white; border-radius:8px; font-weight:bold;">이름 저장</button>
-            <button onclick="deleteBook()" style="flex:1; padding:12px; background:var(--fcl-red); border:none; color:white; border-radius:8px; font-weight:bold;">단어장 삭제</button>
+            <button onclick="manageSheet('renameSheet')" style="flex:1; padding:12px; background:var(--fcl-orange); border:none; color:white; border-radius:8px; font-weight:bold;">이름 저장</button>
+            <button onclick="manageSheet('deleteSheet')" style="flex:1; padding:12px; background:var(--fcl-red); border:none; color:white; border-radius:8px; font-weight:bold;">단어장 삭제</button>
         </div>
     </div>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 추가 연동</div>
+        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 추가</div>
         <input type="text" id="newName" class="admin-input" placeholder="새 단어장 이름">
-        <input type="text" id="newUrl" class="admin-input" placeholder="Google API 주소 (https://...)">
-        <button onclick="addBook()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">새 단어장 등록</button>
+        <button onclick="manageSheet('addSheet')" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">서브 시트 생성 및 등록</button>
     </div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:8px; font-weight:bold;">닫기</button>
 </div>
 
 <script>
+    // 관리자 비밀번호
     const adminPw = "5857";
-    let vocaBooks = JSON.parse(localStorage.getItem('fcl_voca_v15')) || [
-        { id: 1, name: "고교필수영단어", url: "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec" }
-    ];
-    let currentId = Number(localStorage.getItem('fcl_last_id')) || vocaBooks[0].id;
-    let checked = JSON.parse(localStorage.getItem('fcl_chk_v15')) || {};
-    let words = []; let page = 1; let isHidden = false; let isFocus = false;
-    let synth = window.speechSynthesis; let unlocked = false;
+    // 마스터 시트와 통신하는 Apps Script URL (배포하신 URL을 여기에 넣으세요)
+    const MASTER_API_URL = "YOUR_APPS_SCRIPT_URL"; 
 
-    async function load() {
-        const book = vocaBooks.find(b => b.id === currentId) || vocaBooks[0];
-        currentId = book.id;
-        document.getElementById('vocaMenu').innerHTML = vocaBooks.map(b => `<option value="${b.id}" ${b.id===currentId?'selected':''}>${b.name}</option>`).join('');
-        document.getElementById('editName').value = book.name;
-        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 불러오는 중...</p>";
-        
+    let vocaBooks = [];
+    let currentId = localStorage.getItem('fcl_last_id') || "";
+    let checked = JSON.parse(localStorage.getItem('fcl_chk_v15')) || {};
+    let words = []; 
+    let page = 1; 
+    let isHidden = false; 
+    let isFocus = false;
+    let synth = window.speechSynthesis; 
+    let unlocked = false;
+
+    // 초기 실행: 서버에서 단어장 목록부터 가져옴
+    async function initApp() {
         try {
-            const res = await fetch(book.url + "?v=" + Date.now());
+            // 캐시 방지를 위해 타임스탬프 추가
+            const res = await fetch(`${MASTER_API_URL}?action=getSheets&t=${Date.now()}`);
+            const sheets = await res.json();
+            
+            // 시트 목록을 vocaBooks 형식으로 변환 (id는 이름으로 대체하거나 고유값 부여)
+            vocaBooks = sheets.filter(name => name !== "마스터" && name !== "Sheet1").map((name, index) => ({
+                id: name, 
+                name: name,
+                url: MASTER_API_URL // 모든 데이터 요청을 하나의 API로 통합 관리
+            }));
+
+            if (vocaBooks.length > 0) {
+                if (!currentId || !vocaBooks.find(b => b.id === currentId)) {
+                    currentId = vocaBooks[0].id;
+                }
+                loadWords();
+            } else {
+                document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>등록된 단어장이 없습니다.</p>";
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>서버 연결 실패</p>";
+        }
+    }
+
+    // 단어 데이터 불러오기
+    async function loadWords() {
+        const vocaMenu = document.getElementById('vocaMenu');
+        vocaMenu.innerHTML = vocaBooks.map(b => `<option value="${b.id}" ${b.id===currentId?'selected':''}>${b.name}</option>`).join('');
+        
+        document.getElementById('editName').value = currentId;
+        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>단어 데이터를 읽어오는 중...</p>";
+
+        try {
+            // 특정 시트의 데이터를 가져오기 위해 sheetName 파라미터 전달
+            const res = await fetch(`${MASTER_API_URL}?action=getWords&sheetName=${encodeURIComponent(currentId)}&t=${Date.now()}`);
             const data = await res.json();
             
-            // [정렬 보장 로직] 데이터 가공 시 filter 전 index를 활용하거나, 제목행(english)을 명시적으로 제거
             words = data.filter(v => (v.english || v.word || v.단어) && (v.english !== 'english'))
                         .map((v, i) => ({
-                            uid: `${currentId}_${i}`, // 시트 순서대로 생성된 인덱스 기반 ID
+                            uid: `${currentId}_${i}`,
                             eng: v.english || v.word || v.단어 || "",
                             kor: v.korean || v.meaning || v.뜻 || "",
                             pro: v.pronunciation || v.pron || ""
                         }));
             render();
-        } catch(e) { 
-            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 연결 실패</p>"; 
+        } catch(e) {
+            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>시트 데이터를 찾을 수 없습니다.</p>";
         }
     }
 
     function render() {
         const disp = document.getElementById('display');
-        // page 기반 슬라이싱 전 정렬 상태가 words에 이미 저장되어 있음
         let target = isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50);
         
         if (target.length === 0 && isFocus) {
@@ -119,7 +154,6 @@
             `).join('');
         }
 
-        // 통계 업데이트
         const hits = words.filter(w => checked[w.uid]).length;
         const percent = words.length > 0 ? Math.round((hits / words.length) * 100) : 0;
         document.getElementById('statBox').innerText = `${hits} / ${words.length} 완료 (${percent}%)`;
@@ -136,51 +170,55 @@
         ).join('');
     }
 
+    // 관리자 기능 서버 통신
+    async function manageSheet(action) {
+        let name = "";
+        let oldName = currentId;
+
+        if (action === 'addSheet') {
+            name = document.getElementById('newName').value;
+            if (!name) return alert("이름을 입력하세요.");
+        } else if (action === 'renameSheet') {
+            name = document.getElementById('editName').value;
+        } else if (action === 'deleteSheet') {
+            if (!confirm("정말 삭제하시겠습니까?")) return;
+            name = currentId;
+        }
+
+        const payload = {
+            pw: adminPw,
+            action: action,
+            name: name,
+            oldName: oldName
+        };
+
+        try {
+            const res = await fetch(MASTER_API_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            const result = await res.text();
+            if (result === "Success") {
+                alert("반영되었습니다.");
+                location.reload();
+            } else {
+                alert("오류 발생: " + result);
+            }
+        } catch (e) {
+            alert("서버 연결에 실패했습니다.");
+        }
+    }
+
     function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_chk_v15', JSON.stringify(checked)); render(); }
     function toggleHide() { isHidden = !isHidden; render(); }
     function toggleFocus() { isFocus = !isFocus; page=1; document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
     function askAdmin() { if(prompt("관리자 비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-    function changeBook(id) { currentId = Number(id); localStorage.setItem('fcl_last_id', currentId); page=1; isFocus=false; load(); }
-    
-    function addBook() {
-        const n = document.getElementById('newName').value; 
-        const u = document.getElementById('newUrl').value;
-        if(n && u) { 
-            vocaBooks.push({id: Date.now(), name: n, url: u.trim()}); 
-            saveAll(); 
-        } else {
-            alert("이름과 URL을 모두 입력해주세요.");
-        }
-    }
-    
-    function saveName() {
-        const b = vocaBooks.find(x => x.id === currentId);
-        if(b) { 
-            b.name = document.getElementById('editName').value; 
-            saveAll(); 
-        }
-    }
-    
-    function deleteBook() { 
-        if(vocaBooks.length <= 1) return alert("최소 하나의 단어장은 유지해야 합니다.");
-        if(confirm("정말 삭제할까요?")) { 
-            vocaBooks = vocaBooks.filter(x => x.id !== currentId); 
-            currentId = vocaBooks[0].id;
-            saveAll(); 
-        } 
-    }
-    
-    function saveAll() { 
-        localStorage.setItem('fcl_voca_v15', JSON.stringify(vocaBooks)); 
-        localStorage.setItem('fcl_last_id', currentId);
-        location.reload(); 
-    }
-    
+    function changeBook(id) { currentId = id; localStorage.setItem('fcl_last_id', currentId); page=1; isFocus=false; loadWords(); }
     function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
     function play(t) { synth.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; synth.speak(m); }
 
-    load();
+    initApp();
 </script>
 </body>
 </html>
