@@ -27,7 +27,7 @@
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         .delete-target { color: var(--fcl-red); font-weight: bold; margin-bottom: 10px; font-size: 15px; }
-        .visitor-count { font-size: 24px; font-weight: 900; color: var(--fcl-navy); margin: 10px 0; }
+        .visitor-count { font-size: 18px; font-weight: 700; color: var(--fcl-navy); margin: 10px 0; text-align: center; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -51,9 +51,13 @@
     <h2 style="margin-top:0;">⚙️ 관리자 설정</h2>
     
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">👥 일일 접속자 수 (Unique Visitors)</div>
-        <div id="visitorBox" class="visitor-count">계산 중...</div>
-        <div style="font-size: 12px; color: #666;">※ 오늘 처음 접속한 사용자 기준 (중복 제외)</div>
+        <div style="font-weight:bold; margin-bottom:10px;">👥 접속자 통계 (실시간)</div>
+        <div class="visitor-count">
+            <a href="https://info.flagcounter.com/8uE2">
+                <img src="https://s11.flagcounter.com/count2/8uE2/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_3/labels_0/pageviews_1/flags_0/percent_0/" alt="Flag Counter" border="0">
+            </a>
+        </div>
+        <div style="font-size: 11px; color: #888; text-align:center;">※ 위 이미지는 실시간 방문자 수를 나타냅니다. [cite: 2026-01-10]</div>
     </div>
 
     <div class="admin-box">
@@ -90,7 +94,6 @@
     let synth = window.speechSynthesis; let unlocked = false;
 
     async function initApp() {
-        trackVisitor(); 
         try {
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
             vocaBooks = await res.json();
@@ -103,38 +106,6 @@
             }
         } catch(e) {
             document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>연결 실패</p>";
-        }
-    }
-
-    async function trackVisitor() {
-        const today = new Date().toISOString().slice(0, 10);
-        try {
-            await fetch(MASTER_URL, {
-                method: "POST",
-                mode: 'no-cors',
-                body: JSON.stringify({ action: "visit", date: today })
-            });
-        } catch(e) { console.log("Visitor track error"); }
-    }
-
-    // HTML만 수정하여 숫자 여부를 판별하는 로직
-    async function getVisitorStats() {
-        const today = new Date().toISOString().slice(0, 10);
-        const visitorBox = document.getElementById('visitorBox');
-        try {
-            const res = await fetch(`${MASTER_URL}?action=getVisit&date=${today}`);
-            const countText = await res.text();
-            
-            // 응답이 숫자가 아니거나 너무 길면(JSON 리스트 등) 필터링
-            if (isNaN(countText) || countText.trim() === "" || countText.length > 10) {
-                visitorBox.innerText = "설정 확인 필요";
-                visitorBox.style.fontSize = "16px";
-            } else {
-                visitorBox.innerText = countText + " 명";
-                visitorBox.style.fontSize = "24px";
-            }
-        } catch(e) {
-            visitorBox.innerText = "확인 불가";
         }
     }
 
@@ -238,7 +209,6 @@
     function askAdmin() { 
         if(prompt("관리자 비밀번호") === adminPw) {
             updateAdminDeleteText();
-            getVisitorStats(); 
             document.getElementById('adminPanel').style.display = 'block'; 
         }
     }
