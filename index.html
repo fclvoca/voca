@@ -26,6 +26,7 @@
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .sync-badge { font-size: 11px; color: #aaa; margin-top: 5px; display: block; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -47,25 +48,29 @@
 <div id="adminPanel">
     <h2 style="margin-top:0;">⚙️ 관리자 설정</h2>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 데이터 통계</div>
+        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 데이터 통계 [cite: 2026-01-10]</div>
         <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">로딩 중...</div>
     </div>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 파일 등록</div>
+        <div style="font-weight:bold; margin-bottom:10px;">🔄 데이터 강제 새로고침</div>
+        <p style="font-size: 12px; color: #666;">시트 내용이 변경되었다면 아래 버튼을 누르세요.</p>
+        <button onclick="refreshCurrentBook()" style="width:100%; padding:15px; background:var(--fcl-orange); color:white; border:none; border-radius:8px; font-weight:bold;">현재 단어장 다시 받기</button>
+    </div>
+    <div class="admin-box">
+        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 파일 등록 [cite: 2026-01-10]</div>
         <input type="text" id="newName" class="admin-input" placeholder="단어장 이름 (예: 수능특강)">
         <input type="text" id="newUrl" class="admin-input" placeholder="Google API 웹앱 주소">
         <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장</button>
     </div>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">🗑️ 현재 단어장 삭제</div>
+        <div style="font-weight:bold; margin-bottom:10px;">🗑️ 현재 단어장 삭제 [cite: 2026-01-10]</div>
         <button onclick="deleteBookFromServer()" style="width:100%; padding:15px; background:var(--fcl-red); color:white; border:none; border-radius:8px; font-weight:bold;">목록에서 영구 삭제</button>
     </div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:8px; font-weight:bold;">닫기</button>
 </div>
 
 <script>
-    const adminPw = "5857";
-    // 선생님께서 새로 주신 마스터 웹앱 주소입니다.
+    const adminPw = "5857"; // [cite: 2026-01-10]
     const MASTER_URL = "https://script.google.com/macros/s/AKfycbyle04Cnb8H2zkJH6FtnS-ixPQxgiRSYLHX6YYgB5joitYouYWMSy0jfmMSBgrQ8gbo/exec";
 
     let vocaBooks = [];
@@ -74,9 +79,9 @@
     let words = []; let page = 1; let isHidden = false; let isFocus = false;
     let synth = window.speechSynthesis; let unlocked = false;
 
-    // 앱 초기화: 마스터 시트에서 단어장 목록을 가져옴
     async function initApp() {
         try {
+            // 1. 단어장 목록(마스터)은 용량이 작으므로 매번 가져와도 무방함
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
             vocaBooks = await res.json();
             
@@ -84,7 +89,7 @@
                 const lastId = localStorage.getItem('fcl_last_id');
                 currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
                 renderMenu();
-                loadWords();
+                loadWords(); // 단어 데이터 로드 시작
             } else {
                 document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>등록된 단어장이 없습니다. 관리자 모드에서 추가해주세요.</p>";
             }
@@ -99,9 +104,22 @@
         ).join('');
     }
 
-    async function loadWords() {
+    // [핵심 로직] 저장된 데이터가 있으면 바로 쓰고, 없으면 다운로드함
+    async function loadWords(forceRefresh = false) {
         if(!currentBook) return;
-        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>단어 데이터를 불러오는 중...</p>";
+        
+        const cacheKey = `voca_data_${currentBook.name}`;
+        const cachedData = localStorage.getItem(cacheKey);
+
+        // 강제 새로고침이 아니고 캐시된 데이터가 있다면 바로 표시 (속도 개선의 핵심)
+        if (!forceRefresh && cachedData) {
+            words = JSON.parse(cachedData);
+            render();
+            return;
+        }
+
+        // 데이터가 없거나 새로고침이 필요한 경우에만 fetch 실행
+        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>서버에서 단어를 내려받는 중... (최초 1회)</p>";
         
         try {
             const res = await fetch(currentBook.url + "?v=" + Date.now());
@@ -113,13 +131,24 @@
                             kor: v.korean || v.meaning || v.뜻 || "",
                             pro: v.pronunciation || v.pron || ""
                         }));
+            
+            // 내려받은 데이터를 로컬에 저장 (다음번엔 fetch 안 함)
+            localStorage.setItem(cacheKey, JSON.stringify(words));
             render();
         } catch(e) {
-            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>단어장 파일 연결 실패 (API 주소 확인 필요)</p>";
+            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>단어장 파일 연결 실패</p>";
         }
     }
 
-    // 마스터 시트에 새 단어장 추가
+    // 관리자가 버튼을 눌렀을 때만 최신 데이터로 갱신
+    async function refreshCurrentBook() {
+        if(confirm("서버에서 최신 단어 정보를 다시 가져올까요?")) {
+            await loadWords(true);
+            alert("업데이트 완료!");
+            closeAdmin();
+        }
+    }
+
     async function addBookToServer() {
         const n = document.getElementById('newName').value;
         const u = document.getElementById('newUrl').value;
@@ -131,14 +160,13 @@
         });
         const result = await res.text();
         if(result === "Success") {
-            alert("마스터 시트에 등록되었습니다. 모든 사용자의 목록에 나타납니다.");
+            alert("마스터 시트에 등록되었습니다.");
             location.reload();
         } else {
             alert("등록 실패: " + result);
         }
     }
 
-    // 마스터 시트에서 단어장 삭제
     async function deleteBookFromServer() {
         if(!confirm(`'${currentBook.name}' 단어장을 마스터 목록에서 영구 삭제할까요?`)) return;
         const res = await fetch(MASTER_URL, {
@@ -147,6 +175,7 @@
         });
         const result = await res.text();
         if(result === "Success") {
+            localStorage.removeItem(`voca_data_${currentBook.name}`); // 캐시도 삭제
             alert("삭제되었습니다.");
             localStorage.removeItem('fcl_last_id');
             location.reload();
