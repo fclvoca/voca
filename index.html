@@ -47,18 +47,17 @@
         .kor { background: #f0f4f8; padding: 10px; border-radius: 8px; font-weight: 700; min-width: 90px; text-align: center; cursor: pointer; font-size: 16px; }
         .kor.hidden { color: transparent; background: #e2e8f0; }
         
-        /* 페이지 박스 크기 축소 수정 */
         .page-nav { display: flex; overflow-x: auto; padding: 10px 5px; gap: 4px; background: white; border-bottom: 1px solid #ddd; }
         .p-btn { 
-            padding: 5px 8px; /* 여백을 줄여 박스 크기 축소 */
+            padding: 5px 8px; 
             border: 1px solid #ddd; 
             background: white; 
             border-radius: 5px; 
             font-weight: bold; 
             flex-shrink: 0; 
-            font-size: 16px; /* 숫자 크기는 유지 */
-            min-width: 32px; /* 최소 너비 축소 */
-            height: 32px; /* 높이 축소 */
+            font-size: 16px; 
+            min-width: 32px; 
+            height: 32px; 
             text-align: center;
             display: flex;
             align-items: center;
@@ -96,7 +95,6 @@
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:5px;">📊 오늘 누적 학습자 수</div>
         <div id="visitorBox" class="visitor-count">확인 중...</div>
-        <div style="font-size: 12px; color: #666;">※ 오늘 하루 동안 발생한 총 접속 횟수입니다.</div>
     </div>
 
     <div class="admin-box">
@@ -105,10 +103,11 @@
     </div>
 
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 등록 / 이름 수정</div>
-        <input type="text" id="newName" class="admin-input" placeholder="단어장 이름">
-        <input type="text" id="newUrl" class="admin-input" placeholder="Google API 주소">
-        <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장/수정</button>
+        <div style="font-weight:bold; margin-bottom:10px;">➕ 단어장 이름 수정 / 새 등록</div>
+        <div style="font-size:12px; color:var(--fcl-red); margin-bottom:8px;">* 이름을 수정하려면 현재 단어장을 선택한 상태에서 새 이름을 입력하세요.</div>
+        <input type="text" id="newName" class="admin-input" placeholder="새 단어장 이름">
+        <input type="text" id="newUrl" class="admin-input" placeholder="Google API 주소 (수정 시 미입력 가능)">
+        <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">이름 수정 또는 신규 저장</button>
     </div>
 
     <div class="admin-box">
@@ -147,7 +146,7 @@
             if (JSON.stringify(vocaBooks) !== JSON.stringify(latestBooks)) {
                 vocaBooks = latestBooks;
                 localStorage.setItem('fcl_voca_list', JSON.stringify(vocaBooks));
-                if (!currentBook) setupInitialBook();
+                setupInitialBook();
                 renderMenu();
             }
         } catch(e) {
@@ -192,7 +191,9 @@
 
     function updateAdminDeleteText() {
         if(currentBook) {
-            document.getElementById('deleteTargetName').innerText = `현재 삭제 대상: ${currentBook.name}`;
+            document.getElementById('deleteTargetName').innerText = `현재 선택: ${currentBook.name}`;
+            // 이름 수정 필드에 현재 이름 미리 넣어주기 (사용자 편의성)
+            document.getElementById('newName').placeholder = `새 이름 (현재: ${currentBook.name})`;
         }
     }
 
@@ -209,17 +210,15 @@
         const cacheKey = `voca_data_${currentBook.name}`;
         const cachedData = localStorage.getItem(cacheKey);
 
-        if (cachedData) {
+        if (cachedData && !forceRefresh) {
             words = JSON.parse(cachedData);
             shuffledWords = null;
             updateShuffleBtn();
             render();
-            if (!forceRefresh) return;
+            return;
         }
 
-        if (!cachedData) {
-            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 로드 중...</p>";
-        }
+        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 로드 중...</p>";
 
         try {
             const res = await fetch(currentBook.url + "?v=" + Date.now());
@@ -232,13 +231,11 @@
                             pro: v.pronunciation || v.pron || ""
                         }));
             
-            if (JSON.stringify(words) !== JSON.stringify(newWords)) {
-                words = newWords;
-                localStorage.setItem(cacheKey, JSON.stringify(words));
-                shuffledWords = null;
-                updateShuffleBtn();
-                render();
-            }
+            words = newWords;
+            localStorage.setItem(cacheKey, JSON.stringify(words));
+            shuffledWords = null;
+            updateShuffleBtn();
+            render();
         } catch(e) {
             if (!words.length) {
                 document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>로드 실패</p>";
@@ -259,9 +256,7 @@
 
     function updateShuffleBtn() {
         const btn = document.getElementById('shuffleBtn');
-        if (btn) {
-            btn.innerText = shuffledWords ? "원래 순서" : "순서 섞기";
-        }
+        if (btn) btn.innerText = shuffledWords ? "원래 순서" : "순서 섞기";
     }
 
     function render(isShuffleMode = false) {
@@ -334,13 +329,35 @@
     async function refreshCurrentBook() { if(confirm("데이터를 새로 고침하시겠습니까?")) { await loadWords(true); alert("완료!"); closeAdmin(); } }
     
     async function addBookToServer() {
-        const n = document.getElementById('newName').value;
-        const u = document.getElementById('newUrl').value;
-        if(!n || !u) return alert("입력 오류");
-        const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", name: n, url: u.trim() }) });
+        const newName = document.getElementById('newName').value;
+        let newUrl = document.getElementById('newUrl').value;
+        
+        if(!newName) return alert("단어장 이름을 입력해주세요.");
+        
+        // 이름 수정 모드: URL이 비어있으면 현재 선택된 단어장의 URL을 사용
+        if(!newUrl && currentBook) {
+            newUrl = currentBook.url;
+        } else if(!newUrl) {
+            return alert("URL 주소를 입력해주세요.");
+        }
+
+        const payload = {
+            pw: adminPw,
+            action: "add",
+            oldName: currentBook ? currentBook.name : "", // 기존 이름 전달 (수정용)
+            name: newName,
+            url: newUrl.trim()
+        };
+
+        const res = await fetch(MASTER_URL, { 
+            method: "POST", 
+            body: JSON.stringify(payload) 
+        });
+
         if(await res.text() === "Success") { 
             localStorage.removeItem('fcl_voca_list');
-            alert("등록/수정 완료"); 
+            localStorage.setItem('fcl_last_id', newName); // 수정된 이름으로 자동 선택되도록 설정
+            alert("이름 수정/등록이 완료되었습니다."); 
             location.reload(); 
         }
     }
