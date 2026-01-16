@@ -37,9 +37,9 @@
         <button onclick="askAdmin()" class="btn-gear">⚙️</button>
     </div>
     <div class="btn-row">
-        <button onclick="toggleHide()" class="btn-main" style="background:var(--fcl-orange)">뜻 숨기기</button>
         <button onclick="shuffleCurrentPage()" class="btn-main" style="background:var(--fcl-green)">순서 섞기</button>
         <button onclick="toggleFocus()" id="focusBtn" class="btn-main" style="background:var(--fcl-red)">집중 암기</button>
+        <button onclick="toggleHide()" class="btn-main" style="background:var(--fcl-orange)">뜻 숨기기</button>
     </div>
 </div>
 
@@ -48,30 +48,35 @@
 
 <div id="adminPanel">
     <h2 style="margin-top:0;">⚙️ 관리자 설정</h2>
+    
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 데이터 통계 [cite: 2026-01-10]</div>
+        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 데이터 통계</div>
         <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">로딩 중...</div>
     </div>
+
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:10px;">🔄 데이터 업데이트</div>
         <button onclick="refreshCurrentBook()" style="width:100%; padding:15px; background:var(--fcl-orange); color:white; border:none; border-radius:8px; font-weight:bold;">서버 데이터 다시 받기</button>
     </div>
+
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 등록 [cite: 2026-01-10]</div>
-        <input type="text" id="newName" class="admin-input" placeholder="단어장 이름">
+        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 등록 / 이름 수정</div>
+        <input type="text" id="newName" class="admin-input" placeholder="단어장 이름 (수정 시 기존 이름 입력)">
         <input type="text" id="newUrl" class="admin-input" placeholder="Google API 주소">
-        <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장</button>
+        <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장/수정</button>
     </div>
+
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">🗑️ 단어장 삭제 [cite: 2026-01-10]</div>
+        <div style="font-weight:bold; margin-bottom:5px;">🗑️ 단어장 삭제</div>
         <div id="deleteTargetName" class="delete-target">선택된 단어장 없음</div>
         <button onclick="deleteBookFromServer()" style="width:100%; padding:15px; background:var(--fcl-red); color:white; border:none; border-radius:8px; font-weight:bold;">목록에서 영구 삭제</button>
     </div>
+
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:8px; font-weight:bold;">닫기</button>
 </div>
 
 <script>
-    const adminPw = "5857"; // [cite: 2026-01-10]
+    const adminPw = "5857"; 
     const MASTER_URL = "https://script.google.com/macros/s/AKfycbyle04Cnb8H2zkJH6FtnS-ixPQxgiRSYLHX6YYgB5joitYouYWMSy0jfmMSBgrQ8gbo/exec";
 
     let vocaBooks = [];
@@ -89,7 +94,7 @@
             if(vocaBooks.length > 0) {
                 const lastId = localStorage.getItem('fcl_last_id');
                 currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
-                updateAdminDeleteText(); // 관리자 페이지 텍스트 업데이트
+                updateAdminDeleteText();
                 renderMenu();
                 loadWords();
             }
@@ -98,7 +103,6 @@
         }
     }
 
-    // 관리자 페이지 내 삭제 대상 텍스트를 업데이트하는 함수
     function updateAdminDeleteText() {
         if(currentBook) {
             document.getElementById('deleteTargetName').innerText = `현재 삭제 대상: ${currentBook.name}`;
@@ -203,7 +207,7 @@
     
     function askAdmin() { 
         if(prompt("관리자 비밀번호") === adminPw) {
-            updateAdminDeleteText(); // 패널 열 때 대상 이름 갱신
+            updateAdminDeleteText();
             document.getElementById('adminPanel').style.display = 'block'; 
         }
     }
@@ -214,7 +218,7 @@
         currentBook = vocaBooks.find(b => b.name === val); 
         localStorage.setItem('fcl_last_id', val); 
         page=1; isFocus=false; shuffledWords=null; 
-        updateAdminDeleteText(); // 단어장 변경 시 삭제 대상 텍스트 즉시 갱신
+        updateAdminDeleteText();
         loadWords(); 
     }
     
@@ -225,7 +229,7 @@
         const u = document.getElementById('newUrl').value;
         if(!n || !u) return alert("입력 오류");
         const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", name: n, url: u.trim() }) });
-        if(await res.text() === "Success") { alert("등록 완료"); location.reload(); }
+        if(await res.text() === "Success") { alert("등록/수정 완료"); location.reload(); }
     }
     
     async function deleteBookFromServer() {
