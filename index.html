@@ -8,13 +8,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
         :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-green: #2ECC71; --fcl-bg: #F5F7F9; }
         
-        /* 당겨서 새로고침 방지 핵심 코드 */
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
             background: var(--fcl-bg); 
             margin: 0; 
             padding: 0; 
-            overscroll-behavior-y: contain; 
+            overscroll-behavior-y: contain; /* 당겨서 새로고침 방지 */
         }
 
         .header { position: sticky; top: 0; z-index: 1000; background: var(--fcl-navy); padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
@@ -99,38 +98,59 @@
     let synth = window.speechSynthesis; let unlocked = false;
 
     async function initApp() {
+        // 1. 비동기 처리: 방문자 추적은 결과와 상관없이 백그라운드에서 실행
         trackVisitor(); 
+
+        // 2. 로컬 캐시 확인: 서버 호출 전에 기존 단어장 목록이 있는지 확인
+        const cachedBooks = localStorage.getItem('fcl_voca_list');
+        if (cachedBooks) {
+            vocaBooks = JSON.parse(cachedBooks);
+            setupInitialBook();
+        }
+
         try {
+            // 3. 서버에서 최신 목록 가져오기 (백그라운드 업데이트)
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
-            vocaBooks = await res.json();
-            if(vocaBooks.length > 0) {
-                const lastId = localStorage.getItem('fcl_last_id');
-                currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
-                updateAdminDeleteText();
+            const latestBooks = await res.json();
+            
+            if (JSON.stringify(vocaBooks) !== JSON.stringify(latestBooks)) {
+                vocaBooks = latestBooks;
+                localStorage.setItem('fcl_voca_list', JSON.stringify(vocaBooks));
+                if (!currentBook) setupInitialBook();
                 renderMenu();
-                loadWords();
             }
         } catch(e) {
-            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>연결 실패</p>";
+            if (!vocaBooks.length) {
+                document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>연결 실패</p>";
+            }
         }
+    }
+
+    function setupInitialBook() {
+        if (!vocaBooks.length) return;
+        const lastId = localStorage.getItem('fcl_last_id');
+        currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
+        updateAdminDeleteText();
+        renderMenu();
+        loadWords();
     }
 
     async function trackVisitor() {
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        try {
-            await fetch(MASTER_URL, {
-                method: "POST",
-                mode: 'no-cors',
-                body: JSON.stringify({ action: "visit", date: today })
-            });
-        } catch(e) { console.log("Track Error"); }
+        // 패치 응답을 기다리지 않음으로써 로딩 지연 방지
+        fetch(MASTER_URL, {
+            method: "POST",
+            mode: 'no-cors',
+            body: JSON.stringify({ action: "visit", date: today })
+        }).catch(e => {});
     }
 
     async function getVisitorStats() {
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const visitorBox = document.getElementById('visitorBox');
+        visitorBox.innerText = "조회 중...";
         try {
             const res = await fetch(`${MASTER_URL}?action=getVisit&date=${today}`);
             const count = await res.text();
@@ -147,8 +167,10 @@
     }
 
     function renderMenu() {
-        document.getElementById('vocaMenu').innerHTML = vocaBooks.map(b => 
-            `<option value="${b.name}" ${b.name===currentBook.name?'selected':''}>${b.name}</option>`
+        const menu = document.getElementById('vocaMenu');
+        if (!menu) return;
+        menu.innerHTML = vocaBooks.map(b => 
+            `<option value="${b.name}" ${currentBook && b.name===currentBook.name?'selected':''}>${b.name}</option>`
         ).join('');
     }
 
@@ -157,29 +179,40 @@
         const cacheKey = `voca_data_${currentBook.name}`;
         const cachedData = localStorage.getItem(cacheKey);
 
-        if (!forceRefresh && cachedData) {
+        // 캐시 데이터가 있으면 먼저 화면에 뿌림 (즉시 실행)
+        if (cachedData) {
             words = JSON.parse(cachedData);
             shuffledWords = null;
             render();
-            return;
+            if (!forceRefresh) return; // 강제 새로고침이 아니면 여기서 종료
         }
 
-        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 로드 중...</p>";
+        if (!cachedData) {
+            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 로드 중...</p>";
+        }
+
         try {
             const res = await fetch(currentBook.url + "?v=" + Date.now());
             const data = await res.json();
-            words = data.filter(v => (v.english || v.word || v.단어) && (v.english !== 'english'))
+            const newWords = data.filter(v => (v.english || v.word || v.단어) && (v.english !== 'english'))
                         .map((v, i) => ({
                             uid: `${currentBook.name}_${i}`,
                             eng: v.english || v.word || v.단어 || "",
                             kor: v.korean || v.meaning || v.뜻 || "",
                             pro: v.pronunciation || v.pron || ""
                         }));
-            localStorage.setItem(cacheKey, JSON.stringify(words));
-            shuffledWords = null;
-            render();
+            
+            // 데이터가 달라졌을 때만 새로고침
+            if (JSON.stringify(words) !== JSON.stringify(newWords)) {
+                words = newWords;
+                localStorage.setItem(cacheKey, JSON.stringify(words));
+                shuffledWords = null;
+                render();
+            }
         } catch(e) {
-            document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>로드 실패</p>";
+            if (!words.length) {
+                document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>로드 실패</p>";
+            }
         }
     }
 
@@ -262,7 +295,11 @@
         const u = document.getElementById('newUrl').value;
         if(!n || !u) return alert("입력 오류");
         const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", name: n, url: u.trim() }) });
-        if(await res.text() === "Success") { alert("등록/수정 완료"); location.reload(); }
+        if(await res.text() === "Success") { 
+            localStorage.removeItem('fcl_voca_list'); // 목록 갱신을 위해 캐시 삭제
+            alert("등록/수정 완료"); 
+            location.reload(); 
+        }
     }
     
     async function deleteBookFromServer() {
@@ -270,6 +307,7 @@
         const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name }) });
         if(await res.text() === "Success") { 
             localStorage.removeItem(`voca_data_${currentBook.name}`); 
+            localStorage.removeItem('fcl_voca_list');
             alert("삭제 완료");
             location.reload(); 
         }
