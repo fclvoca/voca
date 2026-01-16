@@ -13,7 +13,7 @@
             background: var(--fcl-bg); 
             margin: 0; 
             padding: 0; 
-            overscroll-behavior-y: contain; /* 당겨서 새로고침 방지 */
+            overscroll-behavior-y: contain; 
         }
 
         .header { position: sticky; top: 0; z-index: 1000; background: var(--fcl-navy); padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
@@ -46,7 +46,7 @@
         <button onclick="askAdmin()" class="btn-gear">⚙️</button>
     </div>
     <div class="btn-row">
-        <button onclick="shuffleCurrentPage()" class="btn-main" style="background:var(--fcl-green)">순서 섞기</button>
+        <button onclick="toggleShuffle()" id="shuffleBtn" class="btn-main" style="background:var(--fcl-green)">순서 섞기</button>
         <button onclick="toggleFocus()" id="focusBtn" class="btn-main" style="background:var(--fcl-red)">집중 암기</button>
         <button onclick="toggleHide()" class="btn-main" style="background:var(--fcl-orange)">뜻 숨기기</button>
     </div>
@@ -98,10 +98,7 @@
     let synth = window.speechSynthesis; let unlocked = false;
 
     async function initApp() {
-        // 1. 비동기 처리: 방문자 추적은 결과와 상관없이 백그라운드에서 실행
         trackVisitor(); 
-
-        // 2. 로컬 캐시 확인: 서버 호출 전에 기존 단어장 목록이 있는지 확인
         const cachedBooks = localStorage.getItem('fcl_voca_list');
         if (cachedBooks) {
             vocaBooks = JSON.parse(cachedBooks);
@@ -109,7 +106,6 @@
         }
 
         try {
-            // 3. 서버에서 최신 목록 가져오기 (백그라운드 업데이트)
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
             const latestBooks = await res.json();
             
@@ -138,7 +134,6 @@
     async function trackVisitor() {
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        // 패치 응답을 기다리지 않음으로써 로딩 지연 방지
         fetch(MASTER_URL, {
             method: "POST",
             mode: 'no-cors',
@@ -179,12 +174,12 @@
         const cacheKey = `voca_data_${currentBook.name}`;
         const cachedData = localStorage.getItem(cacheKey);
 
-        // 캐시 데이터가 있으면 먼저 화면에 뿌림 (즉시 실행)
         if (cachedData) {
             words = JSON.parse(cachedData);
             shuffledWords = null;
+            updateShuffleBtn();
             render();
-            if (!forceRefresh) return; // 강제 새로고침이 아니면 여기서 종료
+            if (!forceRefresh) return;
         }
 
         if (!cachedData) {
@@ -202,11 +197,11 @@
                             pro: v.pronunciation || v.pron || ""
                         }));
             
-            // 데이터가 달라졌을 때만 새로고침
             if (JSON.stringify(words) !== JSON.stringify(newWords)) {
                 words = newWords;
                 localStorage.setItem(cacheKey, JSON.stringify(words));
                 shuffledWords = null;
+                updateShuffleBtn();
                 render();
             }
         } catch(e) {
@@ -216,17 +211,25 @@
         }
     }
 
-    function shuffleCurrentPage() {
-        if (isFocus) {
-            let targetWords = words.filter(w => checked[w.uid]);
-            shuffledWords = [...targetWords].sort(() => Math.random() - 0.5);
+    // 순서 섞기 토글 기능
+    function toggleShuffle() {
+        if (shuffledWords) {
+            // 이미 섞인 상태라면 해제 (원래 순서로)
+            shuffledWords = null;
         } else {
-            let start = (page - 1) * 50;
-            let end = page * 50;
-            let pageWords = words.slice(start, end);
-            shuffledWords = [...pageWords].sort(() => Math.random() - 0.5);
+            // 섞이지 않은 상태라면 섞기 실행
+            let targetWords = isFocus ? words.filter(w => checked[w.uid]) : words.slice((page - 1) * 50, page * 50);
+            shuffledWords = [...targetWords].sort(() => Math.random() - 0.5);
         }
-        render(true);
+        updateShuffleBtn();
+        render(!!shuffledWords);
+    }
+
+    function updateShuffleBtn() {
+        const btn = document.getElementById('shuffleBtn');
+        if (btn) {
+            btn.innerText = shuffledWords ? "원래 순서" : "순서 섞기";
+        }
     }
 
     function render(isShuffleMode = false) {
@@ -235,7 +238,6 @@
         if (isShuffleMode && shuffledWords) {
             target = shuffledWords;
         } else {
-            shuffledWords = null;
             target = isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50);
         }
         
@@ -262,13 +264,21 @@
     function changePage(p) {
         page = p;
         shuffledWords = null;
+        updateShuffleBtn();
         render();
         window.scrollTo(0,0);
     }
 
     function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_chk_v15', JSON.stringify(checked)); render(!!shuffledWords); }
     function toggleHide() { isHidden = !isHidden; render(!!shuffledWords); }
-    function toggleFocus() { isFocus = !isFocus; page=1; shuffledWords=null; document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
+    function toggleFocus() { 
+        isFocus = !isFocus; 
+        page=1; 
+        shuffledWords=null; 
+        updateShuffleBtn();
+        document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; 
+        render(); 
+    }
     
     function askAdmin() { 
         if(prompt("관리자 비밀번호") === adminPw) {
@@ -285,6 +295,7 @@
         localStorage.setItem('fcl_last_id', val); 
         page=1; isFocus=false; shuffledWords=null; 
         updateAdminDeleteText();
+        updateShuffleBtn();
         loadWords(); 
     }
     
@@ -296,7 +307,7 @@
         if(!n || !u) return alert("입력 오류");
         const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", name: n, url: u.trim() }) });
         if(await res.text() === "Success") { 
-            localStorage.removeItem('fcl_voca_list'); // 목록 갱신을 위해 캐시 삭제
+            localStorage.removeItem('fcl_voca_list');
             alert("등록/수정 완료"); 
             location.reload(); 
         }
