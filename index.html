@@ -26,6 +26,7 @@
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .delete-target { color: var(--fcl-red); font-weight: bold; margin-bottom: 10px; font-size: 15px; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -62,8 +63,9 @@
         <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장</button>
     </div>
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:10px;">🗑️ 단어장 삭제 [cite: 2026-01-10]</div>
-        <button onclick="deleteBookFromServer()" style="width:100%; padding:15px; background:var(--fcl-red); color:white; border:none; border-radius:8px; font-weight:bold;">현재 단어장 삭제</button>
+        <div style="font-weight:bold; margin-bottom:5px;">🗑️ 단어장 삭제 [cite: 2026-01-10]</div>
+        <div id="deleteTargetName" class="delete-target">선택된 단어장 없음</div>
+        <button onclick="deleteBookFromServer()" style="width:100%; padding:15px; background:var(--fcl-red); color:white; border:none; border-radius:8px; font-weight:bold;">목록에서 영구 삭제</button>
     </div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:8px; font-weight:bold;">닫기</button>
 </div>
@@ -76,7 +78,7 @@
     let currentBook = null;
     let checked = JSON.parse(localStorage.getItem('fcl_chk_v15')) || {};
     let words = []; 
-    let shuffledWords = null; // 셔플된 데이터를 담을 변수
+    let shuffledWords = null;
     let page = 1; let isHidden = false; let isFocus = false;
     let synth = window.speechSynthesis; let unlocked = false;
 
@@ -87,11 +89,19 @@
             if(vocaBooks.length > 0) {
                 const lastId = localStorage.getItem('fcl_last_id');
                 currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
+                updateAdminDeleteText(); // 관리자 페이지 텍스트 업데이트
                 renderMenu();
                 loadWords();
             }
         } catch(e) {
             document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>연결 실패</p>";
+        }
+    }
+
+    // 관리자 페이지 내 삭제 대상 텍스트를 업데이트하는 함수
+    function updateAdminDeleteText() {
+        if(currentBook) {
+            document.getElementById('deleteTargetName').innerText = `현재 삭제 대상: ${currentBook.name}`;
         }
     }
 
@@ -108,7 +118,7 @@
 
         if (!forceRefresh && cachedData) {
             words = JSON.parse(cachedData);
-            shuffledWords = null; // 새 단어장 로드 시 셔플 초기화
+            shuffledWords = null;
             render();
             return;
         }
@@ -132,20 +142,17 @@
         }
     }
 
-    // [신규 기능] 현재 페이지의 단어만 섞기
     function shuffleCurrentPage() {
         if (isFocus) {
-            // 집중 암기 모드일 때는 체크된 단어들만 섞음
             let targetWords = words.filter(w => checked[w.uid]);
             shuffledWords = [...targetWords].sort(() => Math.random() - 0.5);
         } else {
-            // 일반 모드일 때는 현재 페이지의 50개만 추출해서 섞음
             let start = (page - 1) * 50;
             let end = page * 50;
             let pageWords = words.slice(start, end);
             shuffledWords = [...pageWords].sort(() => Math.random() - 0.5);
         }
-        render(true); // 셔플 모드로 렌더링
+        render(true);
     }
 
     function render(isShuffleMode = false) {
@@ -155,7 +162,7 @@
         if (isShuffleMode && shuffledWords) {
             target = shuffledWords;
         } else {
-            shuffledWords = null; // 셔플 모드가 아니면 초기화
+            shuffledWords = null;
             target = isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50);
         }
         
@@ -185,7 +192,7 @@
 
     function changePage(p) {
         page = p;
-        shuffledWords = null; // 페이지 이동 시 셔플 해제
+        shuffledWords = null;
         render();
         window.scrollTo(0,0);
     }
@@ -193,12 +200,26 @@
     function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_chk_v15', JSON.stringify(checked)); render(!!shuffledWords); }
     function toggleHide() { isHidden = !isHidden; render(!!shuffledWords); }
     function toggleFocus() { isFocus = !isFocus; page=1; shuffledWords=null; document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
-    function askAdmin() { if(prompt("관리자 비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
-    function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-    function changeBook(val) { currentBook = vocaBooks.find(b => b.name === val); localStorage.setItem('fcl_last_id', val); page=1; isFocus=false; shuffledWords=null; loadWords(); }
     
-    // 관리자용 서버 업데이트 함수들
+    function askAdmin() { 
+        if(prompt("관리자 비밀번호") === adminPw) {
+            updateAdminDeleteText(); // 패널 열 때 대상 이름 갱신
+            document.getElementById('adminPanel').style.display = 'block'; 
+        }
+    }
+    
+    function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+    
+    function changeBook(val) { 
+        currentBook = vocaBooks.find(b => b.name === val); 
+        localStorage.setItem('fcl_last_id', val); 
+        page=1; isFocus=false; shuffledWords=null; 
+        updateAdminDeleteText(); // 단어장 변경 시 삭제 대상 텍스트 즉시 갱신
+        loadWords(); 
+    }
+    
     async function refreshCurrentBook() { if(confirm("데이터를 새로 고침하시겠습니까?")) { await loadWords(true); alert("완료!"); closeAdmin(); } }
+    
     async function addBookToServer() {
         const n = document.getElementById('newName').value;
         const u = document.getElementById('newUrl').value;
@@ -206,10 +227,15 @@
         const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", name: n, url: u.trim() }) });
         if(await res.text() === "Success") { alert("등록 완료"); location.reload(); }
     }
+    
     async function deleteBookFromServer() {
-        if(!confirm("삭제할까요?")) return;
+        if(!confirm(`'${currentBook.name}' 단어장을 정말 삭제하시겠습니까?`)) return;
         const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name }) });
-        if(await res.text() === "Success") { localStorage.removeItem(`voca_data_${currentBook.name}`); location.reload(); }
+        if(await res.text() === "Success") { 
+            localStorage.removeItem(`voca_data_${currentBook.name}`); 
+            alert("삭제 완료");
+            location.reload(); 
+        }
     }
 
     function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
