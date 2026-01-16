@@ -6,7 +6,14 @@
     <title>FCL Smart Voca</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
-        :root { --fcl-navy: #1A237E; --fcl-orange: #FF9800; --fcl-red: #EF4444; --fcl-green: #2ECC71; --fcl-bg: #F5F7F9; }
+        :root { 
+            --fcl-navy: #1A237E; 
+            --fcl-orange: #FF9800; 
+            --fcl-red: #EF4444; 
+            --fcl-green: #2ECC71; 
+            --fcl-purple: #9C27B0; /* 보라색 변수 추가 */
+            --fcl-bg: #F5F7F9; 
+        }
         
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
@@ -47,18 +54,17 @@
         .kor { background: #f0f4f8; padding: 10px; border-radius: 8px; font-weight: 700; min-width: 90px; text-align: center; cursor: pointer; font-size: 16px; }
         .kor.hidden { color: transparent; background: #e2e8f0; }
         
-        /* 페이지 박스 크기 축소 수정 */
         .page-nav { display: flex; overflow-x: auto; padding: 10px 5px; gap: 4px; background: white; border-bottom: 1px solid #ddd; }
         .p-btn { 
-            padding: 5px 8px; /* 여백을 줄여 박스 크기 축소 */
+            padding: 5px 8px; 
             border: 1px solid #ddd; 
             background: white; 
             border-radius: 5px; 
             font-weight: bold; 
             flex-shrink: 0; 
-            font-size: 16px; /* 숫자 크기는 유지 */
-            min-width: 32px; /* 최소 너비 축소 */
-            height: 32px; /* 높이 축소 */
+            font-size: 16px; 
+            min-width: 32px; 
+            height: 32px; 
             text-align: center;
             display: flex;
             align-items: center;
@@ -83,7 +89,7 @@
     <div class="btn-row">
         <button onclick="toggleShuffle()" id="shuffleBtn" class="btn-main" style="background:var(--fcl-green)">순서 섞기</button>
         <button onclick="toggleFocus()" id="focusBtn" class="btn-main" style="background:var(--fcl-red)">집중 암기</button>
-        <button onclick="toggleHide()" class="btn-main" style="background:var(--fcl-violet)">뜻 숨기기</button>
+        <button onclick="toggleHide()" class="btn-main" style="background:var(--fcl-purple)">뜻 숨기기</button>
     </div>
 </div>
 
@@ -273,93 +279,4 @@
             target = isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50);
         }
         
-        disp.innerHTML = target.map(w => `
-            <div class="word-item">
-                <div class="check ${checked[w.uid]?'active':''}" onclick="toggleCheck('${w.uid}')"></div>
-                <div class="eng" onclick="play('${w.eng.replace(/'/g,"")}')">${w.eng}<br><small style="color:#888; font-weight:normal;">${w.pro}</small></div>
-                <div class="kor ${isHidden?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
-            </div>
-        `).join('');
-        renderPages();
-    }
-
-    function renderPages() {
-        const nav = document.getElementById('pageNav');
-        if(isFocus || words.length <= 50) { nav.style.display = 'none'; return; }
-        nav.style.display = 'flex';
-        const total = Math.ceil(words.length / 50);
-        nav.innerHTML = Array.from({length: total}, (_, i) => i+1).map(p => 
-            `<button class="p-btn ${p==page?'active':''}" onclick="changePage(${p})">${p}</button>`
-        ).join('');
-    }
-
-    function changePage(p) {
-        page = p;
-        shuffledWords = null;
-        updateShuffleBtn();
-        render();
-        window.scrollTo(0,0);
-    }
-
-    function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_chk_v15', JSON.stringify(checked)); render(!!shuffledWords); }
-    function toggleHide() { isHidden = !isHidden; render(!!shuffledWords); }
-    function toggleFocus() { 
-        isFocus = !isFocus; 
-        page=1; 
-        shuffledWords=null; 
-        updateShuffleBtn();
-        document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; 
-        render(); 
-    }
-    
-    function askAdmin() { 
-        if(prompt("관리자 비밀번호") === adminPw) {
-            updateAdminDeleteText();
-            getVisitorStats(); 
-            document.getElementById('adminPanel').style.display = 'block'; 
-        }
-    }
-    
-    function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-    
-    function changeBook(val) { 
-        currentBook = vocaBooks.find(b => b.name === val); 
-        localStorage.setItem('fcl_last_id', val); 
-        page=1; isFocus=false; shuffledWords=null; 
-        updateAdminDeleteText();
-        updateShuffleBtn();
-        loadWords(); 
-    }
-    
-    async function refreshCurrentBook() { if(confirm("데이터를 새로 고침하시겠습니까?")) { await loadWords(true); alert("완료!"); closeAdmin(); } }
-    
-    async function addBookToServer() {
-        const n = document.getElementById('newName').value;
-        const u = document.getElementById('newUrl').value;
-        if(!n || !u) return alert("입력 오류");
-        const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", name: n, url: u.trim() }) });
-        if(await res.text() === "Success") { 
-            localStorage.removeItem('fcl_voca_list');
-            alert("등록/수정 완료"); 
-            location.reload(); 
-        }
-    }
-    
-    async function deleteBookFromServer() {
-        if(!confirm(`'${currentBook.name}' 단어장을 정말 삭제하시겠습니까?`)) return;
-        const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name }) });
-        if(await res.text() === "Success") { 
-            localStorage.removeItem(`voca_data_${currentBook.name}`); 
-            localStorage.removeItem('fcl_voca_list');
-            alert("삭제 완료");
-            location.reload(); 
-        }
-    }
-
-    function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
-    function play(t) { synth.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; synth.speak(m); }
-
-    initApp();
-</script>
-</body>
-</html>
+        disp.innerHTML =
