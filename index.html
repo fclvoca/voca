@@ -27,6 +27,7 @@
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         .delete-target { color: var(--fcl-red); font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .visitor-count { font-size: 24px; font-weight: 900; color: var(--fcl-navy); margin: 10px 0; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -50,8 +51,9 @@
     <h2 style="margin-top:0;">⚙️ 관리자 설정</h2>
     
     <div class="admin-box">
-        <div style="font-weight:bold; margin-bottom:5px;">📊 학습 데이터 통계</div>
-        <div id="statBox" style="font-size: 18px; font-weight: bold; color: var(--fcl-navy);">로딩 중...</div>
+        <div style="font-weight:bold; margin-bottom:5px;">👥 일일 접속자 수 (Unique Visitors)</div>
+        <div id="visitorBox" class="visitor-count">계산 중...</div>
+        <div style="font-size: 12px; color: #666;">※ 오늘 처음 접속한 사용자 기준 (중복 제외)</div>
     </div>
 
     <div class="admin-box">
@@ -61,7 +63,7 @@
 
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 등록 / 이름 수정</div>
-        <input type="text" id="newName" class="admin-input" placeholder="단어장 이름 (수정 시 기존 이름 입력)">
+        <input type="text" id="newName" class="admin-input" placeholder="단어장 이름">
         <input type="text" id="newUrl" class="admin-input" placeholder="Google API 주소">
         <button onclick="addBookToServer()" style="width:100%; padding:15px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">마스터 시트에 저장/수정</button>
     </div>
@@ -88,6 +90,7 @@
     let synth = window.speechSynthesis; let unlocked = false;
 
     async function initApp() {
+        trackVisitor(); // 접속자 추적 실행
         try {
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
             vocaBooks = await res.json();
@@ -100,6 +103,31 @@
             }
         } catch(e) {
             document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>연결 실패</p>";
+        }
+    }
+
+    // 접속자 추적 로직 (Unique Visitors 파악을 위한 서버 통신 모사)
+    async function trackVisitor() {
+        const today = new Date().toISOString().slice(0, 10);
+        // 마스터 서버에 접속 기록 전송 (액션: visit)
+        try {
+            await fetch(MASTER_URL, {
+                method: "POST",
+                mode: 'no-cors',
+                body: JSON.stringify({ action: "visit", date: today })
+            });
+        } catch(e) { console.log("Visitor track error"); }
+    }
+
+    // 관리자 페이지 로드 시 접속자 수 가져오기
+    async function getVisitorStats() {
+        const today = new Date().toISOString().slice(0, 10);
+        try {
+            const res = await fetch(`${MASTER_URL}?action=getVisit&date=${today}`);
+            const count = await res.text();
+            document.getElementById('visitorBox').innerText = `${count} 명`;
+        } catch(e) {
+            document.getElementById('visitorBox').innerText = "확인 불가";
         }
     }
 
@@ -162,7 +190,6 @@
     function render(isShuffleMode = false) {
         const disp = document.getElementById('display');
         let target;
-
         if (isShuffleMode && shuffledWords) {
             target = shuffledWords;
         } else {
@@ -177,10 +204,6 @@
                 <div class="kor ${isHidden?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
             </div>
         `).join('');
-
-        const hits = words.filter(w => checked[w.uid]).length;
-        const percent = words.length > 0 ? Math.round((hits / words.length) * 100) : 0;
-        document.getElementById('statBox').innerText = `${hits} / ${words.length} 완료 (${percent}%)`;
         renderPages();
     }
 
@@ -208,6 +231,7 @@
     function askAdmin() { 
         if(prompt("관리자 비밀번호") === adminPw) {
             updateAdminDeleteText();
+            getVisitorStats(); // 관리자 페이지 열 때 접속자 수 업데이트
             document.getElementById('adminPanel').style.display = 'block'; 
         }
     }
