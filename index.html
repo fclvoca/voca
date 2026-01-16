@@ -115,7 +115,7 @@
     <div class="admin-section">
         <div class="admin-title">📂 단어장 관리 및 통계</div>
         <div class="stat-display">
-            <small>오늘의 학습량</small><br>
+            <small>현재 단어장 암기 현황</small><br>
             <b id="statValue" style="font-size:20px; color:var(--fcl-navy);">0 / 0</b>
         </div>
     </div>
@@ -138,14 +138,12 @@
 <script>
     const adminPw = "5857";
     
-    // 초기 데이터 설정 (새로운 API 주소 적용)
-    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v6')) || [
-        { id: 1001, name: "고등학교 필수 영단어", url: "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec" },
-        { id: 1002, name: "새 단어장", url: "https://script.google.com/macros/s/AKfycbyhNq4imaOh5XNTDp0jugUFWwt62tGGPWqlB3cehLY1ylNDDOPdHPvUh9DW-4MEOt1O/exec" }
+    let vocaBooks = JSON.parse(localStorage.getItem('fcl_books_v7')) || [
+        { id: 1001, name: "고등학교 필수 영단어", url: "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec" }
     ];
     
     let currentBookId = vocaBooks[0].id;
-    let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words')) || {};
+    let checkedWords = JSON.parse(localStorage.getItem('fcl_checked_words_v7')) || {};
     
     let allWords = []; 
     let nowPage = 1; const perPage = 50; const groupSize = 10;
@@ -176,6 +174,7 @@
         });
         const currentBook = vocaBooks.find(b => b.id === currentBookId);
         document.getElementById('currentBookTitle').innerText = currentBook ? currentBook.name : "선택된 단어장 없음";
+        if(currentBook) document.getElementById('editBookName').value = currentBook.name;
     }
 
     async function selectBook(id) { 
@@ -193,14 +192,16 @@
         try {
             const res = await fetch(targetBook.url + "?v=" + Date.now());
             const data = await res.json();
-            // ID 생성 방식을 북 ID와 인덱스 조합으로 변경하여 중복 방지
+            
+            // 시트별로 다른 필드명(english/word, korean/meaning)을 통합 처리
             allWords = data.map((v, i) => ({ 
                 id: `${currentBookId}_${i}`, 
-                eng: v.english, 
-                kor: v.korean, 
-                pro: v.pronunciation || "" 
+                eng: v.english || v.word || v.단어 || "", 
+                kor: v.korean || v.meaning || v.뜻 || "", 
+                pro: v.pronunciation || v.pron || v.pro || v.발음 || "" 
             }));
             drawUI(); 
+            updateStatDisplay();
         } catch (e) { 
             document.getElementById('wordDisplay').innerHTML = "<div style='text-align:center; padding:50px;'>데이터를 불러올 수 없습니다.<br>API 주소와 권한 설정을 확인해주세요.</div>"; 
         }
@@ -208,8 +209,9 @@
 
     function toggleCheck(id) {
         checkedWords[id] = !checkedWords[id];
-        localStorage.setItem('fcl_checked_words', JSON.stringify(checkedWords));
+        localStorage.setItem('fcl_checked_words_v7', JSON.stringify(checkedWords));
         drawUI();
+        updateStatDisplay();
     }
 
     function toggleFocusMode() {
@@ -223,10 +225,21 @@
 
     function drawUI() {
         const disp = document.getElementById('wordDisplay'); disp.innerHTML = "";
-        let targetWords = focusMode ? allWords.filter(w => checkedWords[w.id]) : allWords.slice((nowPage-1)*perPage, nowPage*perPage);
+        
+        // 현재 단어장의 단어들만 필터링 (아이디에 북아이디가 포함됨)
+        let currentBookWords = allWords;
+        
+        let targetWords = focusMode ? 
+            currentBookWords.filter(w => checkedWords[w.id]) : 
+            currentBookWords.slice((nowPage-1)*perPage, nowPage*perPage);
         
         if (isPageShuffled) targetWords = [...targetWords].sort(() => Math.random() - 0.5);
         
+        if (targetWords.length === 0 && focusMode) {
+            disp.innerHTML = "<div style='text-align:center; padding:50px; color:#64748B;'>체크된 단어가 없습니다.</div>";
+            return;
+        }
+
         targetWords.forEach(w => {
             const isChecked = checkedWords[w.id] ? 'active' : '';
             const div = document.createElement('div'); div.className = 'word-item';
@@ -265,16 +278,16 @@
     function closeAdmin() { document.getElementById('adminPanel').style.display='none'; }
     
     function updateStatDisplay() {
-        const currentBookWords = allWords.map(w => w.id);
-        const hits = Object.keys(checkedWords).filter(k => checkedWords[k] && currentBookWords.includes(k)).length;
-        document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 단어 암기 중`;
+        const currentIds = allWords.map(w => w.id);
+        const hits = currentIds.filter(id => checkedWords[id]).length;
+        document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 단어 완료`;
     }
 
     function saveBookName() { 
         const n = document.getElementById('editBookName').value.trim(); 
         if(n) { 
             const book = vocaBooks.find(b => b.id === currentBookId);
-            if(book) { book.name = n; saveAll(); }
+            if(book) { book.name = n; saveAll(); alert("이름이 수정되었습니다."); }
         } 
     }
 
@@ -282,11 +295,13 @@
         const n = document.getElementById('newBookName').value.trim(); 
         const u = document.getElementById('newBookUrl').value.trim(); 
         if(n && u) { 
-            vocaBooks.push({id: Date.now(), name: n, url: u}); 
+            const newId = Date.now();
+            vocaBooks.push({id: newId, name: n, url: u}); 
             saveAll(); 
             document.getElementById('newBookName').value = "";
             document.getElementById('newBookUrl').value = "";
             alert("새 단어장이 추가되었습니다.");
+            selectBook(newId);
         } else {
             alert("이름과 API 주소를 모두 입력해주세요.");
         }
@@ -298,11 +313,13 @@
             currentBookId = vocaBooks[0].id; 
             saveAll(); 
             selectBook(currentBookId); 
-        } 
+        } else if(vocaBooks.length <= 1) {
+            alert("최소 하나의 단어장은 유지해야 합니다.");
+        }
     }
 
     function saveAll() { 
-        localStorage.setItem('fcl_books_v6', JSON.stringify(vocaBooks)); 
+        localStorage.setItem('fcl_books_v7', JSON.stringify(vocaBooks)); 
         drawDropdowns(); 
     }
 
