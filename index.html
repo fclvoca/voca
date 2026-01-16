@@ -10,7 +10,7 @@
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--fcl-bg); margin: 0; padding: 0; color: var(--text-dark); }
         .sticky-header { position: sticky; top: 0; z-index: 1000; background-color: var(--fcl-navy); padding: 12px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-        .voca-select-box { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-weight: 700; font-size: 16px; }
+        .voca-select-box { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-weight: 700; font-size: 16px; outline: none; }
         .btn-admin-gear { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
         .btn-row { display: flex; gap: 8px; }
         .btn-main { flex: 1; height: 40px; border: none; border-radius: 6px; font-weight: 800; color: white; cursor: pointer; }
@@ -20,8 +20,8 @@
         .word-item { background: white; margin: 10px; border-radius: 15px; display: flex; align-items: center; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #EDF2F7; }
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #CBD5E0; margin-right: 12px; flex-shrink: 0; }
         .check-circle.active { background: var(--fcl-red); border-color: var(--fcl-red); }
-        .eng-text { font-weight: 900; font-size: 19px; flex: 1; cursor: pointer; }
-        .kor-text { font-weight: 700; background: #F8FAFC; padding: 10px; border-radius: 8px; min-width: 90px; text-align: center; border: 1px solid #E2E8F0; cursor: pointer; }
+        .eng-text { font-weight: 900; font-size: 19px; flex: 1; }
+        .kor-text { font-weight: 700; background: #F8FAFC; padding: 10px; border-radius: 8px; min-width: 90px; text-align: center; border: 1px solid #E2E8F0; }
         .kor-text.hidden { color: transparent; background: #EDF2F7; border-color: transparent; }
         #adminPanel { display: none; position: fixed; top: 5%; left: 5%; right: 5%; bottom: 5%; background: white; padding: 20px; border-radius: 20px; z-index: 2000; border: 3px solid var(--fcl-navy); box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow-y: auto; }
         .admin-section { border-bottom: 1px solid #eee; padding: 15px 0; }
@@ -51,7 +51,7 @@
         <div id="statValue" style="font-size:18px; color:var(--fcl-navy); font-weight:900;">0 / 0 완료</div>
     </div>
     <div class="admin-section">
-        <div style="font-weight:bold; margin-bottom:10px;">✨ 단어장 이름 수정 / 삭제</div>
+        <div style="font-weight:bold; margin-bottom:10px;">✏️ 단어장 이름 수정 / 삭제</div>
         <input type="text" id="editBookName" class="admin-input" placeholder="현재 단어장 새 이름">
         <div style="display:flex; gap:10px;">
             <button onclick="saveName()" style="flex:1; padding:12px; background:var(--fcl-orange); color:white; border:none; border-radius:8px; font-weight:bold;">이름 저장</button>
@@ -59,7 +59,7 @@
         </div>
     </div>
     <div class="admin-section">
-        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 추가</div>
+        <div style="font-weight:bold; margin-bottom:10px;">➕ 새 단어장 추가 연동</div>
         <input type="text" id="newBookName" class="admin-input" placeholder="단어장 이름 (예: 우선순위)">
         <input type="text" id="newBookUrl" class="admin-input" placeholder="Google API 웹앱 URL">
         <button onclick="addBook()" style="width:100%; padding:12px; background:var(--fcl-navy); color:white; border:none; border-radius:8px; font-weight:bold;">새 단어장 등록</button>
@@ -69,22 +69,25 @@
 
 <script>
     const adminPw = "5857";
-    let vocaBooks = JSON.parse(localStorage.getItem('fcl_voca_v14')) || [
+    // 기본 단어장 목록 복구
+    let vocaBooks = JSON.parse(localStorage.getItem('fcl_voca_final')) || [
         { id: 1, name: "고등학교 필수 영단어", url: "https://script.google.com/macros/s/AKfycbxKOMLlSkyVPgEjmpRO0njboqqUjrhO8IRrGZMWrQ9ToTRBRfaHfz2I8mukDt7LrdwO/exec" }
     ];
     let currentId = vocaBooks[0].id;
-    let checked = JSON.parse(localStorage.getItem('fcl_check_v14')) || {};
+    let checked = JSON.parse(localStorage.getItem('fcl_check_final')) || {};
     let allWords = []; let page = 1; let isHidden = false; let isFocus = false;
     let synth = window.speechSynthesis; let audioUnlocked = false;
 
     async function load() {
-        const book = vocaBooks.find(b => b.id === currentId);
+        const book = vocaBooks.find(b => b.id === currentId) || vocaBooks[0];
+        currentId = book.id;
         document.getElementById('vocaMenu').innerHTML = vocaBooks.map(b => `<option value="${b.id}" ${b.id===currentId?'selected':''}>${b.name}</option>`).join('');
         document.getElementById('editBookName').value = book.name;
         document.getElementById('wordDisplay').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 로딩 중...</p>";
         try {
             const res = await fetch(book.url + "?v=" + Date.now());
             const data = await res.json();
+            // 모든 형태의 JSON 필드 대응
             allWords = data.map((v, i) => ({
                 wid: `${currentId}_${i}`,
                 eng: v.english || v.word || v.단어 || "",
@@ -92,7 +95,7 @@
                 pro: v.pronunciation || v.pron || v.발음 || ""
             })).filter(w => w.eng !== "");
             render();
-        } catch (e) { document.getElementById('wordDisplay').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 연결 실패</p>"; }
+        } catch (e) { document.getElementById('wordDisplay').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 연결 실패 (API 주소를 확인하세요)</p>"; }
     }
 
     function render() {
@@ -116,11 +119,14 @@
         nav.innerHTML = Array.from({length: total}, (_, i) => i+1).map(p => `<button class="p-btn ${p===page?'active':''}" onclick="page=${p};render();window.scrollTo(0,0);">${p}</button>`).join('');
     }
 
-    function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_check_v14', JSON.stringify(checked)); render(); }
+    function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_check_final', JSON.stringify(checked)); render(); }
     function toggleHide() { isHidden = !isHidden; render(); }
     function toggleFocus() { isFocus = !isFocus; page=1; document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
-    function updateStat() { const hits = allWords.filter(w => checked[w.wid]).length; document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 완료`; }
-    function askAdmin() { if(prompt("비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
+    function updateStat() { 
+        const hits = allWords.filter(w => checked[w.wid]).length; 
+        document.getElementById('statValue').innerText = `${hits} / ${allWords.length} 완료`; 
+    }
+    function askAdmin() { if(prompt("관리자 비밀번호") === adminPw) document.getElementById('adminPanel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
     function changeBook(id) { currentId = Number(id); page=1; isFocus=false; load(); }
     
@@ -132,8 +138,8 @@
         const book = vocaBooks.find(b => b.id === currentId);
         if(book) { book.name = document.getElementById('editBookName').value; saveBooks(); }
     }
-    function deleteBook() { if(confirm("삭제할까요?")) { vocaBooks = vocaBooks.filter(b=>b.id!==currentId); if(vocaBooks.length===0) localStorage.removeItem('fcl_voca_v14'); saveBooks(); } }
-    function saveBooks() { localStorage.setItem('fcl_voca_v14', JSON.stringify(vocaBooks)); location.reload(); }
+    function deleteBook() { if(confirm("삭제할까요?")) { vocaBooks = vocaBooks.filter(b=>b.id!==currentId); if(vocaBooks.length===0) localStorage.removeItem('fcl_voca_final'); saveBooks(); } }
+    function saveBooks() { localStorage.setItem('fcl_voca_final', JSON.stringify(vocaBooks)); location.reload(); }
     function unlockAudio() { if(!audioUnlocked) { synth.speak(new SpeechSynthesisUtterance("")); audioUnlocked = true; } }
     function play(t) { synth.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang='en-US'; synth.speak(m); }
 
