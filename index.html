@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FCL Smart Voca</title>
     
-    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/180/book.png">
-    <link rel="icon" href="https://img.icons8.com/fluency/48/book.png">
+    <link rel="apple-touch-icon" href="https://files.oaiusercontent.com/file-K1XmQeUj9wYdYxXv">
+    <link rel="icon" href="https://files.oaiusercontent.com/file-K1XmQeUj9wYdYxXv">
+    
     <meta name="apple-mobile-web-app-title" content="FCL 단어장">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,13 +19,14 @@
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
             background: var(--fcl-bg); 
-            margin: 0; 
-            padding: 0; 
+            margin: 0; padding: 0; 
             overscroll-behavior-y: contain; 
         }
 
         .header { position: sticky; top: 0; z-index: 1000; background: var(--fcl-navy); padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .top-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        
+        /* 1/2 비율 레이아웃 */
         .voca-select-container { flex: 1; display: flex; align-items: center; }
         .voca-select { width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 15px; border: none; height: 45px; }
         
@@ -35,9 +37,9 @@
         
         .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-main { 
-            flex: 1; min-width: 80px; height: 45px; padding: 0 5px; border: none; border-radius: 8px; 
+            flex: 1; min-width: 80px; height: 45px; border: none; border-radius: 8px; 
             color: white; font-weight: bold; cursor: pointer; font-size: 16px; 
-            display: flex; align-items: center; justify-content: center; white-space: nowrap; 
+            display: flex; align-items: center; justify-content: center; 
         }
 
         .word-item { background: white; margin: 10px; padding: 18px; border-radius: 12px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -51,14 +53,13 @@
         .p-btn { 
             padding: 5px 8px; border: 1px solid #ddd; background: white; border-radius: 5px; 
             font-weight: bold; flex-shrink: 0; font-size: 16px; min-width: 32px; height: 32px; 
-            text-align: center; display: flex; align-items: center; justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .p-btn.active { background: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
 
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .delete-target { color: var(--fcl-red); font-weight: bold; margin-bottom: 10px; font-size: 15px; }
         .visitor-count { font-size: 28px; font-weight: 900; color: var(--fcl-navy); margin: 10px 0; }
     </style>
 </head>
@@ -104,8 +105,8 @@
     </div>
     <div class="admin-box">
         <div style="font-weight:bold; margin-bottom:5px;">🗑️ 단어장 삭제</div>
-        <div id="deleteTargetName" class="delete-target">선택된 단어장 없음</div>
-        <button onclick="deleteBookFromServer()" style="width:100%; padding:15px; background:var(--fcl-red); color:white; border:none; border-radius:8px; font-weight:bold;">목록에서 영구 삭제</button>
+        <div id="deleteTargetName" style="color:red; font-weight:bold; margin-bottom:10px;">선택된 단어장 없음</div>
+        <button onclick="deleteBookFromServer()" style="width:100%; padding:15px; background:var(--fcl-red); color:white; border:none; border-radius:8px; font-weight:bold;">영구 삭제</button>
     </div>
     <button onclick="closeAdmin()" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:8px; font-weight:bold;">닫기</button>
 </div>
@@ -117,24 +118,19 @@
     let vocaBooks = [];
     let currentBook = null;
     let checked = JSON.parse(localStorage.getItem('fcl_chk_v15')) || {};
-    let words = []; 
-    let shuffledWords = null;
+    let words = []; let shuffledWords = null;
     let page = 1; let isHidden = false; let isFocus = false;
     let synth = window.speechSynthesis; let unlocked = false;
 
     async function initApp() {
         trackVisitor(); 
-        const cachedBooks = localStorage.getItem('fcl_voca_list');
-        if (cachedBooks) { vocaBooks = JSON.parse(cachedBooks); setupInitialBook(); }
+        const cached = localStorage.getItem('fcl_voca_list');
+        if (cached) { vocaBooks = JSON.parse(cached); setupInitialBook(); }
         try {
             const res = await fetch(MASTER_URL + "?v=" + Date.now());
-            const latestBooks = await res.json();
-            if (JSON.stringify(vocaBooks) !== JSON.stringify(latestBooks)) {
-                vocaBooks = latestBooks;
-                localStorage.setItem('fcl_voca_list', JSON.stringify(vocaBooks));
-                setupInitialBook();
-                renderMenu();
-            }
+            vocaBooks = await res.json();
+            localStorage.setItem('fcl_voca_list', JSON.stringify(vocaBooks));
+            setupInitialBook(); renderMenu();
         } catch(e) {}
     }
 
@@ -142,27 +138,22 @@
         if (!vocaBooks.length) return;
         const lastId = localStorage.getItem('fcl_last_id');
         currentBook = vocaBooks.find(b => b.name === lastId) || vocaBooks[0];
-        updateAdminDeleteText();
-        renderMenu();
-        loadWords();
+        updateAdminDeleteText(); renderMenu(); loadWords();
     }
 
     async function trackVisitor() {
-        const now = new Date();
-        const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-        fetch(MASTER_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify({ action: "visit", date: today }) }).catch(e => {});
+        const today = new Date().toISOString().split('T')[0];
+        fetch(MASTER_URL, { method: "POST", mode: 'no-cors', body: JSON.stringify({ action: "visit", date: today }) });
     }
 
     async function getVisitorStats() {
-        const now = new Date();
-        const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        const today = new Date().toISOString().split('T')[0];
         const vBox = document.getElementById('visitorBox');
-        vBox.innerText = "조회 중...";
         try {
             const res = await fetch(`${MASTER_URL}?action=getVisit&date=${today}`);
             const count = await res.text();
-            vBox.innerText = (isNaN(count)) ? "0 명" : count + " 명";
-        } catch(e) { vBox.innerText = "데이터 확인 불가"; }
+            vBox.innerText = isNaN(count) ? "0 명" : count + " 명";
+        } catch(e) { vBox.innerText = "조회 불가"; }
     }
 
     function updateAdminDeleteText() {
@@ -175,18 +166,14 @@
     function renderMenu() {
         const menu = document.getElementById('vocaMenu');
         if (!menu) return;
-        menu.innerHTML = vocaBooks.map(b => 
-            `<option value="${b.name}" ${currentBook && b.name===currentBook.name?'selected':''}>${b.name}</option>`
-        ).join('');
+        menu.innerHTML = vocaBooks.map(b => `<option value="${b.name}" ${currentBook && b.name===currentBook.name?'selected':''}>${b.name}</option>`).join('');
     }
 
-    async function loadWords(forceRefresh = false) {
+    async function loadWords(force = false) {
         if(!currentBook) return;
         const cacheKey = `voca_data_${currentBook.name}`;
-        const cachedData = localStorage.getItem(cacheKey);
-        if (cachedData && !forceRefresh) {
-            words = JSON.parse(cachedData); shuffledWords = null; updateShuffleBtn(); render(); return;
-        }
+        const cached = localStorage.getItem(cacheKey);
+        if (cached && !force) { words = JSON.parse(cached); render(); return; }
         document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>로드 중...</p>";
         try {
             const res = await fetch(currentBook.url + "?v=" + Date.now());
@@ -198,9 +185,8 @@
                             kor: v.korean || v.meaning || v.뜻 || "",
                             pro: v.pronunciation || v.pron || ""
                         }));
-            localStorage.setItem(cacheKey, JSON.stringify(words));
-            shuffledWords = null; updateShuffleBtn(); render();
-        } catch(e) { document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>실패</p>"; }
+            localStorage.setItem(cacheKey, JSON.stringify(words)); render();
+        } catch(e) { document.getElementById('display').innerHTML = "로드 실패"; }
     }
 
     function toggleShuffle() {
@@ -209,17 +195,13 @@
             let target = isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50);
             shuffledWords = [...target].sort(() => Math.random() - 0.5);
         }
-        updateShuffleBtn(); render(!!shuffledWords);
+        document.getElementById('shuffleBtn').innerText = shuffledWords ? "원래 순서" : "순서 섞기";
+        render(!!shuffledWords);
     }
 
-    function updateShuffleBtn() {
-        const btn = document.getElementById('shuffleBtn');
-        if (btn) btn.innerText = shuffledWords ? "원래 순서" : "순서 섞기";
-    }
-
-    function render(isShuffleMode = false) {
+    function render(isShuffle = false) {
         const disp = document.getElementById('display');
-        let target = (isShuffleMode && shuffledWords) ? shuffledWords : (isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50));
+        let target = (isShuffle && shuffledWords) ? shuffledWords : (isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50));
         disp.innerHTML = target.map(w => `
             <div class="word-item">
                 <div class="check ${checked[w.uid]?'active':''}" onclick="toggleCheck('${w.uid}')"></div>
@@ -234,39 +216,41 @@
         const nav = document.getElementById('pageNav');
         if(isFocus || words.length <= 50) { nav.style.display = 'none'; return; }
         nav.style.display = 'flex';
-        const total = Math.ceil(words.length / 50);
-        nav.innerHTML = Array.from({length: total}, (_, i) => i+1).map(p => 
+        nav.innerHTML = Array.from({length: Math.ceil(words.length / 50)}, (_, i) => i+1).map(p => 
             `<button class="p-btn ${p==page?'active':''}" onclick="changePage(${p})">${p}</button>`
         ).join('');
     }
 
-    function changePage(p) { page = p; shuffledWords = null; updateShuffleBtn(); render(); window.scrollTo(0,0); }
+    function changePage(p) { page = p; shuffledWords = null; render(); window.scrollTo(0,0); }
     function toggleCheck(id) { checked[id] = !checked[id]; localStorage.setItem('fcl_chk_v15', JSON.stringify(checked)); render(!!shuffledWords); }
     function toggleHide() { isHidden = !isHidden; render(!!shuffledWords); }
-    function toggleFocus() { isFocus = !isFocus; page=1; shuffledWords=null; updateShuffleBtn(); document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
+    function toggleFocus() { isFocus = !isFocus; page=1; shuffledWords=null; document.getElementById('focusBtn').innerText = isFocus?"전체 보기":"집중 암기"; render(); }
     function askAdmin() { if(prompt("비밀번호") === adminPw) { updateAdminDeleteText(); getVisitorStats(); document.getElementById('adminPanel').style.display = 'block'; } }
     function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-    function changeBook(val) { currentBook = vocaBooks.find(b => b.name === val); localStorage.setItem('fcl_last_id', val); page=1; isFocus=false; shuffledWords=null; updateAdminDeleteText(); updateShuffleBtn(); loadWords(); }
+    function changeBook(val) { currentBook = vocaBooks.find(b => b.name === val); localStorage.setItem('fcl_last_id', val); page=1; loadWords(); }
     function updateRateLabel(val) { document.getElementById('rateVal').innerText = parseFloat(val).toFixed(1); }
-    async function refreshCurrentBook() { if(confirm("새로고침?")) { await loadWords(true); alert("완료"); closeAdmin(); } }
+    async function refreshCurrentBook() { if(confirm("새로고침?")) { await loadWords(true); closeAdmin(); } }
     
     async function addBookToServer() {
         const n = document.getElementById('newName').value;
         let u = document.getElementById('newUrl').value;
         if(!n) return alert("이름 입력");
         if(!u && currentBook) u = currentBook.url;
-        const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", oldName: currentBook?currentBook.name:"", name: n, url: u.trim() }) });
-        if(await res.text() === "Success") { localStorage.removeItem('fcl_voca_list'); localStorage.setItem('fcl_last_id', n); location.reload(); }
+        await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", oldName: currentBook?currentBook.name:"", name: n, url: u.trim() }) });
+        localStorage.removeItem('fcl_voca_list'); localStorage.setItem('fcl_last_id', n); location.reload();
     }
     
     async function deleteBookFromServer() {
-        if(!confirm(`삭제?`)) return;
-        const res = await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name }) });
-        if(await res.text() === "Success") { localStorage.removeItem('fcl_voca_list'); location.reload(); }
+        if(!confirm(`삭제하시겠습니까?`)) return;
+        await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name }) });
+        localStorage.removeItem('fcl_voca_list'); location.reload();
     }
 
     function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
-    function play(t) { synth.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'en-US'; m.rate = parseFloat(document.getElementById('speechRate').value); synth.speak(m); }
+    function play(t) { 
+        synth.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'en-US'; 
+        m.rate = parseFloat(document.getElementById('speechRate').value); synth.speak(m); 
+    }
 
     initApp();
 </script>
