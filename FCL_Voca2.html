@@ -56,7 +56,6 @@
         }
         .p-btn.active { background: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
 
-        /* [수정] 암기법 팝업 모달 스타일 */
         #mnemonicModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: modalOpen 0.25s ease-out; }
         @keyframes modalOpen { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -140,8 +139,6 @@
     let isFocus = false;
     let synth = window.speechSynthesis; 
     let unlocked = false;
-
-    // 롱 프레스용 변수
     let pressTimer;
 
     async function initApp() {
@@ -157,9 +154,7 @@
             localStorage.setItem('fcl_voca_list', JSON.stringify(vocaBooks));
             setupInitialBook(); 
             renderMenu();
-        } catch(e) {
-            console.error("데이터 초기화 실패", e);
-        }
+        } catch(e) { console.error("데이터 초기화 실패", e); }
     }
 
     function setupInitialBook() {
@@ -199,25 +194,32 @@
         menu.innerHTML = vocaBooks.map(b => `<option value="${b.name}" ${currentBook && b.name===currentBook.name?'selected':''}>${b.name}</option>`).join('');
     }
 
+    /* [수정] 강제 동기화 로직 강화 */
     async function loadWords(force = false) {
         if(!currentBook) return;
         const cacheKey = `voca_data_${currentBook.name}`;
         
+        // 캐시 확인 및 암기법 필드 유무 검사
         if (!force) {
             const cached = localStorage.getItem(cacheKey);
             if (cached) { 
-                words = JSON.parse(cached); 
-                render(); 
-                return; 
+                const temp = JSON.parse(cached);
+                // 기존 데이터에 암기법(mnemonic) 정보가 없으면 강제로 삭제하고 새로 받음
+                if (temp.length > 0 && temp[0].mnemonic === undefined) {
+                    localStorage.removeItem(cacheKey);
+                } else {
+                    words = temp; render(); return; 
+                }
             }
         }
 
-        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>서버에서 단어 데이터를 불러오는 중...</p>";
+        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>신규 데이터를 동기화 중입니다...</p>";
         
         try {
-            const res = await fetch(currentBook.url + "?v=" + Date.now());
+            // URL 뒤에 시간을 붙여서 브라우저의 강제 캐시를 무력화
+            const res = await fetch(currentBook.url + "?t=" + Date.now());
             const data = await res.json();
-            // [수정] 데이터 매핑 강화
+            
             words = data.filter(v => (v.english || v.word || v.단어) && (v.english !== 'english'))
                         .map((v, i) => ({
                             uid: `${currentBook.name}_${i}`,
@@ -229,7 +231,7 @@
             localStorage.setItem(cacheKey, JSON.stringify(words)); 
             render();
         } catch(e) { 
-            document.getElementById('display').innerHTML = "데이터 로드 실패. API 주소를 확인하세요."; 
+            document.getElementById('display').innerHTML = "데이터 로드 실패. 관리자 메뉴에서 다시 받기를 시도하세요."; 
         }
     }
 
@@ -243,15 +245,11 @@
         render(!!shuffledWords);
     }
 
-    // [추가] 롱 프레스 감지
     function handleLongPressStart(txt) {
-        pressTimer = window.setTimeout(function() {
-            showMnemonic(txt);
-        }, 700); 
+        pressTimer = window.setTimeout(function() { showMnemonic(txt); }, 700); 
     }
-    function handleLongPressEnd() {
-        clearTimeout(pressTimer);
-    }
+    function handleLongPressEnd() { clearTimeout(pressTimer); }
+    
     function showMnemonic(txt) {
         if(!txt || txt.trim() === "" || txt === "undefined") {
             txt = "등록된 암기 비법이 없습니다.\n선생님께 문의하세요! 🍎";
@@ -260,9 +258,7 @@
         document.getElementById('mnemonicModal').style.display = 'flex';
         if(navigator.vibrate) navigator.vibrate(50);
     }
-    function closeMnemonic() {
-        document.getElementById('mnemonicModal').style.display = 'none';
-    }
+    function closeMnemonic() { document.getElementById('mnemonicModal').style.display = 'none'; }
 
     function render(isShuffle = false) {
         const disp = document.getElementById('display');
@@ -274,11 +270,10 @@
         }
 
         disp.innerHTML = target.map(w => {
-            // 특수문자 처리를 위한 변수화
             const safeMnemonic = w.mnemonic.replace(/`/g, "\\`").replace(/\$/g, "\\$");
-            
             return `
             <div class="word-item" 
+                 style="-webkit-touch-callout:none; -webkit-user-select:none;"
                  ontouchstart="handleLongPressStart(\`${safeMnemonic}\`)" 
                  ontouchend="handleLongPressEnd()" 
                  onmousedown="handleLongPressStart(\`${safeMnemonic}\`)" 
@@ -307,9 +302,7 @@
     
     function askAdmin() { 
         if(prompt("관리자 비밀번호를 입력하세요") === adminPw) { 
-            updateAdminDeleteText(); 
-            getVisitorStats(); 
-            document.getElementById('adminPanel').style.display = 'block'; 
+            updateAdminDeleteText(); getVisitorStats(); document.getElementById('adminPanel').style.display = 'block'; 
         } 
     }
     
@@ -323,40 +316,16 @@
         let u = document.getElementById('newUrl').value;
         if(!n) return alert("단어장 이름을 입력하세요.");
         if(!u && currentBook) u = currentBook.url;
-        
-        await fetch(MASTER_URL, { 
-            method: "POST", 
-            body: JSON.stringify({ 
-                pw: adminPw, 
-                action: "add", 
-                oldName: currentBook ? currentBook.name : "", 
-                name: n, 
-                url: u.trim() 
-            }) 
-        });
-        
-        localStorage.removeItem('fcl_voca_list'); 
-        localStorage.setItem('fcl_last_id', n); 
-        alert("정보가 수정/저장되었습니다.");
-        location.reload();
+        await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "add", oldName: currentBook ? currentBook.name : "", name: n, url: u.trim() }) });
+        localStorage.removeItem('fcl_voca_list'); localStorage.setItem('fcl_last_id', n); 
+        alert("정보가 수정/저장되었습니다."); location.reload();
     }
     
     async function deleteBookFromServer() {
         if(!currentBook) return;
         if(!confirm(`[${currentBook.name}] 단어장을 정말 영구 삭제하시겠습니까?`)) return;
-        
-        await fetch(MASTER_URL, { 
-            method: "POST", 
-            body: JSON.stringify({ 
-                pw: adminPw, 
-                action: "delete", 
-                name: currentBook.name 
-            }) 
-        });
-        
-        localStorage.removeItem('fcl_voca_list'); 
-        alert("삭제되었습니다.");
-        location.reload();
+        await fetch(MASTER_URL, { method: "POST", body: JSON.stringify({ pw: adminPw, action: "delete", name: currentBook.name }) });
+        localStorage.removeItem('fcl_voca_list'); alert("삭제되었습니다."); location.reload();
     }
 
     function unlockAudio() { if(!unlocked) { synth.speak(new SpeechSynthesisUtterance("")); unlocked = true; } }
@@ -367,7 +336,6 @@
         m.rate = parseFloat(document.getElementById('speechRate').value); 
         synth.speak(m); 
     }
-
     initApp();
 </script>
 </body>
