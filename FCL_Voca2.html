@@ -56,12 +56,12 @@
         }
         .p-btn.active { background: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
 
-        /* [추가] 암기법 팝업 모달 스타일 */
-        #mnemonicModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 3000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: modalOpen 0.3s ease; }
-        @keyframes modalOpen { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-title { color: var(--fcl-navy); font-weight: 900; font-size: 22px; margin-bottom: 15px; }
-        .modal-body { font-size: 18px; line-height: 1.6; color: #333; word-break: keep-all; white-space: pre-wrap; margin-bottom: 20px; }
+        /* [수정] 암기법 팝업 모달 스타일 */
+        #mnemonicModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: modalOpen 0.25s ease-out; }
+        @keyframes modalOpen { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-title { color: var(--fcl-navy); font-weight: 900; font-size: 22px; margin-bottom: 15px; border-bottom: 2px solid var(--fcl-bg); padding-bottom: 10px; }
+        .modal-body { font-size: 18px; line-height: 1.6; color: #333; word-break: keep-all; white-space: pre-wrap; margin: 20px 0; font-weight: 500; }
         .modal-close { width: 100%; padding: 15px; background: var(--fcl-navy); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
 
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
@@ -141,7 +141,7 @@
     let synth = window.speechSynthesis; 
     let unlocked = false;
 
-    // [추가] 롱 프레스 감지 변수
+    // 롱 프레스용 변수
     let pressTimer;
 
     async function initApp() {
@@ -217,14 +217,14 @@
         try {
             const res = await fetch(currentBook.url + "?v=" + Date.now());
             const data = await res.json();
-            // [수정] mnemonic 필드 명시적 추가
+            // [수정] 데이터 매핑 강화
             words = data.filter(v => (v.english || v.word || v.단어) && (v.english !== 'english'))
                         .map((v, i) => ({
                             uid: `${currentBook.name}_${i}`,
-                            eng: v.english || v.word || v.단어 || "",
-                            kor: v.korean || v.meaning || v.뜻 || "",
-                            pro: v.pronunciation || v.pron || "",
-                            mnemonic: v.mnemonic || v.암기법 || "" // 서버에서 오는 필드 대응
+                            eng: (v.english || v.word || v.단어 || "").trim(),
+                            kor: (v.korean || v.meaning || v.뜻 || "").trim(),
+                            pro: (v.pronunciation || v.pron || "").trim(),
+                            mnemonic: (v.mnemonic || v.암기법 || "").trim() 
                         }));
             localStorage.setItem(cacheKey, JSON.stringify(words)); 
             render();
@@ -243,17 +243,17 @@
         render(!!shuffledWords);
     }
 
-    // [추가] 롱 프레스 감지 로직
+    // [추가] 롱 프레스 감지
     function handleLongPressStart(txt) {
         pressTimer = window.setTimeout(function() {
             showMnemonic(txt);
-        }, 700); // 0.7초 누를 시 발동
+        }, 700); 
     }
     function handleLongPressEnd() {
         clearTimeout(pressTimer);
     }
     function showMnemonic(txt) {
-        if(!txt || txt.trim() === "") {
+        if(!txt || txt.trim() === "" || txt === "undefined") {
             txt = "등록된 암기 비법이 없습니다.\n선생님께 문의하세요! 🍎";
         }
         document.getElementById('mnemonicText').innerText = txt;
@@ -273,17 +273,21 @@
             return;
         }
 
-        disp.innerHTML = target.map(w => `
+        disp.innerHTML = target.map(w => {
+            // 특수문자 처리를 위한 변수화
+            const safeMnemonic = w.mnemonic.replace(/`/g, "\\`").replace(/\$/g, "\\$");
+            
+            return `
             <div class="word-item" 
-                 ontouchstart="handleLongPressStart(\`${w.mnemonic.replace(/`/g, "\\`")}\`)" 
+                 ontouchstart="handleLongPressStart(\`${safeMnemonic}\`)" 
                  ontouchend="handleLongPressEnd()" 
-                 onmousedown="handleLongPressStart(\`${w.mnemonic.replace(/`/g, "\\`")}\`)" 
+                 onmousedown="handleLongPressStart(\`${safeMnemonic}\`)" 
                  onmouseup="handleLongPressEnd()">
                 <div class="check ${checked[w.uid]?'active':''}" onclick="toggleCheck('${w.uid}')"></div>
                 <div class="eng" onclick="play('${w.eng.replace(/'/g,"")}')">${w.eng}<br><small style="color:#888;">${w.pro}</small></div>
                 <div class="kor ${isHidden?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
             </div>
-        `).join('');
+        `}).join('');
         renderPages();
     }
 
@@ -320,7 +324,7 @@
         if(!n) return alert("단어장 이름을 입력하세요.");
         if(!u && currentBook) u = currentBook.url;
         
-        const response = await fetch(MASTER_URL, { 
+        await fetch(MASTER_URL, { 
             method: "POST", 
             body: JSON.stringify({ 
                 pw: adminPw, 
