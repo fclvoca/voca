@@ -194,29 +194,27 @@
         menu.innerHTML = vocaBooks.map(b => `<option value="${b.name}" ${currentBook && b.name===currentBook.name?'selected':''}>${b.name}</option>`).join('');
     }
 
-    /* [수정] 강제 동기화 로직 강화 */
+    /* [최적화] 속도 개선 로직 */
     async function loadWords(force = false) {
         if(!currentBook) return;
         const cacheKey = `voca_data_${currentBook.name}`;
         
-        // 캐시 확인 및 암기법 필드 유무 검사
-        if (!force) {
-            const cached = localStorage.getItem(cacheKey);
-            if (cached) { 
-                const temp = JSON.parse(cached);
-                // 기존 데이터에 암기법(mnemonic) 정보가 없으면 강제로 삭제하고 새로 받음
-                if (temp.length > 0 && temp[0].mnemonic === undefined) {
-                    localStorage.removeItem(cacheKey);
-                } else {
-                    words = temp; render(); return; 
-                }
+        // 1. 강제 새로고침이 아닌 경우, 먼저 저장된 데이터가 있는지 확인
+        const cached = localStorage.getItem(cacheKey);
+        if (!force && cached) {
+            const temp = JSON.parse(cached);
+            // 저장된 데이터에 이미 암기법(mnemonic) 필드가 잘 포함되어 있다면 즉시 로딩 (빠름!)
+            if (temp.length > 0 && temp[0].mnemonic !== undefined) {
+                words = temp; 
+                render(); 
+                return; 
             }
         }
 
-        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>신규 데이터를 동기화 중입니다...</p>";
+        // 2. 저장된 데이터가 없거나 암기법 필드가 없는 구버전인 경우에만 서버에서 받아옴
+        document.getElementById('display').innerHTML = "<p style='text-align:center; padding:50px;'>데이터 동기화 중...</p>";
         
         try {
-            // URL 뒤에 시간을 붙여서 브라우저의 강제 캐시를 무력화
             const res = await fetch(currentBook.url + "?t=" + Date.now());
             const data = await res.json();
             
