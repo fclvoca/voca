@@ -41,7 +41,7 @@
             display: flex; align-items: center; justify-content: center; 
         }
 
-        .word-item { background: white; margin: 10px; padding: 18px; border-radius: 12px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .word-item { background: white; margin: 10px; padding: 18px; border-radius: 12px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); -webkit-user-select: none; user-select: none; }
         .check { width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
         .check.active { background: var(--fcl-red); border-color: var(--fcl-red); }
         .eng { font-weight: 900; font-size: 20px; flex: 1; cursor: pointer; line-height: 1.2; }
@@ -55,6 +55,13 @@
             display: flex; align-items: center; justify-content: center;
         }
         .p-btn.active { background: var(--fcl-navy); color: white; border-color: var(--fcl-navy); }
+
+        /* 팝업 모달 스타일 추가 */
+        #mnemonicModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-title { color: var(--fcl-navy); font-weight: 900; font-size: 22px; margin-bottom: 15px; }
+        .modal-body { font-size: 18px; line-height: 1.6; color: #333; word-break: keep-all; }
+        .modal-close { margin-top: 20px; width: 100%; padding: 12px; background: var(--fcl-navy); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .admin-box { border: 1px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
@@ -86,6 +93,14 @@
 <div id="pageNav" class="page-nav"></div>
 <div id="display"></div>
 
+<div id="mnemonicModal" onclick="this.style.display='none'">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-title">💡 암기 비법</div>
+        <div id="mnemonicText" class="modal-body"></div>
+        <button class="modal-close" onclick="document.getElementById('mnemonicModal').style.display='none'">확인</button>
+    </div>
+</div>
+
 <div id="adminPanel">
     <h2 style="margin-top:0;">⚙️ 관리자 설정 (FCL_Voca2)</h2>
     <div class="admin-box">
@@ -111,9 +126,7 @@
 </div>
 
 <script>
-    // 요청하신 관리자 비밀번호
     const adminPw = "5857"; 
-    // 동일한 MASTER_URL을 사용하여 데이터 동기화
     const MASTER_URL = "https://script.google.com/macros/s/AKfycbwELdEsrM1oxvusuwbVxwWrd3cvJ-pSoyVJ_BnbQYOX4ixUt-orUnLJw8ra8MEjOddY/exec";
 
     let vocaBooks = [];
@@ -127,7 +140,9 @@
     let synth = window.speechSynthesis; 
     let unlocked = false;
 
-    // 프로그램 실행 시 원문 데이터 및 설정 로드
+    // 롱 프레스 감지를 위한 변수
+    let pressTimer;
+
     async function initApp() {
         trackVisitor(); 
         const cached = localStorage.getItem('fcl_voca_list');
@@ -199,13 +214,14 @@
         try {
             const res = await fetch(currentBook.url + "?v=" + Date.now());
             const data = await res.json();
-            // 고등학교 영어 선생님의 관점에서 단어, 뜻, 발음 추출
+            // 암기법(mnemonic) 데이터 추가 추출
             words = data.filter(v => (v.english || v.word || v.단어) && (v.english !== 'english'))
                         .map((v, i) => ({
                             uid: `${currentBook.name}_${i}`,
                             eng: v.english || v.word || v.단어 || "",
                             kor: v.korean || v.meaning || v.뜻 || "",
-                            pro: v.pronunciation || v.pron || ""
+                            pro: v.pronunciation || v.pron || "",
+                            mnemonic: v.mnemonic || v.암기법 || "" // 암기법 데이터 매핑
                         }));
             localStorage.setItem(cacheKey, JSON.stringify(words)); 
             render();
@@ -224,6 +240,26 @@
         render(!!shuffledWords);
     }
 
+    // 롱 프레스 감지 로직 함수
+    function handleLongPressStart(mnemonic) {
+        pressTimer = window.setTimeout(function() {
+            showMnemonic(mnemonic);
+        }, 800); // 0.8초 동안 누르면 실행
+    }
+
+    function handleLongPressEnd() {
+        clearTimeout(pressTimer);
+    }
+
+    function showMnemonic(txt) {
+        if(!txt || txt.trim() === "") {
+            txt = "등록된 암기 비법이 없습니다. 선생님께 문의하세요! 🍎";
+        }
+        document.getElementById('mnemonicText').innerText = txt;
+        document.getElementById('mnemonicModal').style.display = 'flex';
+        if (navigator.vibrate) navigator.vibrate(50); // 짧은 진동 피드백
+    }
+
     function render(isShuffle = false) {
         const disp = document.getElementById('display');
         let target = (isShuffle && shuffledWords) ? shuffledWords : (isFocus ? words.filter(w => checked[w.uid]) : words.slice((page-1)*50, page*50));
@@ -234,7 +270,11 @@
         }
 
         disp.innerHTML = target.map(w => `
-            <div class="word-item">
+            <div class="word-item" 
+                 ontouchstart="handleLongPressStart('${w.mnemonic.replace(/'/g,"\\'")}')" 
+                 ontouchend="handleLongPressEnd()" 
+                 onmousedown="handleLongPressStart('${w.mnemonic.replace(/'/g,"\\'")}')" 
+                 onmouseup="handleLongPressEnd()">
                 <div class="check ${checked[w.uid]?'active':''}" onclick="toggleCheck('${w.uid}')"></div>
                 <div class="eng" onclick="play('${w.eng.replace(/'/g,"")}')">${w.eng}<br><small style="color:#888;">${w.pro}</small></div>
                 <div class="kor ${isHidden?'hidden':''}" onclick="this.classList.toggle('hidden')">${w.kor}</div>
@@ -320,7 +360,6 @@
         synth.speak(m); 
     }
 
-    // 앱 초기화 실행
     initApp();
 </script>
 </body>
